@@ -1,0 +1,357 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>skein scheme</title>
+  <style>
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap");
+:root{
+  --bg:#e8e2d8;
+  --paper:#fffaf2;
+  --panel:#fffdf8;
+  --ink:#121212;
+  --muted:#6f665b;
+  --line:#bdb4a6;
+  --line-soft:#d9d0c3;
+  --charcoal:#101010;
+  --accent:#0b2e4f;
+  --font:"IBM Plex Mono","Cascadia Mono","SFMono-Regular",Consolas,monospace;
+}
+*{box-sizing:border-box}
+html{font-size:14px;-webkit-text-size-adjust:100%}
+body{margin:0;color:var(--ink);font-family:var(--font);background:
+  linear-gradient(rgba(18,18,18,.04) 1px,transparent 1px),
+  linear-gradient(90deg,rgba(18,18,18,.04) 1px,transparent 1px),
+  var(--bg);background-size:26px 26px,26px 26px,auto;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision;}
+button,input,textarea,summary{font-family:var(--font)}
+.page{width:100%;max-width:720px;margin:0 auto;padding:10px 10px 26px}
+.hero{display:flex;align-items:center;gap:9px;padding:4px 2px 10px;background:transparent;border:0;box-shadow:none;border-radius:0;position:relative;z-index:1}
+.brand{display:flex;align-items:center;gap:9px;min-width:0}.logo{width:38px;height:38px;flex:0 0 auto;transform:rotate(-3deg)}.logo img{width:100%;height:100%;object-fit:contain;display:block}.brand h1{margin:0;font-size:22px;line-height:.95;font-weight:700;letter-spacing:-.065em;text-transform:lowercase}.tagline{margin-top:1px;font-size:9px;line-height:1;font-weight:700;letter-spacing:.06em;color:#8e5c2b;text-transform:lowercase;font-style:normal}
+.app-grid{display:block}.card{background:rgba(255,253,248,.96);border:1px solid var(--line);border-radius:18px;box-shadow:0 10px 22px rgba(18,18,18,.09)}.chart-card{padding:9px;display:flex;flex-direction:column;gap:9px;overflow:hidden}.combo-strip{margin:0;padding:0;background:transparent;color:var(--ink);display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:8px;box-shadow:none;border-radius:0}.combo-left{display:flex;flex-direction:column;align-items:flex-start;gap:5px;min-width:0}#comboName{font-size:19px;font-weight:700;letter-spacing:-.055em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-transform:lowercase}.dots{display:flex;gap:5px;align-items:center}.dot{width:17px;height:17px;border-radius:50%;border:1px solid rgba(18,18,18,.28);box-shadow:0 1px 2px rgba(18,18,18,.08)}.icon-btn{height:30px;border:1px solid var(--line);background:#fffaf2;color:#111;border-radius:10px;font-size:17px;font-weight:700;line-height:1;display:grid;place-items:center;cursor:pointer}.name-new-btn{width:auto;min-width:72px;padding:0 9px;font-size:9px;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}.chart-top{display:none}.toggle{display:flex;align-items:center;gap:5px;font-size:11px;font-weight:700;letter-spacing:-.03em;color:#34302b}.toggle input{width:20px;height:20px;accent-color:#111;margin:0}.chart-scroll{padding:0;margin:0;background:#eee6da;border:1px solid var(--line);border-radius:14px;overflow:auto;-webkit-overflow-scrolling:touch;box-shadow:inset 0 0 0 1px rgba(255,255,255,.5)}#chart{display:grid;width:max-content;transform:scale(.74);transform-origin:top left;margin-bottom:-64px}.cell{width:12px;height:12px;border-left:1px solid transparent;border-top:1px solid transparent}.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0}.btn{border:1px solid var(--line);background:#fffaf2;color:#111;border-radius:13px;min-height:44px;padding:9px 8px;font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;cursor:pointer}.btn.primary{background:#101010;color:#fff;border-color:#101010}.btn:disabled{opacity:1;color:#b3aaa0;background:#f4eee6;border-color:#d7cec2;cursor:not-allowed}.save-action{background:#fffaf2;color:#111}.save-action.active-save{background:#111;color:#fff;border-color:#111}.below{margin-top:10px}details.section{margin-top:8px;border:1px solid var(--line);border-radius:16px;background:rgba(255,253,248,.96);box-shadow:0 6px 15px rgba(18,18,18,.06);overflow:hidden}details.section>summary{list-style:none;cursor:pointer;padding:14px 14px;font-size:13px;font-weight:700;letter-spacing:.02em;text-transform:uppercase;display:flex;align-items:center;justify-content:space-between;gap:10px}details.section>summary::-webkit-details-marker{display:none}details.section>summary:after{content:'⌄';font-size:20px;line-height:1;font-weight:700}details[open].section>summary:after{content:'⌃'}.section-body{padding:0 10px 12px}.roles-row{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}.role-card{position:relative;border:1px solid var(--line-soft);background:#fffaf2;border-radius:13px;padding:7px 4px;text-align:center;min-height:86px;cursor:pointer}.role-card.active{outline:2px solid #111;outline-offset:-2px}.role-card.locked{box-shadow:inset 0 0 0 2px #111}.role-dot{width:30px;height:30px;border-radius:50%;margin:0 auto 5px;border:1px solid rgba(18,18,18,.22)}.role-label{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.02em}.role-num{font-size:9px;font-weight:700;margin-top:4px;letter-spacing:-.03em}.role-name{font-size:7px;color:var(--muted);line-height:1.05;height:16px;overflow:hidden}.lock-wrap{display:flex;align-items:center;justify-content:center;margin-top:5px;font-size:0}.lock-check{width:17px;height:17px;accent-color:#111;margin:0;cursor:pointer}.palette-tools{display:flex;gap:7px;margin-bottom:8px}.search{flex:1;min-width:0;border:1px solid var(--line);border-radius:999px;background:#fffaf2;padding:9px 11px;font-size:12px;font-weight:500}.active-pill{border:1px solid #111;border-radius:999px;background:#111;color:#fff;padding:9px 10px;font-size:10px;font-weight:700;white-space:nowrap;text-transform:uppercase}.filters{display:flex;gap:5px;overflow:auto;margin-bottom:8px;padding-bottom:1px}.filter{border:1px solid var(--line);background:#f8f2e7;border-radius:999px;padding:7px 10px;font-size:10px;font-weight:700;white-space:nowrap;cursor:pointer;text-transform:uppercase}.filter.active{background:#111;color:#fff;border-color:#111}.palette{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;max-height:330px;overflow:auto;padding-right:2px}.color-btn{border:1px solid var(--line-soft);background:#fffaf2;border-radius:12px;padding:5px;min-height:72px;cursor:pointer;position:relative}.color-btn.selected{outline:2px solid #111;outline-offset:-2px}.color-swatch{height:32px;border-radius:9px;margin-bottom:4px;border:1px solid rgba(18,18,18,.16)}.color-num{font-size:10px;font-weight:700;letter-spacing:-.04em}.color-name{font-size:7px;color:#5f574f;line-height:1.05;height:16px;overflow:hidden}.metrics{display:grid;gap:7px}.metric{background:#f8f2e7;border:1px solid var(--line-soft);border-radius:12px;padding:8px}.metric-top{display:flex;justify-content:space-between;gap:10px;font-size:11px;font-weight:700}.bar{height:5px;background:#ded4c8;border-radius:99px;margin-top:6px;overflow:hidden}.fill{height:100%;background:#111;border-radius:99px}.hint{display:none}.saved-grid{display:grid;gap:7px}.saved-empty,.empty{font-size:11px;color:var(--muted);border:1px dashed var(--line);border-radius:10px;padding:9px}.saved-card{position:relative;border:1px solid var(--line-soft);background:#fffaf2;border-radius:12px;padding:8px;margin-bottom:7px}.saved-colors{display:flex;gap:4px;margin-bottom:5px}.delete{position:absolute;top:6px;right:6px;width:24px;height:24px;border:1px solid var(--line);background:#f8f2e7;border-radius:8px}.saved-btn{flex:1;display:flex;gap:4px;align-items:center;border:1px solid var(--line-soft);background:#fffaf2;border-radius:12px;padding:8px;text-align:left;cursor:pointer}.mini{width:16px;height:16px;border-radius:5px;border:1px solid rgba(18,18,18,.14);flex:0 0 auto}.saved-label{font-size:10px;font-weight:600;min-width:0}.saved-title,.saved-meta,.saved-by,.saved-note{display:block;overflow:hidden;text-overflow:ellipsis}.saved-title{font-weight:700;white-space:nowrap}.saved-meta,.saved-by,.saved-note{font-size:8px;color:var(--muted);margin-top:2px}.delete-combo{width:26px;height:26px;border:1px solid var(--line);background:#f8f2e7;border-radius:9px;font-size:14px;cursor:pointer}.drawer-backdrop{position:fixed;inset:0;background:rgba(18,18,18,.28);display:none;align-items:flex-end;z-index:50}.drawer-backdrop.open{display:flex}.save-panel{width:100%;max-width:720px;margin:0 auto;background:#fffdf8;border:1px solid var(--line);border-bottom:0;border-radius:24px 24px 0 0;padding:13px 13px 18px;box-shadow:0 -18px 34px rgba(18,18,18,.18)}.drawer-grab{width:46px;height:5px;border-radius:99px;background:#c4bbb0;margin:0 auto 12px}.drawer-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.drawer-title{font-size:15px;font-weight:700;letter-spacing:.03em;text-transform:uppercase}.drawer-sub{display:none}.drawer-close{border:0;background:transparent;font-size:24px;line-height:1;cursor:pointer}.save-body{display:grid;gap:8px;margin:12px 0}.field-label{display:block;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin-bottom:4px}.save-body input,.save-body textarea{width:100%;border:1px solid var(--line);background:#fffaf2;border-radius:12px;padding:10px 11px;font-size:13px;outline:none}.save-body textarea{min-height:70px;resize:vertical}.drawer-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.field-error{border-color:#111!important;box-shadow:0 0 0 3px rgba(17,17,17,.12)!important}@media (min-width:721px){.page{max-width:1100px;padding:18px}.app-grid{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:14px}.below{margin-top:0}.chart-card{position:sticky;top:16px}#chart{transform:scale(.82);margin-bottom:-50px}.hero{padding-bottom:14px}.brand h1{font-size:34px}.tagline{font-size:11px}.logo{width:54px;height:54px}}@media (max-width:360px){.brand h1{font-size:20px}.logo{width:34px;height:34px}#comboName{font-size:16px}.dot{width:16px;height:16px}.btn{font-size:11px;min-height:41px}details.section>summary{font-size:12px;padding:13px}.chart-card{padding:8px}#chart{transform:scale(.68);margin-bottom:-78px}}
+
+
+
+/* v16 real-branch refinement: preserve real logo/chart/controls; improve hierarchy only */
+@media (max-width:720px){
+  .page{max-width:430px;padding:9px 9px 28px;}
+  .hero{
+    background:rgba(255,253,248,.94);
+    border:1px solid var(--line);
+    border-radius:22px;
+    box-shadow:0 9px 22px rgba(18,18,18,.08);
+    padding:12px 14px;
+    margin:0 0 10px;
+  }
+  .brand{gap:12px;width:100%;}
+  .logo{width:48px;height:48px;}
+  .brand h1{
+    font-size:clamp(27px,7.6vw,32px);
+    line-height:.86;
+    letter-spacing:-.095em;
+    white-space:nowrap;
+    text-transform:lowercase;
+  }
+  .tagline{
+    margin-top:5px;
+    font-size:8px;
+    line-height:1;
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    color:#8b5d33;
+  }
+  .card{border-radius:20px;}
+  .chart-card{
+    padding:10px;
+    gap:10px;
+    border-radius:22px;
+    box-shadow:0 13px 28px rgba(18,18,18,.10);
+  }
+  .combo-strip{
+    padding:10px 10px 10px 12px;
+    background:#101010;
+    color:#fff;
+    border-radius:17px;
+    grid-template-columns:minmax(0,1fr) auto auto;
+    gap:8px;
+    align-items:center;
+  }
+  #comboName{
+    color:#fff;
+    font-size:clamp(18px,5.1vw,21px);
+    letter-spacing:-.065em;
+    max-width:100%;
+  }
+  .dots{gap:6px;}
+  .dot{width:18px;height:18px;border-color:rgba(255,255,255,.32);box-shadow:0 0 0 1px rgba(0,0,0,.10)}
+  .name-new-btn{
+    min-width:82px;
+    height:28px;
+    padding:0 9px;
+    border-radius:999px;
+    background:rgba(255,255,255,.08);
+    color:#fff;
+    border-color:rgba(255,255,255,.25);
+    font-size:9px;
+    letter-spacing:.02em;
+    text-transform:lowercase;
+  }
+  .toggle{color:#fff;font-size:10px;letter-spacing:.02em;text-transform:uppercase;}
+  .toggle input{width:19px;height:19px;accent-color:#fff;}
+  .chart-scroll{
+    border-radius:17px;
+    background:#f1e8dc;
+    border-color:#a99f91;
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.55),0 8px 16px rgba(18,18,18,.06);
+  }
+  .actions{gap:9px;}
+  .btn{
+    min-height:47px;
+    border-radius:14px;
+    font-size:12px;
+    line-height:1.05;
+    letter-spacing:.025em;
+  }
+  .btn.primary{box-shadow:0 6px 12px rgba(18,18,18,.16);}
+  .btn:disabled{color:#b8b0a6;background:#f3ece2;border-color:#d4cabc;}
+  details.section{border-radius:18px;margin-top:9px;}
+  details.section>summary{
+    padding:15px 15px;
+    font-size:13px;
+    letter-spacing:.025em;
+  }
+  .section-body{padding:0 10px 13px;}
+  .role-card{min-height:88px;border-radius:14px;}
+  .role-dot{width:31px;height:31px;}
+  .lock-check{width:18px;height:18px;}
+  .save-panel{border-radius:26px 26px 0 0;padding:14px 14px 20px;}
+  .drawer-title{font-size:15px;letter-spacing:.045em;}
+  .drawer-actions .btn{min-height:46px;}
+}
+@media (max-width:360px){
+  .brand h1{font-size:25px;}
+  .logo{width:43px;height:43px;}
+  #comboName{font-size:17px;}
+  .name-new-btn{min-width:74px;font-size:8px;padding:0 7px;}
+  .toggle{font-size:9px;}
+}
+
+
+
+/* v17 targeted fix: keep combo name clear; place name action beneath Grid */
+.combo-strip{
+  grid-template-columns:minmax(0,1fr) auto !important;
+  grid-template-areas:"combo grid" "combo name" !important;
+  align-items:start !important;
+  column-gap:10px !important;
+  row-gap:6px !important;
+}
+.combo-left{
+  grid-area:combo !important;
+  min-width:0 !important;
+  padding-right:4px !important;
+}
+#comboName{
+  display:block !important;
+  max-width:100% !important;
+}
+.toggle{
+  grid-area:grid !important;
+  justify-self:end !important;
+  align-self:start !important;
+}
+.name-new-btn{
+  grid-area:name !important;
+  justify-self:end !important;
+  align-self:end !important;
+  min-width:0 !important;
+  height:auto !important;
+  padding:2px 0 !important;
+  border:0 !important;
+  background:transparent !important;
+  color:rgba(255,255,255,.78) !important;
+  border-radius:0 !important;
+  font-size:9px !important;
+  line-height:1.1 !important;
+  text-decoration:underline !important;
+  text-underline-offset:3px !important;
+}
+.name-new-btn:active{color:#fff !important;}
+@media (max-width:360px){
+  .combo-strip{column-gap:8px !important;}
+  .name-new-btn{font-size:8px !important;}
+}
+
+</style>
+</head>
+<body>
+  <div class="page">
+    <header class="hero">
+      <div class="brand"><div class="logo"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNzIgMjAwIiByb2xlPSJpbWciIGFyaWEtbGFiZWw9Illhcm4gYmFsbCBzdW5nbGFzc2VzIGxvZ28iPgogIDx0aXRsZT5ZYXJuIGJhbGwgc3VuZ2xhc3NlcyBsb2dvPC90aXRsZT4KICA8ZyBmaWxsPSIjMDAwMDAwIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPgogICAgPHBhdGggZD0iTSAyNjMgMTgwIEwgMjU5IDE3NyBMIDI1NCAxNzYgTCAyNDUgMTc3IEwgMjM1IDE4MSBMIDIyNiAxODEgTCAyMjEgMTc5IEwgMjE5IDE3NyBMIDIyOSAxNzEgTCAyMzYgMTYzIEwgMjM1IDE1NCBMIDIyOCAxNTAgTCAyMTkgMTUxIEwgMjExIDE1NyBMIDIwOSAxNjEgTCAyMDkgMTcyIEwgMjEwIDE3MyBMIDIwOSAxNzUgTCAxOTQgMTc0IEwgMTg4IDE3MSBMIDE4MyAxNjYgTCAxODEgMTU5IEwgMTkzIDE0MiBMIDE5OSAxMjkgTCAyMDIgMTE4IEwgMjAyIDExMyBMIDIwNCAxMDcgTCAyMDQgOTcgTCAyMDMgOTMgTCAyMDEgOTEgTCAyMDAgOTIgTCAyMDAgMTEyIEwgMTk4IDExNiBMIDE5OCAxMjAgTCAxOTIgMTMyIEwgMTkyIDEzNSBMIDE4NSAxNDggTCAxODAgMTUzIEwgMTc5IDE1MiBMIDE4MCAxMzMgTCAxNzggMTMzIEwgMTc2IDEzOSBMIDE3NiAxNTkgTCAxNjQgMTcwIEwgMTUzIDE3OCBMIDEzNSAxODUgTCAxMjUgMTg2IEwgMTI0IDE4NyBMIDExOSAxODcgTCAxMTggMTg2IEwgMTM0IDE3NiBMIDE0NSAxNjUgTCAxNTEgMTU3IEwgMTU4IDE0MyBMIDE1NyAxMzkgTCAxNDYgMTU4IEwgMTMyIDE3MyBMIDEyMyAxNzkgTCAxMDggMTg2IEwgMTAyIDE4NiBMIDEwMSAxODcgTCAxMDAgMTg2IEwgOTUgMTg2IEwgODYgMTgzIEwgODQgMTgwIEwgMTAwIDE3MiBMIDExMyAxNjMgTCAxMzUgMTQxIEwgMTM4IDEzNiBMIDEzNiAxMzQgTCAxMDggMTYyIEwgOTMgMTcxIEwgODkgMTc1IEwgNzkgMTc4IEwgNzMgMTc4IEwgNjggMTc0IEwgNjYgMTcwIEwgNjYgMTY1IEwgNjggMTYzIEwgNzAgMTYzIEwgNzkgMTU4IEwgOTYgMTQ2IEwgMTEwIDEzMiBMIDExNiAxMjIgTCAxMTMgMTIxIEwgMTA2IDEzMSBMIDg4IDE0OCBMIDc2IDE1NiBMIDY3IDE1OSBMIDY2IDE1OCBMIDY3IDE1MSBMIDcyIDE0MCBMIDc0IDEzOCBMIDc0IDEzNiBMIDcxIDEzNiBMIDY4IDE0MCBMIDY0IDE0OSBMIDYzIDE1NSBMIDYxIDE1NyBMIDU2IDE1NSBMIDQxIDE0NiBMIDQyIDE0MiBMIDQ2IDEzOCBMIDQ1IDEzNSBMIDM3IDE0MyBMIDM1IDE0MyBMIDI5IDEzOSBMIDIxIDEzMSBMIDE4IDEyNSBMIDE4IDEwNyBMIDE3IDEwNiBMIDE2IDEwNyBMIDE0IDExNiBMIDEyIDExMyBMIDEzIDEwMyBMIDEwIDEwMiBMIDggMTA4IEwgOSAxMTggTCAxNSAxMjkgTCAxNiAxMzcgTCAyMCAxNDYgTCAzMiAxNTkgTCAzNCAxNzAgTCA0MSAxNzcgTCA1NyAxODMgTCA3NiAxODIgTCA4MyAxODYgTCA5MiAxODkgTCAxMDkgMTg5IEwgMTE4IDE5MSBMIDExOSAxOTAgTCAxMjkgMTkwIEwgMTQ0IDE4NiBMIDE1NSAxODEgTCAxNzAgMTcwIEwgMTc2IDE2NCBMIDE3OCAxNjQgTCAxODIgMTcxIEwgMTg5IDE3NiBMIDIwMiAxNzkgTCAyMTMgMTc4IEwgMjIzIDE4NCBMIDIzOCAxODQgTCAyNDggMTgwIEwgMjU3IDE4MCBMIDI2MSAxODIgWiBNIDM3IDE2MyBMIDM5IDE2MiBMIDQ2IDE2NSBMIDYxIDE2NSBMIDYzIDE2NyBMIDY0IDE3NCBMIDY3IDE3OSBMIDY2IDE4MCBMIDYwIDE4MCBMIDUxIDE3OCBMIDQ2IDE3NSBMIDQyIDE3NSBMIDM3IDE2NyBaIE0gMjI5IDE1NSBMIDIzMiAxNTggTCAyMzIgMTYzIEwgMjI0IDE3MSBMIDIxNiAxNzQgTCAyMTMgMTcwIEwgMjEzIDE2MyBMIDIxNSAxNTkgTCAyMTggMTU2IEwgMjIzIDE1NCBaIE0gMzcgMTUzIEwgMzkgMTUwIEwgNDEgMTUwIEwgNDMgMTUyIEwgNTYgMTU4IEwgNTkgMTYxIEwgNTggMTYyIEwgNDMgMTYxIEwgMzcgMTU3IFogTSAyMiAxMzcgTCAzNSAxNDcgTCAzNCAxNTIgTCAzMiAxNTQgTCAyNCAxNDUgTCAyMSAxMzkgWiBNIDE5NSA4NCBMIDE5MCA4MSBMIDE4MSA4MSBMIDE4MCA4MCBMIDE0NyA4MCBMIDEyNCA4NSBMIDExNCA5MCBMIDk3IDkwIEwgOTIgODcgTCA3NSA4MyBMIDQ0IDgyIEwgNDMgODMgTCAzNSA4MyBMIDM0IDg0IEwgMTcgODYgTCAxNSA4OCBMIDE1IDkzIEwgMjAgOTUgTCAyMyA5OCBMIDIzIDEwMSBMIDI5IDExNCBMIDM2IDEyMyBMIDQ5IDEzMSBMIDY4IDEzMiBMIDgwIDEyOCBMIDg5IDEyMSBMIDk0IDExNCBMIDk5IDEwMSBMIDEwNCA5OCBMIDExMSA5OSBMIDExMyAxMDEgTCAxMjAgMTE2IEwgMTI4IDEyNCBMIDEzNCAxMjggTCAxNDIgMTMxIEwgMTYwIDEzMSBMIDE3MCAxMjcgTCAxODAgMTE4IEwgMTg2IDEwNiBMIDE4OSA5NCBMIDE5NSA4OSBaIE0gMTI2IDkyIEwgMTIxIDk2IEwgMTE4IDk1IEwgMTIxIDkyIEwgMTI0IDkxIFogTSA3MiA5MCBMIDczIDg5IEwgNzYgOTAgTCA3NSA5MSBaIE0gMTgyIDg4IEwgMTg0IDkwIEwgMTgyIDEwMyBMIDE3NyAxMTMgTCAxNzIgMTE4IEwgMTcxIDExNiBMIDE3NiAxMDggTCAxNzkgOTkgTCAxODAgOTAgWiBNIDE3OCA3MiBMIDE3NSA2NyBMIDE2NiA1OCBMIDE1NCA1MSBMIDE0NiA0OSBMIDE0NCA1MSBMIDE1MSA1NSBMIDEzOCA2MCBMIDEyNyA2NyBMIDExNiA3OSBMIDExOSA4MCBMIDEzMSA2OSBMIDE0NSA2MSBMIDE1MiA1OSBMIDE1NCA1NiBMIDE1OSA1NyBMIDE2NyA2MyBMIDE3NSA3NCBMIDE3NyA3NCBaIE0gMTQgNjkgTCAxNCA3NCBMIDE3IDc4IEwgMTggNzcgTCAxOCA3MCBMIDIzIDYyIEwgMjkgNjcgTCAzOSA2NyBMIDQ1IDY1IEwgNTUgNjAgTCA2MCA1NiBMIDcxIDUxIEwgOTEgMzcgTCAxMDMgMzIgTCAxMTMgMjYgTCAxNDEgMTkgTCAxNTAgMjAgTCAxNjAgMjUgTCAxNzAgMzQgTCAxNzIgMzggTCAxNzAgMzkgTCAxNjUgMzcgTCAxNTIgMzYgTCAxNTEgMzcgTCAxNDQgMzcgTCAxMzAgNDAgTCAxMTAgNTAgTCAxMDYgNTAgTCA3NCA2NiBMIDUwIDc0IEwgNDcgNzcgTCA1MiA3OCBMIDEwMyA1NiBMIDEwNCA1NyBMIDg5IDczIEwgODggNzYgTCA5MCA3NyBMIDk5IDY2IEwgMTEwIDU3IEwgMTEwIDUzIEwgMTEzIDUwIEwgMTQ4IDQwIEwgMTYzIDQwIEwgMTc4IDQ2IEwgMTg2IDU2IEwgMTkyIDczIEwgMTk0IDcyIEwgMTk0IDY0IEwgMTkxIDU2IEwgMTc4IDQzIEwgMTc4IDQwIEwgMTczIDMyIEwgMTYwIDIxIEwgMTUwIDE3IEwgMTQwIDE3IEwgMTMxIDEyIEwgMTE3IDggTCA5NSA4IEwgOTAgMTAgTCA3OCAxMiBMIDcyIDE1IEwgNjMgMjMgTCA0OSAyNyBMIDM4IDM0IEwgMzEgNDEgTCAyNiA1MCBMIDI1IDU1IEwgMTggNjEgWiBNIDU1IDMxIEwgNDMgNDQgTCAzNSA0OSBMIDMyIDQ4IEwgMzUgNDIgTCA0MiAzNSBMIDUyIDMwIFogTSAxMzAgMTYgTCAxMjcgMTkgTCAxMTggMjEgTCAxMDYgMjcgTCA5OSAyNyBMIDk1IDI1IEwgODUgMjQgTCA4NCAyMyBMIDc0IDIzIEwgNzEgMjYgTCA4MSAyNiBMIDgyIDI3IEwgOTMgMjggTCA5NiAzMSBMIDkwIDM1IEwgODIgMzggTCA3MiA0NiBMIDU2IDU2IEwgMzMgNjQgTCAzMSA2NCBMIDI4IDYxIEwgMjggNTggTCAzNCA1MiBMIDUwIDQzIEwgNzEgMjEgTCA3NyAxNyBMIDg0IDE0IEwgMTAwIDEyIEwgMTAxIDExIEwgMTE5IDEyIFoiLz4KICA8L2c+Cjwvc3ZnPgo=" alt="" /></div><div><h1>skein scheme</h1><div class="tagline">pick before ya knit</div></div></div>
+    </header>
+    <main class="app-grid">
+      <section class="card chart-card" data-panel="chart">
+        <div class="combo-strip"><div class="combo-left"><strong id="comboName">starter mix</strong><div class="dots" id="comboDots"></div></div><button class="icon-btn name-new-btn" id="newNameBtn" title="Generate a new combo name">new name ↺</button><label class="toggle">Grid <input id="gridToggle" type="checkbox" checked /></label></div>
+        <div class="chart-scroll"><div id="chart"></div></div><p id="chartInfo" style="display:none"></p>
+        <div class="actions" data-panel="actions"><button class="btn primary" id="randomBtn">Randomize</button><button class="btn" id="backBtn" disabled>Back</button><button class="btn save-action" id="saveBtn">I Dig This!</button><button class="btn save-action" id="madeBtn">I Made This!</button></div>
+        
+      </section>
+      <div class="below">
+        <details class="section" id="rolesSection"><summary>Your 5 Colors</summary><div class="section-body"><div class="roles-row" id="roleCards"></div></div></details>
+        <details class="section" id="paletteSection"><summary>Palette <span style="font-weight:600;color:var(--muted);letter-spacing:0;text-transform:none">(175 colors)</span></summary><div class="section-body"><div class="palette-tools"><input class="search" id="search" placeholder="Search number, name, hex"/><div class="active-pill" id="activeRoleLabel">Main</div></div><div class="filters" id="filters"></div><div class="palette" id="palette"></div></div></details>
+        <details class="section" id="readabilitySection"><summary>Readability Check</summary><div class="section-body"><div class="metrics" id="metrics"></div></div></details>
+        <details class="section" id="savedSection"><summary>Saved Combos</summary><div class="section-body"><h3 style="margin:0 0 8px;font-size:11px;letter-spacing:.08em">COMBOS WE DIG</h3><div class="saved-grid" id="digCombos"></div><h3 style="margin:14px 0 8px;font-size:11px;letter-spacing:.08em">COMBOS WE MADE</h3><div class="saved-grid" id="madeCombos"></div></div></details>
+      </div>
+    </main>
+  </div>
+  <div class="drawer-backdrop" id="saveDrawer" aria-hidden="true">
+    <div class="save-panel" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+      <div class="drawer-grab"></div>
+      <div class="drawer-head">
+        <div><div class="drawer-title" id="drawerTitle">Save this combo</div><div class="drawer-sub" id="drawerSub"></div></div>
+        <button class="drawer-close" id="closeSaveDrawer" type="button" aria-label="Close">×</button>
+      </div>
+      <div class="save-body">
+        <label><span class="field-label">Saved by</span><input id="saveName" placeholder="Who are you??" autocomplete="name" maxlength="40" /></label>
+        <label><span class="field-label">Note (optional)</span><textarea id="saveNote" placeholder="" maxlength="120"></textarea></label>
+      </div>
+      <div class="drawer-actions">
+        <button class="btn" id="cancelSave" type="button">Cancel</button>
+        <button class="btn primary drawer-save" id="confirmSave" type="button" disabled>Save</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+const COLORS = [{"hex":"#440C17","number":"2401","name":"Burgundy"},{"hex":"#470E1D","number":"9489","name":"Red Wine Heather"},{"hex":"#660D16","number":"1095","name":"Red Marl"},{"hex":"#7D1417","number":"2413","name":"Red"},{"hex":"#2D0104","number":"9404","name":"Ruby"},{"hex":"#7C0511","number":"8895","name":"Christmas Red"},{"hex":"#811C1C","number":"8414","name":"Bright Red"},{"hex":"#992927","number":"9668","name":"Paprika"},{"hex":"#CF4A34","number":"1048","name":"Camelia"},{"hex":"#FA9079","number":"9682","name":"Desert Flower"},{"hex":"#D7B0A2","number":"1049","name":"Peach Dust"},{"hex":"#BB8A7C","number":"1065","name":"Rose Cloud"},{"hex":"#9E5A4F","number":"9681","name":"Crabapple"},{"hex":"#2D1C17","number":"9656","name":"Burnt Sienna Heather"},{"hex":"#1E161F","number":"4006","name":"Galaxy"},{"hex":"#A97F69","number":"1084","name":"Blush Heather"},{"hex":"#B38E77","number":"1033","name":"Nectarine"},{"hex":"#B54E38","number":"7824","name":"Jack O Lantern"},{"hex":"#AC361B","number":"9465B","name":"Burnt Orange"},{"hex":"#4B1A0A","number":"2414","name":"Ginger"},{"hex":"#9E4E2F","number":"1068","name":"Copper"},{"hex":"#5A180A","number":"2435","name":"Japanese Maple"},{"hex":"#A03226","number":"1097","name":"Pumpkin Marl"},{"hex":"#802A21","number":"2425","name":"Provence"},{"hex":"#C8320F","number":"9605","name":"Tiger Lily"},{"hex":"#E64405","number":"9542","name":"Blaze"},{"hex":"#E7B53D","number":"9463B","name":"Gold"},{"hex":"#FDAD00","number":"9669","name":"Gold Fusion"},{"hex":"#BF8F19","number":"7827","name":"Goldenrod"},{"hex":"#C5BD71","number":"4147","name":"Lemon Yellow"},{"hex":"#BFBA8F","number":"1069","name":"Anise Flower"},{"hex":"#EEE3A7","number":"8687","name":"Butter"},{"hex":"#E3DE09","number":"7828","name":"Neon Yellow"},{"hex":"#C3C13C","number":"1070","name":"Golden Kiwi"},{"hex":"#8FB450","number":"8910","name":"Citron"},{"hex":"#8B933E","number":"1002","name":"Leaf Green"},{"hex":"#355B2A","number":"1035","name":"Fern Heather"},{"hex":"#12642A","number":"2409","name":"Palm"},{"hex":"#192320","number":"8267","name":"Forest Green"},{"hex":"#0E230F","number":"9430","name":"Highland Green"},{"hex":"#445944","number":"9684","name":"Green Tea"},{"hex":"#13281A","number":"2445","name":"Shire"},{"hex":"#2F401F","number":"1093","name":"Shire Marl"},{"hex":"#47592A","number":"2429","name":"Irelande"},{"hex":"#798736","number":"1051","name":"Fern"},{"hex":"#434F1A","number":"1052","name":"Calla Green"},{"hex":"#1B1E10","number":"1036","name":"Chive"},{"hex":"#1C1F1C","number":"1089","name":"Lichen Twist"},{"hex":"#5D602C","number":"2452","name":"Turtle"},{"hex":"#87845E","number":"1082","name":"Savannah Heather"},{"hex":"#9FB68E","number":"1034","name":"Tender Greens"},{"hex":"#7F9580","number":"1090","name":"Fluorite Heather"},{"hex":"#034E39","number":"8894","name":"Christmas Green"},{"hex":"#081C15","number":"9447","name":"Forest Heather"},{"hex":"#132C2C","number":"1087","name":"Rainforest Heather"},{"hex":"#002F2D","number":"8893","name":"Hunter Green"},{"hex":"#224038","number":"1104","name":"Forest Marl"},{"hex":"#2A4A48","number":"9322","name":"Silver Spruce Heather"},{"hex":"#2C605C","number":"9451","name":"Lake Chelan Heather"},{"hex":"#5CB298","number":"1072","name":"Key West"},{"hex":"#009180","number":"7812","name":"Lagoon"},{"hex":"#004D4D","number":"9687","name":"Deep Blue Grass"},{"hex":"#86C6C5","number":"9634","name":"Aqua Haze"},{"hex":"#336172","number":"1054","name":"Mallard Blue"},{"hex":"#222E34","number":"8836","name":"Stonewash"},{"hex":"#507584","number":"9452","name":"Summer Sky Heather"},{"hex":"#7DC2C4","number":"1073","name":"Water Spout"},{"hex":"#4B9297","number":"1004","name":"Bristol Blue"},{"hex":"#0B4858","number":"2433","name":"Pacific"},{"hex":"#023D5A","number":"8891","name":"Cyan Blue"},{"hex":"#010712","number":"8892","name":"Azure"},{"hex":"#01030B","number":"4009","name":"Aporto"},{"hex":"#0B111E","number":"2448","name":"Mallard"},{"hex":"#08080E","number":"9449","name":"Midnight Heather"},{"hex":"#0B0D4F","number":"9484","name":"Stratosphere"},{"hex":"#06113B","number":"9568","name":"Twilight Blue"},{"hex":"#617386","number":"1005","name":"Blue Quartz Heather"},{"hex":"#0E264D","number":"9689","name":"Lapis Heather"},{"hex":"#28282C","number":"1091","name":"Stormy Seas Heather"},{"hex":"#5A6063","number":"1081","name":"Coast Heather"},{"hex":"#0F2244","number":"2404","name":"Atlantic"},{"hex":"#6A9AAF","number":"7815","name":"Summer Sky"},{"hex":"#0E1518","number":"9567","name":"Smoke Blue"},{"hex":"#6B7B87","number":"1037","name":"Faded Denim Heather"},{"hex":"#0D1621","number":"9332","name":"Sapphire"},{"hex":"#222D3E","number":"1100","name":"Sapphire Marl"},{"hex":"#181D28","number":"8393","name":"Navy"},{"hex":"#2F3E5B","number":"9326","name":"Colonial Blue Heather"},{"hex":"#56637B","number":"9325","name":"West Point Blue Heather"},{"hex":"#7F8F98","number":"1006","name":"Sky Blue"},{"hex":"#5982AE","number":"8905","name":"Robin Egg Blue"},{"hex":"#101E4B","number":"7818","name":"Blue Velvet"},{"hex":"#101018","number":"9543","name":"Midnight Blue"},{"hex":"#2C3B6D","number":"9655","name":"Blueberry Heather"},{"hex":"#5D6193","number":"2423","name":"Montmartre"},{"hex":"#3E3D4D","number":"1038","name":"Dusky Violet"},{"hex":"#7F7996","number":"2422","name":"Lavender Heather"},{"hex":"#6B5B7D","number":"1102","name":"Lavender Marl"},{"hex":"#45395D","number":"2450","name":"Mystic Purple"},{"hex":"#110E1C","number":"8886","name":"Italian Plum"},{"hex":"#3D1755","number":"9570","name":"Concord Grape"},{"hex":"#785BC8","number":"8762","name":"Deep Lavender"},{"hex":"#867382","number":"1083","name":"Sweet Pea Heather"},{"hex":"#442FA0","number":"7808","name":"Purple Hyacinth"},{"hex":"#A24297","number":"1056","name":"Orchid"},{"hex":"#831977","number":"7803","name":"Magenta"},{"hex":"#813AA0","number":"2420","name":"Heather"},{"hex":"#281B34","number":"7807","name":"Regal"},{"hex":"#783F6E","number":"1075","name":"Raspberry Coulis"},{"hex":"#280C1A","number":"9572","name":"Cabernet"},{"hex":"#997385","number":"1039","name":"Helleborus Heather"},{"hex":"#2E1929","number":"9642","name":"Crushed Grapes"},{"hex":"#482034","number":"1103","name":"Razzleberry Marl"},{"hex":"#613853","number":"9692","name":"Razzleberry Heather"},{"hex":"#B57D9A","number":"8114","name":"Dusty Rose"},{"hex":"#806971","number":"1007","name":"Lepidolite Heather"},{"hex":"#200B1A","number":"8418","name":"Eggplant"},{"hex":"#84757C","number":"8872","name":"Iridescense"},{"hex":"#AD8698","number":"1076","name":"Antique Lilac"},{"hex":"#963239","number":"1008","name":"Flamingo Heather"},{"hex":"#DE7D88","number":"1057","name":"Peony"},{"hex":"#EEDFE9","number":"4192","name":"Soft Pink"},{"hex":"#D0819B","number":"9477","name":"Tutu"},{"hex":"#CA5A84","number":"9478","name":"Cotton Candy"},{"hex":"#B32F64","number":"9469","name":"Hot Pink"},{"hex":"#942A69","number":"7802","name":"Cerise"},{"hex":"#6C6D6B","number":"1009","name":"Storm Cloud Heather"},{"hex":"#4D617B","number":"1101","name":"Faded Denim Marl"},{"hex":"#7C8091","number":"9559","name":"Indigo Frost Heather"},{"hex":"#E5E5DB","number":"8505","name":"White"},{"hex":"#AEAEB1","number":"1058","name":"Nimbus Cloud"},{"hex":"#868588","number":"1050","name":"Harbor Mist"},{"hex":"#6D6F71","number":"8509","name":"Grey"},{"hex":"#2D3443","number":"9473","name":"Gris"},{"hex":"#101114","number":"8555","name":"Black"},{"hex":"#1E1F21","number":"4002","name":"Jet"},{"hex":"#363939","number":"8400","name":"Charcoal Grey"},{"hex":"#5E5D59","number":"1094","name":"Charcoal Marl"},{"hex":"#5B5C53","number":"8401","name":"Silver Grey"},{"hex":"#ABA597","number":"8011","name":"Aspen Heather"},{"hex":"#52545D","number":"9491","name":"Greystone Heather"},{"hex":"#3C2128","number":"1077","name":"Oxblood Red"},{"hex":"#110E0F","number":"7822","name":"Van Dyke Brown"},{"hex":"#322217","number":"2431","name":"Chocolate Heather"},{"hex":"#846651","number":"9695","name":"Praline"},{"hex":"#794A33","number":"1010","name":"Carob Brown"},{"hex":"#1B110C","number":"8686","name":"Brown"},{"hex":"#623F1F","number":"8622","name":"Camel"},{"hex":"#DFC9AB","number":"8021","name":"Beige"},{"hex":"#EEE9D3","number":"8010","name":"Natural"},{"hex":"#B5A564","number":"8412","name":"Pear"},{"hex":"#653A16","number":"2415","name":"Sunflower"},{"hex":"#A66129","number":"1096","name":"Spice Marl"},{"hex":"#613B2F","number":"2453","name":"Pumpkin Spice"},{"hex":"#806627","number":"4010","name":"Straw"},{"hex":"#A08527","number":"9564","name":"Birch Heather"},{"hex":"#826A02","number":"9566","name":"Olive Oil"},{"hex":"#B98E4A","number":"1088","name":"Wheat Heather"},{"hex":"#71705B","number":"4011","name":"Sparrow"},{"hex":"#1E2316","number":"9448","name":"Olive Heather"},{"hex":"#302E2D","number":"9465","name":"Vashon Island Heather"},{"hex":"#513F31","number":"9748","name":"Mocha Heather"},{"hex":"#806E5B","number":"8013","name":"Walnut Heather"},{"hex":"#6F5D4D","number":"1092","name":"Walnut Marl"},{"hex":"#7E7771","number":"8012","name":"Doeskin Heather"},{"hex":"#9A8F7D","number":"2442","name":"Fog Hatt"},{"hex":"#8E7E6F","number":"2441","name":"River Rock"},{"hex":"#E2D6B7","number":"9600","name":"Antiqued Heather"},{"hex":"#B19772","number":"1099","name":"Antique Marl"},{"hex":"#716252","number":"2440","name":"Vinci"},{"hex":"#B18F74","number":"9499","name":"Sand"},{"hex":"#564C3F","number":"9696","name":"Copper Heather"},{"hex":"#5A6862","number":"9450","name":"Smoke Heather"},{"hex":"#798878","number":"1059","name":"Seagrass"},{"hex":"#07070B","number":"9674","name":"Pine Grove"}];
+const PATTERN = ["LDDDLDLDDLLLLLLLDDLDLDDDLD","LDDLDLDDLLLDDDLLLDDLDLDDLD","LDLDLDDLLLLDDDLLLLDDLDLDLD","LLDLDDLLLLLDDDLLLLLDDLDLLD","MDMDDMMMDDDMMMDDDMMMDDMDMD","MMDDMMMMDDDMMMDDDMMMMDDMMD","MDDMMMMMDDDMMMDDDMMMMMDDMD","STTSSTTTSSSTTTSSSTTTSSTTST","STTSSTTTSSSTTTSSSTTTSSTTST","STTSSTTTSSSTTTSSSTTTSSTTST","MDDMMMMMDDDMMMDDDMMMMMDDMD","MMDDMMMMDDDMMMDDDMMMMDDMMD","MDMDDMMMDDDMMMDDDMMMDDMDMD","LLDLDDLLLLLDDDLLLLLDDLDLLD","LDLDLDDLLLLDDDLLLLDDLDLDLD","LDDLDLDDLLLDDDLLLDDLDLDDLD","LDDDLDLDDLLLLLLLDDLDLDDDLD"];
+const ROLES=[{key:'D',label:'Main',defaultNumber:'9689'},{key:'L',label:'Contrast',defaultNumber:'8011'},{key:'M',label:'Accent',defaultNumber:'9687'},{key:'S',label:'Stripe A',defaultNumber:'8505'},{key:'T',label:'Stripe B',defaultNumber:'2422'}];
+const ROLE_LABELS=Object.fromEntries(ROLES.map(r=>[r.key,r.label]));
+const DEFAULT_SELECTIONS=Object.fromEntries(ROLES.map(r=>[r.key,COLORS.find(c=>c.number===r.defaultNumber)||COLORS[0]]));
+let selections={...DEFAULT_SELECTIONS}, activeRole='D', lockedRoles=Object.fromEntries(ROLES.map(r=>[r.key,false])), history=[], saved=[], pendingSaveKind='dig';
+let currentComboName='starter mix', currentNameSeed=0, filter='All';
+const STORAGE='palettePlannerSavedCombosAppFirstV1'; const el=id=>document.getElementById(id);
+function hexToRgb(hex){const c=hex.replace('#','');return [0,2,4].map(i=>parseInt(c.slice(i,i+2),16));}
+function luminance(hex){const [r,g,b]=hexToRgb(hex).map(v=>{const s=v/255;return s<=.03928?s/12.92:Math.pow((s+.055)/1.055,2.4);});return .2126*r+.7152*g+.0722*b;}
+function contrastRatio(a,b){const l1=luminance(a),l2=luminance(b);return (Math.max(l1,l2)+.05)/(Math.min(l1,l2)+.05);}
+function rgbToHsl(hex){const [r,g,b]=hexToRgb(hex).map(v=>v/255),max=Math.max(r,g,b),min=Math.min(r,g,b);let h=0,s=0,l=(max+min)/2;if(max!==min){const d=max-min;s=l>.5?d/(2-max-min):d/(max+min);h=max===r?(g-b)/d+(g<b?6:0):max===g?(b-r)/d+2:(r-g)/d+4;h/=6}return {h:h*360,s,l};}
+function hueFamily(c){const {h,s,l}=rgbToHsl(c.hex);if(s<.14||l<.12||l>.92)return 'Neutral'; if(h<18||h>=345)return 'Warm'; if(h<70)return 'Warm'; if(h<160)return 'Green'; if(h<205)return 'Cool'; if(h<255)return 'Cool'; if(h<320)return 'Purple'; return 'Warm';}
+function cloneSelections(src=selections){return Object.fromEntries(ROLES.map(r=>[r.key,src[r.key]]));}
+function comboHash(combo=selections){return ROLES.reduce((s,r,i)=>s+[...String(combo[r.key].number)].reduce((a,ch)=>a+ch.charCodeAt(0),0)*(i+7),0);}
+const NAME_LIBRARY={
+  Warm:[
+    'copper low tide','ember side quest','paprika afterparty','ruby weather','sunset receipt','tomato trouble','marigold motel','canyon signal','hot toddy static','campfire mixtape','sour cherry radio','terracotta secret','gold rush detour','mars on main','citrus backbeat','ginger postcard','neon bee sting','pumpkin alley','rose riot','brick house special','sunflower noir','red velvet detour','camelot receipt','fire escape bloom','orange crush hour','hot sauce horoscope','honey in the headlights','cherry cola weather','spice cabinet static','tiger lily gossip'
+  ],
+  Green:[
+    'moss side quest','forest dial tone','pickle jar parade','sage advice','greenhouse ghost','clover afterhours','lichen low tide','spruce alibi','kelp receipt','garden static','olive secret menu','fern radio','juniper motel','bog walk deluxe','mint condition','evergreen detour','seaweed snack','pine needle noir','turtle signal','chive drive','rainforest errand','clover club','mossy moonwalk','green tea static','forest floor gossip','olive oil weather','shamrock side door','garden hose disco'
+  ],
+  Cool:[
+    'cobalt low tide','storm static','denim noir','harbor afterhours','sapphire detour','blue hour radio','lagoon receipt','deep end deluxe','moon pool','tidal signal','weather channel','dock light','midnight snack','aqua alibi','thunder denim','lapis side quest','pool hall hush','sea glass secret','bluegrass backbeat','rain barrel','pacific postcard','faded denim ghost','storm drain glitter','mallard motel','robin egg riot','summer sky static','harbor noir','cobalt coffee run'
+  ],
+  Purple:[
+    'plum afterparty','orchid side quest','velvet static','cabernet moon','violet low tide','blackberry weather','regal detour','amethyst receipt','cosmic snack','eggplant alibi','razzleberry radio','lavender noir','tutu trouble','magenta motel','grape soda ghost','purple hyacinth hour','dusty rose secret','moon grape','orchid alley','soft pink static','cerise signal','plum velvet drive','mystic postcard','peony backbeat','raspberry side door','cabernet gossip','violet weather report','lavender receipt'
+  ],
+  Neutral:[
+    'dune secret menu','charcoal sapphire','fog machine','smoke signal','stone cold picnic','graphite gossip','oat milk noir','driftwood detour','ash tray radio','river rock remix','walnut weather','black coffee','silver lining club','greystone ghost','brown paper ticket','sand dune static','natural causes','storm cloud receipt','doeskin daydream','van dyke afterhours','mocha motel','beige alibi','white noise weekend','fog hatt field note','charcoal low tide','smoke blue errand','jet set hush','aspen backbeat'
+  ],
+  contrast:[
+    'sharp little detour','plot twist picnic','left turn deluxe','high contrast club','static at midnight','window seat weather','loud little secret','signal flare','wrong turn pretty','sidewalk fireworks','checkerboard gossip','big mood small font','afterparty receipt','front porch drama','tiny thunder','bright spot noir','hard candy weather','clean getaway','contrast committee','electric soft launch'
+  ],
+  bright:[
+    'neon picnic','fruit stand gossip','daylight racket','spark plug special','citrus buzz','confetti weather','sugar rush motel','pop quiz pretty','sunlit side quest','glow worm club','highlighter hush','happy accident','daybreak detour','candy shop static','lucky penny parade','summer weird','bright but behaving','fresh paint','sidewalk sorbet','electric lemonade'
+  ],
+  quiet:[
+    'soft static','fog bank field trip','low voice deluxe','quiet little riot','murmur club','slow blink','sleepy signal','dust note','hush money','almost loud','library weather','soft launch','tiny echo','muted but nosy','shade garden','quiet coffee','low-key postcard','barely weird','undercover sweater','Sunday static'
+  ],
+  moody:[
+    'afterhours weather','night shift snack','shadow radio','low tide noir','storm note','late light','cloud cover club','midnight errand','black coffee run','moody little thing','basement disco','rain check','dark room receipt','noir picnic','back alley velvet','storm window','moonlit detour','late checkout','dimmer switch','secret midnight'
+  ],
+  mixed:[
+    'secret menu','house blend','analog weather','field note','daily special','side quest','odd little errand','left turn','remix receipt','friend of a friend','second breakfast','tiny side plot','good weird','soft chaos','weekend plans','parking lot postcard','snack drawer','low-stakes drama','color gossip','slightly unhinged but cute'
+  ]
+};
+const STOP_NAME_WORDS=new Set(['a','an','the','and','or','with','in','of','to','for','plus','little']);
+let generatedNameHistory=[];
+let comboNameMemory={};
+function comboMood(combo=selections){
+  const hsls=ROLES.map(r=>rgbToHsl(combo[r.key].hex));
+  const avgS=hsls.reduce((s,x)=>s+x.s,0)/hsls.length;
+  const spread=Math.max(...hsls.map(x=>x.l))-Math.min(...hsls.map(x=>x.l));
+  const avgL=hsls.reduce((s,x)=>s+x.l,0)/hsls.length;
+  if(spread>.58)return 'contrast';
+  if(avgS>.55)return 'bright';
+  if(avgS<.20)return 'quiet';
+  if(avgL<.34)return 'moody';
+  return 'mixed';
+}
+function nameTokens(name){
+  return String(name).toLowerCase().replace(/[^a-z0-9 ]+/g,' ').split(/\s+/).filter(w=>w.length>2&&!STOP_NAME_WORDS.has(w));
+}
+function seededShuffle(list,seed){
+  const arr=[...list];
+  for(let i=arr.length-1;i>0;i--){
+    const j=Math.abs(Math.sin(seed*(i+1)+i*91.7)*10000|0)%(i+1);
+    [arr[i],arr[j]]=[arr[j],arr[i]];
+  }
+  return arr;
+}
+function generateComboName(combo=selections,offset=0){
+  const families=ROLES.map(r=>hueFamily(combo[r.key]));
+  const counts=families.reduce((m,f)=>{m[f]=(m[f]||0)+1;return m;},{});
+  const ordered=Object.keys(counts).sort((a,b)=>counts[b]-counts[a]);
+  const primary=ordered[0]||'Neutral';
+  const secondary=ordered.find(f=>f!==primary)||primary;
+  const mood=comboMood(combo);
+  const seed=comboHash(combo)+offset*7919;
+  const memory=comboNameMemory[String(comboHash(combo))] || (comboNameMemory[String(comboHash(combo))]={names:new Set(),tokens:new Set()});
+  const pool=[
+    ...(NAME_LIBRARY[primary]||[]),
+    ...(secondary!==primary?(NAME_LIBRARY[secondary]||[]):[]),
+    ...(NAME_LIBRARY[mood]||[]),
+    ...NAME_LIBRARY.mixed
+  ];
+  const candidates=seededShuffle([...new Set(pool)],seed);
+  let best=candidates.find(name=>{
+    const lower=name.toLowerCase();
+    if(lower.includes('+')||lower.includes(' idea'))return false;
+    if(memory.names.has(lower))return false;
+    const tokens=nameTokens(lower);
+    const repeated=tokens.filter(t=>memory.tokens.has(t)).length;
+    return repeated<=1;
+  }) || candidates.find(name=>!memory.names.has(name.toLowerCase())) || candidates[seed % candidates.length] || 'secret menu';
+  const lower=best.toLowerCase();
+  memory.names.add(lower);
+  nameTokens(lower).forEach(t=>memory.tokens.add(t));
+  if(memory.names.size>50){
+    memory.names=new Set([...memory.names].slice(-28));
+    memory.tokens=new Set([...memory.names].flatMap(nameTokens));
+  }
+  generatedNameHistory.push(lower);
+  generatedNameHistory=generatedNameHistory.slice(-160);
+  return lower;
+}
+currentComboName=generateComboName();
+function getPattern(){const base=PATTERN.map(r=>r.repeat(3));let width=base[0].length;const sc=document.querySelector('.chart-scroll');if(sc){const inner=sc.clientWidth-14;width=Math.max(width,Math.floor(inner/12));}const body=base.map((row,i)=>row+PATTERN[i].repeat(Math.ceil((width-row.length)/PATTERN[i].length)).slice(0,Math.max(0,width-row.length)));const pad='D'.repeat(body[0].length);return [...Array(4).fill(pad),...body,...Array(4).fill(pad)];}
+function drawChart(){const chart=el('chart'),pat=getPattern(),show=el('gridToggle').checked;chart.innerHTML='';chart.style.gridTemplateColumns=`repeat(${pat[0].length},12px)`;chart.style.borderRight=show?'1px solid #56524d':'1px solid transparent';chart.style.borderBottom=show?'1px solid #56524d':'1px solid transparent';pat.forEach(row=>row.split('').forEach(k=>{const d=document.createElement('div');d.className='cell';d.style.background=(selections[k]||selections.D).hex;d.style.borderLeft=show?'1px solid #56524d':'1px solid transparent';d.style.borderTop=show?'1px solid #56524d':'1px solid transparent';chart.appendChild(d);}));}
+function renderDots(){el('comboDots').innerHTML=ROLES.map(r=>`<span class="dot" style="background:${selections[r.key].hex}"></span>`).join(''); el('comboName').textContent=currentComboName;}
+function renderRoles(){el('activeRoleLabel').textContent=ROLE_LABELS[activeRole];el('roleCards').innerHTML='';ROLES.forEach(r=>{const c=selections[r.key];const card=document.createElement('button');card.className='role-card'+(activeRole===r.key?' active':'')+(lockedRoles[r.key]?' locked':'');card.innerHTML=`<div class="role-dot" style="background:${c.hex}"></div><div class="role-label">${r.label}</div><div class="role-num">${c.number}</div><div class="role-name">${c.name}</div><label class="lock-wrap"><input class="lock-check" type="checkbox" ${lockedRoles[r.key]?'checked':''}> lock</label>`;card.addEventListener('click',()=>{activeRole=r.key;renderAll();});card.querySelector('.lock-check').addEventListener('click',e=>{e.stopPropagation();lockedRoles[r.key]=e.target.checked;renderAll();});el('roleCards').appendChild(card);});}
+function renderFilters(){const items=['All','Warm','Cool','Green','Purple','Neutral'];el('filters').innerHTML=items.map(x=>`<button class="filter ${filter===x?'active':''}" data-filter="${x}">${x}</button>`).join('');document.querySelectorAll('.filter').forEach(b=>b.onclick=()=>{filter=b.dataset.filter;renderPalette();renderFilters();});}
+function renderPalette(){const q=el('search').value.trim().toLowerCase();const p=el('palette');p.innerHTML='';COLORS.filter(c=>(filter==='All'||hueFamily(c)===filter)&&(!q||c.name.toLowerCase().includes(q)||c.number.toLowerCase().includes(q)||c.hex.toLowerCase().includes(q))).forEach(c=>{const used=ROLES.some(r=>selections[r.key].number===c.number);const b=document.createElement('button');b.className='color-btn'+(used?' selected':'');b.innerHTML=`<div class="color-swatch" style="background:${c.hex}"></div><div class="color-num">${c.number}</div><div class="color-name">${c.name}</div>`;b.onclick=()=>{selections[activeRole]=c;currentComboName='custom mix';currentNameSeed=0;renderAll();};p.appendChild(b);});}
+function metrics(){const pairs=[['Main vs Contrast',selections.D,selections.L,3],['Main vs Accent',selections.D,selections.M,1.6],['Stripe A vs B',selections.S,selections.T,1.6]];el('metrics').innerHTML=pairs.map(([t,a,b,target])=>{const r=contrastRatio(a.hex,b.hex),w=Math.min(100,Math.round(r/7*100));return `<div class="metric"><div class="metric-top"><span>${t}</span><strong>${r.toFixed(1)}:1</strong></div><div class="bar"><div class="fill" style="width:${w}%"></div></div></div>`;}).join('');}
+function isReadable(combo){const nums=ROLES.map(r=>combo[r.key].number);return new Set(nums).size===nums.length&&contrastRatio(combo.D.hex,combo.L.hex)>=3&&contrastRatio(combo.D.hex,combo.M.hex)>=1.6&&contrastRatio(combo.S.hex,combo.T.hex)>=1.6;}
+function randomize(){history.push({selections:cloneSelections(),name:currentComboName,seed:currentNameSeed});let combo=cloneSelections();for(let tries=0;tries<1500;tries++){const used=new Set(ROLES.filter(r=>lockedRoles[r.key]).map(r=>combo[r.key].number));ROLES.forEach(r=>{if(!lockedRoles[r.key]){const opts=COLORS.filter(c=>!used.has(c.number));combo[r.key]=opts[Math.floor(Math.random()*opts.length)];used.add(combo[r.key].number);}});if(isReadable(combo))break;}selections=combo;currentNameSeed=0;currentComboName=generateComboName();renderAll();}
+function back(){const prev=history.pop();if(!prev)return;selections=cloneSelections(prev.selections);currentComboName=prev.name;currentNameSeed=prev.seed;renderAll();}
+function newName(){currentNameSeed++;currentComboName=generateComboName(selections,currentNameSeed);renderAll();}
+function openSaveDrawer(kind){pendingSaveKind=kind;const title=kind==='made'?'SAVE TO MADE COMBOS':'SAVE TO DIGGED COMBOS';el('drawerTitle').textContent=title;el('confirmSave').textContent=title;el('drawerSub').textContent='';el('saveDrawer').classList.add('open');el('saveDrawer').setAttribute('aria-hidden','false');setTimeout(()=>el('saveName').focus(),40);updateSaveState();}
+function closeSaveDrawer(){el('saveDrawer').classList.remove('open');el('saveDrawer').setAttribute('aria-hidden','true');}
+function savePending(){const name=el('saveName').value.trim();if(!name){el('saveName').focus();updateSaveState();return;}saved.unshift({kind:pendingSaveKind,name,note:el('saveNote').value.trim(),comboName:currentComboName,selections:cloneSelections(),at:new Date().toISOString()});saved=saved.slice(0,30);localStorage.setItem(STORAGE,JSON.stringify(saved));el('saveNote').value='';renderSaved();closeSaveDrawer();updateSaveState();}
+function escapeHTML(s=''){return String(s).replace(/[&<>'"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]));}
+function renderSavedList(id,kind){const list=saved.filter(x=>x.kind===kind),box=el(id);box.innerHTML='';if(!list.length){box.innerHTML='<div class="empty">No saved combos yet.</div>';return;}list.forEach(item=>{const idx=saved.indexOf(item),meta=ROLES.map(r=>item.selections[r.key].number).join(' / ');const d=document.createElement('div');d.className='saved-card';d.innerHTML=`<button class="delete" aria-label="delete">×</button><div class="saved-colors">${ROLES.map(r=>`<span class="mini" style="background:${item.selections[r.key].hex}"></span>`).join('')}</div><div class="saved-title">${escapeHTML(item.comboName)}</div><div class="saved-meta">${meta} · by ${escapeHTML(item.name)}</div>${item.note?`<div class="saved-note">${escapeHTML(item.note)}</div>`:''}`;d.onclick=e=>{if(e.target.className==='delete')return;selections=cloneSelections(item.selections);currentComboName=item.comboName;renderAll();};d.querySelector('.delete').onclick=()=>{if(confirm('Delete "'+item.comboName+'"?')){saved.splice(idx,1);localStorage.setItem(STORAGE,JSON.stringify(saved));renderSaved();}};box.appendChild(d);});}
+function renderSaved(){renderSavedList('digCombos','dig');renderSavedList('madeCombos','made');}
+function updateSaveState(){const ok=!!el('saveName').value.trim();el('confirmSave').disabled=!ok;el('saveBtn').classList.toggle('active-save',pendingSaveKind==='dig'&&el('saveDrawer').classList.contains('open'));el('madeBtn').classList.toggle('active-save',pendingSaveKind==='made'&&el('saveDrawer').classList.contains('open'));}
+function renderAll(){drawChart();renderDots();renderRoles();renderPalette();metrics();el('backBtn').disabled=!history.length;updateSaveState();}
+function init(){try{saved=JSON.parse(localStorage.getItem(STORAGE)||'[]');}catch(e){saved=[]}renderFilters();renderSaved();renderAll();}
+el('gridToggle').onchange=drawChart;el('randomBtn').onclick=randomize;el('backBtn').onclick=back;el('newNameBtn').onclick=newName;el('saveBtn').onclick=()=>openSaveDrawer('dig');el('madeBtn').onclick=()=>openSaveDrawer('made');el('confirmSave').onclick=savePending;el('cancelSave').onclick=closeSaveDrawer;el('closeSaveDrawer').onclick=closeSaveDrawer;el('saveDrawer').addEventListener('click',e=>{if(e.target.id==='saveDrawer')closeSaveDrawer();});el('search').oninput=renderPalette;el('saveName').oninput=updateSaveState;window.addEventListener('resize',drawChart);init();
+</script>
+</body>
+</html>
