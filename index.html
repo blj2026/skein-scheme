@@ -425,9 +425,10 @@ const ROLES=[{key:'D',label:'Main',defaultNumber:'9689'},{key:'L',label:'Contras
 const ROLE_LABELS=Object.fromEntries(ROLES.map(r=>[r.key,r.label]));
 const DEFAULT_SELECTIONS=Object.fromEntries(ROLES.map(r=>[r.key,COLORS.find(c=>c.number===r.defaultNumber)||COLORS[0]]));
 let selections={...DEFAULT_SELECTIONS}, activeRole='D', lockedRoles=Object.fromEntries(ROLES.map(r=>[r.key,false])), history=[], saved=[], pendingSaveKind='dig';
-let currentComboName='starter mix', currentNameSeed=0, filter='Full Palette', randomSource='full', stashInventory={}, adminUnlocked=false;
+let currentComboName='starter mix', currentNameSeed=0, filter='Full Palette', randomSource='full', stashInventory={};
 const STORAGE='skeinSchemeSavedCombosLocalBackupV1';
-const STASH_STORAGE='skeinSchemeCurrentStashV1';
+const STASH_STORAGE='skeinSchemeCurrentStashCacheV1';
+const STASH_TABLE='stash_inventory';
 const ADMIN_CODE='123';
 const el=id=>document.getElementById(id);
 const SUPABASE_URL='https://upyxpakxrpudsudsencg.supabase.co';
@@ -440,26 +441,67 @@ function contrastRatio(a,b){const l1=luminance(a),l2=luminance(b);return (Math.m
 function rgbToHsl(hex){const [r,g,b]=hexToRgb(hex).map(v=>v/255),max=Math.max(r,g,b),min=Math.min(r,g,b);let h=0,s=0,l=(max+min)/2;if(max!==min){const d=max-min;s=l>.5?d/(2-max-min):d/(max+min);h=max===r?(g-b)/d+(g<b?6:0):max===g?(b-r)/d+2:(r-g)/d+4;h/=6}return {h:h*360,s,l};}
 function hueFamily(c){const {h,s,l}=rgbToHsl(c.hex);if(s<.14||l<.12||l>.92)return 'Neutral'; if(h<18||h>=345)return 'Warm'; if(h<70)return 'Warm'; if(h<160)return 'Green'; if(h<205)return 'Cool'; if(h<255)return 'Cool'; if(h<320)return 'Purple'; return 'Warm';}
 function cloneSelections(src=selections){return Object.fromEntries(ROLES.map(r=>[r.key,src[r.key]]));}
-function loadStashInventory(){
+function loadCachedStashInventory(){
   try{stashInventory=JSON.parse(localStorage.getItem(STASH_STORAGE)||'{}')||{};}catch(e){stashInventory={};}
 }
-function saveStashInventory(){
+function cacheStashInventory(){
   try{localStorage.setItem(STASH_STORAGE,JSON.stringify(stashInventory));}catch(e){}
 }
-function isInStash(color){return !!stashInventory[color.number];}
-function stashColors(){return COLORS.filter(c=>isInStash(c));}
-function ensureAdmin(){
-  if(adminUnlocked) return true;
-  const code=prompt('Thinking this belongs in current inventory? Contact Bryant Thee Builder.\n\nAdmin code:');
-  if(code===ADMIN_CODE){adminUnlocked=true;return true;}
-  if(code!==null) alert('Incorrect admin code.');
-  return false;
+async function loadStashInventory(){
+  loadCachedStashInventory();
+  if(!db){
+    console.warn('Supabase unavailable; using cached stash inventory only.');
+    return;
+  }
+
+  const {data,error}=await db.from(STASH_TABLE).select('color_number,in_stash');
+  if(error){
+    console.error('Shared stash load failed; using cached stash inventory.',error);
+    return;
+  }
+
+  stashInventory={};
+  (data||[]).forEach(row=>{
+    if(row.in_stash) stashInventory[String(row.color_number)]=true;
+  });
+  cacheStashInventory();
 }
-function toggleStash(color){
-  if(!ensureAdmin()) return;
-  stashInventory[color.number]=!stashInventory[color.number];
-  if(!stashInventory[color.number]) delete stashInventory[color.number];
-  saveStashInventory();
+function isInStash(color){return !!stashInventory[String(color.number)];}
+function stashColors(){return COLORS.filter(c=>isInStash(c));}
+function askAdminCode(){
+  const code=prompt('Thinking this belongs in current inventory? Contact Bryant Thee Builder.\n\nAdmin code:');
+  if(code===null) return null;
+  if(!code.trim()) return '';
+  return code.trim();
+}
+async function toggleStash(color){
+  const code=askAdminCode();
+  if(code===null) return;
+
+  const colorNumber=String(color.number);
+  const nextValue=!isInStash(color);
+
+  if(!db){
+    alert('Shared stash is unavailable right now. This needs Supabase connected so Bryant\'s Yarn Wall updates for everyone.');
+    return;
+  }
+
+  const {error}=await db.rpc('set_stash_admin',{
+    color_number_input: colorNumber,
+    in_stash_input: nextValue,
+    admin_code: code
+  });
+
+  if(error){
+    console.error('Shared stash update failed',error);
+    alert('Could not update Current Stash. Check admin code or Supabase stash setup.');
+    return;
+  }
+
+  if(nextValue) stashInventory[colorNumber]=true;
+  else delete stashInventory[colorNumber];
+
+  cacheStashInventory();
   renderPalette();
   renderSourceButtons();
 }
@@ -806,7 +848,9 @@ async function loadSharedCombos(){
   renderSaved();
 }
 async function init(){
-  loadStashInventory(); renderFilters(); renderAll();
+  renderFilters(); renderAll();
+  await loadStashInventory();
+  renderAll();
   await loadSharedCombos();
 }
 el('gridToggle').onchange=drawChart;el('randomBtn').onclick=randomize;el('backBtn').onclick=back;el('sourceFullBtn').onclick=()=>setRandomSource('full');el('sourceStashBtn').onclick=()=>setRandomSource('stash');el('newNameBtn').onclick=newName;el('saveBtn').onclick=()=>openSaveDrawer('dig');el('madeBtn').onclick=()=>openSaveDrawer('made');el('confirmSave').onclick=savePending;el('cancelSave').onclick=closeSaveDrawer;el('closeSaveDrawer').onclick=closeSaveDrawer;el('saveDrawer').addEventListener('click',e=>{if(e.target.id==='saveDrawer')closeSaveDrawer();});el('search').oninput=renderPalette;el('saveName').oninput=updateSaveState;window.addEventListener('resize',drawChart);init();
