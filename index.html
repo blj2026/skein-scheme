@@ -306,6 +306,77 @@ label:has(#gridToggle) {
   display: none !important;
 }
 
+
+/* v30: Current Stash inventory + skinny source selector */
+.source-row{
+  grid-column:1 / -1;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  margin:-1px 0 0;
+}
+.source-btn{
+  min-height:28px;
+  padding:5px 8px;
+  border:1px solid var(--line);
+  border-radius:999px;
+  background:#fffaf2;
+  color:#111;
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+  cursor:pointer;
+}
+.source-btn.active{
+  background:#111;
+  color:#fff;
+  border-color:#111;
+}
+.source-warning{
+  display:none;
+  grid-column:1 / -1;
+  margin:-1px 0 0;
+  padding:7px 9px;
+  border:1px dashed var(--line);
+  border-radius:12px;
+  background:#f8f2e7;
+  color:var(--muted);
+  font-size:10px;
+  font-weight:700;
+  line-height:1.25;
+}
+.source-warning.show{display:block;}
+.stash-check{
+  position:absolute;
+  top:5px;
+  right:5px;
+  width:14px;
+  height:14px;
+  border:1px solid rgba(17,17,17,.26);
+  border-radius:999px;
+  background:rgba(255,250,242,.62);
+  color:#9b9186;
+  display:grid;
+  place-items:center;
+  font-size:9px;
+  font-weight:900;
+  line-height:1;
+  z-index:2;
+  cursor:pointer;
+  box-shadow:0 1px 2px rgba(18,18,18,.08);
+}
+.color-btn.in-stash .stash-check{
+  background:#111;
+  color:#fff;
+  border-color:#111;
+}
+@media (max-width:720px){
+  .source-row{gap:9px;}
+  .source-btn{min-height:29px;font-size:9px;padding:5px 6px;}
+  .stash-check{width:15px;height:15px;font-size:9px;}
+}
+
 </style>
 </head>
 <body>
@@ -317,7 +388,7 @@ label:has(#gridToggle) {
       <section class="card chart-card" data-panel="chart">
         <div class="combo-strip"><div class="combo-left"><strong id="comboName">starter mix</strong><div class="dots" id="comboDots"></div></div><button class="icon-btn name-new-btn" id="newNameBtn" title="Generate a new combo name">new name ↺</button><label class="toggle">Grid <input id="gridToggle" type="checkbox" checked /></label></div>
         <div class="chart-scroll"><div id="chart"></div></div><p id="chartInfo" style="display:none"></p>
-        <div class="actions" data-panel="actions"><button class="btn primary" id="randomBtn">Randomize</button><button class="btn" id="backBtn" disabled>Back</button><button class="btn save-action" id="saveBtn">I Dig This!</button><button class="btn save-action" id="madeBtn">I Made This!</button></div>
+        <div class="actions" data-panel="actions"><button class="btn primary" id="randomBtn">Randomize</button><button class="btn" id="backBtn" disabled>Back</button><div class="source-row"><button class="source-btn active" id="sourceFullBtn" type="button">Full Palette</button><button class="source-btn" id="sourceStashBtn" type="button">Current Stash</button><div class="source-warning" id="stashWarning">Add at least 5 colors to Current Stash before randomizing from it.</div></div><button class="btn save-action" id="saveBtn">I Dig This!</button><button class="btn save-action" id="madeBtn">I Made This!</button></div>
         
       </section>
       <div class="below">
@@ -354,8 +425,11 @@ const ROLES=[{key:'D',label:'Main',defaultNumber:'9689'},{key:'L',label:'Contras
 const ROLE_LABELS=Object.fromEntries(ROLES.map(r=>[r.key,r.label]));
 const DEFAULT_SELECTIONS=Object.fromEntries(ROLES.map(r=>[r.key,COLORS.find(c=>c.number===r.defaultNumber)||COLORS[0]]));
 let selections={...DEFAULT_SELECTIONS}, activeRole='D', lockedRoles=Object.fromEntries(ROLES.map(r=>[r.key,false])), history=[], saved=[], pendingSaveKind='dig';
-let currentComboName='starter mix', currentNameSeed=0, filter='All';
-const STORAGE='skeinSchemeSavedCombosLocalBackupV1'; const el=id=>document.getElementById(id);
+let currentComboName='starter mix', currentNameSeed=0, filter='Full Palette', randomSource='full', stashInventory={}, adminUnlocked=false;
+const STORAGE='skeinSchemeSavedCombosLocalBackupV1';
+const STASH_STORAGE='skeinSchemeCurrentStashV1';
+const ADMIN_CODE='123';
+const el=id=>document.getElementById(id);
 const SUPABASE_URL='https://upyxpakxrpudsudsencg.supabase.co';
 const SUPABASE_KEY='sb_publishable_WWCfJ2OsbQVguApac-Rnaw_PnqILcDf';
 let db=null;
@@ -366,6 +440,43 @@ function contrastRatio(a,b){const l1=luminance(a),l2=luminance(b);return (Math.m
 function rgbToHsl(hex){const [r,g,b]=hexToRgb(hex).map(v=>v/255),max=Math.max(r,g,b),min=Math.min(r,g,b);let h=0,s=0,l=(max+min)/2;if(max!==min){const d=max-min;s=l>.5?d/(2-max-min):d/(max+min);h=max===r?(g-b)/d+(g<b?6:0):max===g?(b-r)/d+2:(r-g)/d+4;h/=6}return {h:h*360,s,l};}
 function hueFamily(c){const {h,s,l}=rgbToHsl(c.hex);if(s<.14||l<.12||l>.92)return 'Neutral'; if(h<18||h>=345)return 'Warm'; if(h<70)return 'Warm'; if(h<160)return 'Green'; if(h<205)return 'Cool'; if(h<255)return 'Cool'; if(h<320)return 'Purple'; return 'Warm';}
 function cloneSelections(src=selections){return Object.fromEntries(ROLES.map(r=>[r.key,src[r.key]]));}
+function loadStashInventory(){
+  try{stashInventory=JSON.parse(localStorage.getItem(STASH_STORAGE)||'{}')||{};}catch(e){stashInventory={};}
+}
+function saveStashInventory(){
+  try{localStorage.setItem(STASH_STORAGE,JSON.stringify(stashInventory));}catch(e){}
+}
+function isInStash(color){return !!stashInventory[color.number];}
+function stashColors(){return COLORS.filter(c=>isInStash(c));}
+function ensureAdmin(){
+  if(adminUnlocked) return true;
+  const code=prompt('Thinking this belongs in current inventory? Contact Bryant Thee Builder.\n\nAdmin code:');
+  if(code===ADMIN_CODE){adminUnlocked=true;return true;}
+  if(code!==null) alert('Incorrect admin code.');
+  return false;
+}
+function toggleStash(color){
+  if(!ensureAdmin()) return;
+  stashInventory[color.number]=!stashInventory[color.number];
+  if(!stashInventory[color.number]) delete stashInventory[color.number];
+  saveStashInventory();
+  renderPalette();
+  renderSourceButtons();
+}
+function setRandomSource(source){
+  randomSource=source;
+  if(source==='stash') filter='Current Stash';
+  if(source==='full' && filter==='Current Stash') filter='Full Palette';
+  renderSourceButtons();
+  renderFilters();
+  renderPalette();
+}
+function renderSourceButtons(){
+  const full=el('sourceFullBtn'), stash=el('sourceStashBtn'), warn=el('stashWarning');
+  if(full) full.classList.toggle('active',randomSource==='full');
+  if(stash) stash.classList.toggle('active',randomSource==='stash');
+  if(warn) warn.classList.toggle('show',randomSource==='stash' && stashColors().length<ROLES.length);
+}
 function comboHash(combo=selections){return ROLES.reduce((s,r,i)=>s+[...String(combo[r.key].number)].reduce((a,ch)=>a+ch.charCodeAt(0),0)*(i+7),0);}
 const bannedWords = [
   "hue", "palette", "color", "dream", "magic", "delight", "splash", "pop",
@@ -545,35 +656,80 @@ function getPattern(){const base=PATTERN.map(r=>r.repeat(3));let width=base[0].l
 function drawChart(){const chart=el('chart'),pat=getPattern(),show=el('gridToggle').checked;chart.innerHTML='';chart.style.gridTemplateColumns=`repeat(${pat[0].length},12px)`;chart.style.borderRight=show?'1px solid #56524d':'1px solid transparent';chart.style.borderBottom=show?'1px solid #56524d':'1px solid transparent';pat.forEach(row=>row.split('').forEach(k=>{const d=document.createElement('div');d.className='cell';d.style.background=(selections[k]||selections.D).hex;d.style.borderLeft=show?'1px solid #56524d':'1px solid transparent';d.style.borderTop=show?'1px solid #56524d':'1px solid transparent';chart.appendChild(d);}));}
 function renderDots(){el('comboDots').innerHTML=ROLES.map(r=>`<span class="dot" style="background:${selections[r.key].hex}"></span>`).join(''); el('comboName').textContent=currentComboName;}
 function renderRoles(){el('activeRoleLabel').textContent=ROLE_LABELS[activeRole];el('roleCards').innerHTML='';ROLES.forEach(r=>{const c=selections[r.key];const card=document.createElement('button');card.className='role-card'+(activeRole===r.key?' active':'')+(lockedRoles[r.key]?' locked':'');card.innerHTML=`<div class="role-dot" style="background:${c.hex}"></div><div class="role-label">${r.label}</div><div class="role-num">${c.number}</div><div class="role-name">${c.name}</div><label class="lock-wrap"><input class="lock-check" type="checkbox" ${lockedRoles[r.key]?'checked':''}> lock</label>`;card.addEventListener('click',()=>{activeRole=r.key;renderAll();});card.querySelector('.lock-check').addEventListener('click',e=>{e.stopPropagation();lockedRoles[r.key]=e.target.checked;renderAll();});el('roleCards').appendChild(card);});}
-function renderFilters(){const items=['All','Warm','Cool','Green','Purple','Neutral'];el('filters').innerHTML=items.map(x=>`<button class="filter ${filter===x?'active':''}" data-filter="${x}">${x}</button>`).join('');document.querySelectorAll('.filter').forEach(b=>b.onclick=()=>{filter=b.dataset.filter;renderPalette();renderFilters();});}
-function renderPalette(){const q=el('search').value.trim().toLowerCase();const p=el('palette');p.innerHTML='';COLORS.filter(c=>(filter==='All'||hueFamily(c)===filter)&&(!q||c.name.toLowerCase().includes(q)||c.number.toLowerCase().includes(q)||c.hex.toLowerCase().includes(q))).forEach(c=>{const used=ROLES.some(r=>selections[r.key].number===c.number);const b=document.createElement('button');b.className='color-btn'+(used?' selected':'');b.innerHTML=`<div class="color-swatch" style="background:${c.hex}"></div><div class="color-num">${c.number}</div><div class="color-name">${c.name}</div>`;b.onclick=()=>{selections[activeRole]=c;currentComboName='custom mix';currentNameSeed=0;renderAll();};p.appendChild(b);});}
+function renderFilters(){const items=['Full Palette','Current Stash'];el('filters').innerHTML=items.map(x=>`<button class="filter ${filter===x?'active':''}" data-filter="${x}">${x}</button>`).join('');document.querySelectorAll('.filter').forEach(b=>b.onclick=()=>{filter=b.dataset.filter;randomSource=(filter==='Current Stash')?'stash':'full';renderSourceButtons();renderPalette();renderFilters();});}
+function renderPalette(){const q=el('search').value.trim().toLowerCase();const p=el('palette');p.innerHTML='';COLORS.filter(c=>(filter==='Full Palette'||isInStash(c))&&(!q||c.name.toLowerCase().includes(q)||c.number.toLowerCase().includes(q)||c.hex.toLowerCase().includes(q))).forEach(c=>{const used=ROLES.some(r=>selections[r.key].number===c.number);const inStash=isInStash(c);const b=document.createElement('button');b.className='color-btn'+(used?' selected':'')+(inStash?' in-stash':'');b.innerHTML=`<span class="stash-check" title="Toggle Current Stash" aria-label="Toggle Current Stash">✓</span><div class="color-swatch" style="background:${c.hex}"></div><div class="color-num">${c.number}</div><div class="color-name">${c.name}</div>`;b.onclick=()=>{selections[activeRole]=c;currentComboName='custom mix';currentNameSeed=0;renderAll();};b.querySelector('.stash-check').onclick=e=>{e.stopPropagation();toggleStash(c);};p.appendChild(b);});}
 function metrics(){const pairs=[['Main vs Contrast',selections.D,selections.L,3],['Main vs Accent',selections.D,selections.M,1.6],['Stripe A vs B',selections.S,selections.T,1.6]];el('metrics').innerHTML=pairs.map(([t,a,b,target])=>{const r=contrastRatio(a.hex,b.hex),w=Math.min(100,Math.round(r/7*100));return `<div class="metric"><div class="metric-top"><span>${t}</span><strong>${r.toFixed(1)}:1</strong></div><div class="bar"><div class="fill" style="width:${w}%"></div></div></div>`;}).join('');}
 function isReadable(combo){const nums=ROLES.map(r=>combo[r.key].number);return new Set(nums).size===nums.length&&contrastRatio(combo.D.hex,combo.L.hex)>=3&&contrastRatio(combo.D.hex,combo.M.hex)>=1.6&&contrastRatio(combo.S.hex,combo.T.hex)>=1.6;}
-function randomize(){history.push({selections:cloneSelections(),name:currentComboName,seed:currentNameSeed});let combo=cloneSelections();for(let tries=0;tries<1500;tries++){const used=new Set(ROLES.filter(r=>lockedRoles[r.key]).map(r=>combo[r.key].number));ROLES.forEach(r=>{if(!lockedRoles[r.key]){const opts=COLORS.filter(c=>!used.has(c.number));combo[r.key]=opts[Math.floor(Math.random()*opts.length)];used.add(combo[r.key].number);}});if(isReadable(combo))break;}selections=combo;currentNameSeed=0;currentComboName=generateComboName();renderAll();}
+function randomize(){
+  const pool=randomSource==='stash'?stashColors():COLORS;
+  if(pool.length<ROLES.length){
+    renderSourceButtons();
+    return;
+  }
+  history.push({selections:cloneSelections(),name:currentComboName,seed:currentNameSeed});
+  let combo=cloneSelections();
+  for(let tries=0;tries<1500;tries++){
+    const used=new Set(ROLES.filter(r=>lockedRoles[r.key]).map(r=>combo[r.key].number));
+    ROLES.forEach(r=>{
+      if(!lockedRoles[r.key]){
+        const opts=pool.filter(c=>!used.has(c.number));
+        if(opts.length){
+          combo[r.key]=opts[Math.floor(Math.random()*opts.length)];
+          used.add(combo[r.key].number);
+        }
+      }
+    });
+    if(isReadable(combo))break;
+  }
+  selections=combo;currentNameSeed=0;currentComboName=generateComboName();renderAll();
+}
 function back(){const prev=history.pop();if(!prev)return;selections=cloneSelections(prev.selections);currentComboName=prev.name;currentNameSeed=prev.seed;renderAll();}
 function newName(){currentNameSeed++;currentComboName=generateComboName(selections,currentNameSeed);renderAll();}
 function openSaveDrawer(kind){pendingSaveKind=kind;const title=kind==='made'?'SAVE TO MADE COMBOS':'SAVE TO DIGGED COMBOS';el('drawerTitle').textContent=title;el('confirmSave').textContent=title;el('drawerSub').textContent='';el('saveDrawer').classList.add('open');el('saveDrawer').setAttribute('aria-hidden','false');setTimeout(()=>el('saveName').focus(),40);updateSaveState();}
 function closeSaveDrawer(){el('saveDrawer').classList.remove('open');el('saveDrawer').setAttribute('aria-hidden','true');}
+let saveInProgress=false;
 async function savePending(){
+  if(saveInProgress) return;
   const name=el('saveName').value.trim();
   if(!name){el('saveName').focus();updateSaveState();return;}
+
+  saveInProgress=true;
+  el('confirmSave').disabled=true;
+
   const item={kind:pendingSaveKind,name,note:el('saveNote').value.trim(),comboName:currentComboName,selections:cloneSelections(),at:new Date().toISOString()};
-  saved.unshift(item); saved=saved.slice(0,60);
-  try{localStorage.setItem(STORAGE,JSON.stringify(saved.filter(x=>!x.remote)));}catch(e){}
-  renderSaved(); closeSaveDrawer(); updateSaveState();
-  if(db){
-    const payload={
-      type: item.kind==='dig'?'digged':'made',
-      combo_name:item.comboName,
-      saved_by:item.name,
-      note:item.note||null,
-      colors_json:item.selections
-    };
-    const {error}=await db.from('combos').insert(payload);
-    if(error){console.error('Supabase save failed',error); alert('Shared save failed. It saved locally on this device only.');}
-    else{await loadSharedCombos();}
+
+  try{
+    if(db){
+      const payload={
+        type: item.kind==='dig'?'digged':'made',
+        combo_name:item.comboName,
+        saved_by:item.name,
+        note:item.note||null,
+        colors_json:item.selections
+      };
+      const {error}=await db.from('combos').insert(payload);
+      if(error){
+        console.error('Supabase save failed',error);
+        saved.unshift(item); saved=saved.slice(0,60);
+        try{localStorage.setItem(STORAGE,JSON.stringify(saved.filter(x=>!x.remote)));}catch(e){}
+        renderSaved();
+        alert('Shared save failed. It saved locally on this device only.');
+      }else{
+        await loadSharedCombos();
+      }
+    }else{
+      saved.unshift(item); saved=saved.slice(0,60);
+      try{localStorage.setItem(STORAGE,JSON.stringify(saved.filter(x=>!x.remote)));}catch(e){}
+      renderSaved();
+    }
+
+    closeSaveDrawer();
+    el('saveName').value='';
+    el('saveNote').value='';
+  }finally{
+    saveInProgress=false;
+    updateSaveState();
   }
-  el('saveNote').value='';
 }
 function escapeHTML(s=''){return String(s).replace(/[&<>'"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]));}
 function renderSavedList(id,kind){
@@ -629,7 +785,7 @@ async function deleteSavedItem(item){
 }
 function renderSaved(){renderSavedList('digCombos','dig');renderSavedList('madeCombos','made');}
 function updateSaveState(){const ok=!!el('saveName').value.trim();el('confirmSave').disabled=!ok;el('saveBtn').classList.toggle('active-save',pendingSaveKind==='dig'&&el('saveDrawer').classList.contains('open'));el('madeBtn').classList.toggle('active-save',pendingSaveKind==='made'&&el('saveDrawer').classList.contains('open'));}
-function renderAll(){drawChart();renderDots();renderRoles();renderPalette();metrics();el('backBtn').disabled=!history.length;updateSaveState();}
+function renderAll(){drawChart();renderDots();renderRoles();renderPalette();metrics();renderSourceButtons();el('backBtn').disabled=!history.length;updateSaveState();}
 async function loadSharedCombos(){
   let local=[];
   try{local=JSON.parse(localStorage.getItem(STORAGE)||'[]');}catch(e){local=[];}
@@ -650,10 +806,10 @@ async function loadSharedCombos(){
   renderSaved();
 }
 async function init(){
-  renderFilters(); renderAll();
+  loadStashInventory(); renderFilters(); renderAll();
   await loadSharedCombos();
 }
-el('gridToggle').onchange=drawChart;el('randomBtn').onclick=randomize;el('backBtn').onclick=back;el('newNameBtn').onclick=newName;el('saveBtn').onclick=()=>openSaveDrawer('dig');el('madeBtn').onclick=()=>openSaveDrawer('made');el('confirmSave').onclick=savePending;el('cancelSave').onclick=closeSaveDrawer;el('closeSaveDrawer').onclick=closeSaveDrawer;el('saveDrawer').addEventListener('click',e=>{if(e.target.id==='saveDrawer')closeSaveDrawer();});el('search').oninput=renderPalette;el('saveName').oninput=updateSaveState;window.addEventListener('resize',drawChart);init();
+el('gridToggle').onchange=drawChart;el('randomBtn').onclick=randomize;el('backBtn').onclick=back;el('sourceFullBtn').onclick=()=>setRandomSource('full');el('sourceStashBtn').onclick=()=>setRandomSource('stash');el('newNameBtn').onclick=newName;el('saveBtn').onclick=()=>openSaveDrawer('dig');el('madeBtn').onclick=()=>openSaveDrawer('made');el('confirmSave').onclick=savePending;el('cancelSave').onclick=closeSaveDrawer;el('closeSaveDrawer').onclick=closeSaveDrawer;el('saveDrawer').addEventListener('click',e=>{if(e.target.id==='saveDrawer')closeSaveDrawer();});el('search').oninput=renderPalette;el('saveName').oninput=updateSaveState;window.addEventListener('resize',drawChart);init();
 </script>
 </body>
 </html>
