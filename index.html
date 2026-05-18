@@ -263,6 +263,41 @@ input[type="checkbox"].role-lock,
   background-image: url("data:image/svg+xml,%3Csvg width='18' height='18' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Crect x='6' y='10' width='12' height='10' rx='2' stroke='white' stroke-width='2.4'/%3E%3Cpath d='M8.5 10V7.8C8.5 5.7 10.1 4 12 4C13.9 4 15.5 5.7 15.5 7.8V10' stroke='white' stroke-width='2.4' stroke-linecap='round'/%3E%3C/svg%3E") !important;
 }
 
+
+/* v27: visible admin-delete x on saved combo cards */
+.saved-card {
+  position: relative !important;
+  padding-right: 34px !important;
+}
+
+.saved-card .delete,
+.delete {
+  display: grid !important;
+  place-items: center !important;
+  position: absolute !important;
+  top: 8px !important;
+  right: 8px !important;
+  width: 22px !important;
+  height: 22px !important;
+  border: 1px solid rgba(17,17,17,.45) !important;
+  border-radius: 8px !important;
+  background: #f8f4ec !important;
+  color: #111 !important;
+  font-family: inherit !important;
+  font-size: 14px !important;
+  font-weight: 900 !important;
+  line-height: 1 !important;
+  cursor: pointer !important;
+  opacity: .78 !important;
+}
+
+.saved-card .delete:hover,
+.delete:hover {
+  opacity: 1 !important;
+  background: #111 !important;
+  color: #fff !important;
+}
+
 </style>
 </head>
 <body>
@@ -533,7 +568,57 @@ async function savePending(){
   el('saveNote').value='';
 }
 function escapeHTML(s=''){return String(s).replace(/[&<>'"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]));}
-function renderSavedList(id,kind){const list=saved.filter(x=>x.kind===kind),box=el(id);box.innerHTML='';if(!list.length){box.innerHTML='<div class="empty">No saved combos yet.</div>';return;}list.forEach(item=>{const idx=saved.indexOf(item),meta=ROLES.map(r=>item.selections?.[r.key]?.number||'').join(' / ');const d=document.createElement('div');d.className='saved-card';const deleteButton=item.remote?'':`<button class="delete" aria-label="delete">×</button>`;d.innerHTML=`${deleteButton}<div class="saved-colors">${ROLES.map(r=>`<span class="mini" style="background:${item.selections?.[r.key]?.hex||'#ddd'}"></span>`).join('')}</div><div class="saved-title">${escapeHTML(item.comboName)}</div><div class="saved-meta">${meta} · by ${escapeHTML(item.name)}</div>${item.note?`<div class="saved-note">${escapeHTML(item.note)}</div>`:''}`;d.onclick=e=>{if(e.target.className==='delete')return;selections=cloneSelections(item.selections);currentComboName=item.comboName;renderAll();};const del=d.querySelector('.delete');if(del){del.onclick=()=>{if(confirm('Delete "'+item.comboName+'"?')){saved.splice(idx,1);try{localStorage.setItem(STORAGE,JSON.stringify(saved.filter(x=>!x.remote)));}catch(e){}renderSaved();}};}box.appendChild(d);});}
+function renderSavedList(id,kind){
+  const list=saved.filter(x=>x.kind===kind),box=el(id);
+  box.innerHTML='';
+  if(!list.length){box.innerHTML='<div class="empty">No saved combos yet.</div>';return;}
+  list.forEach(item=>{
+    const meta=ROLES.map(r=>item.selections?.[r.key]?.number||'').join(' / ');
+    const d=document.createElement('div');
+    d.className='saved-card';
+    const deleteButton=`<button class="delete" aria-label="delete">×</button>`;
+    d.innerHTML=`${deleteButton}<div class="saved-colors">${ROLES.map(r=>`<span class="mini" style="background:${item.selections?.[r.key]?.hex||'#ddd'}"></span>`).join('')}</div><div class="saved-title">${escapeHTML(item.comboName)}</div><div class="saved-meta">${meta} · by ${escapeHTML(item.name)}</div>${item.note?`<div class="saved-note">${escapeHTML(item.note)}</div>`:''}`;
+    d.onclick=e=>{if(e.target.className==='delete')return;selections=cloneSelections(item.selections);currentComboName=item.comboName;renderAll();};
+    const del=d.querySelector('.delete');
+    del.onclick=async(event)=>{
+      event.stopPropagation();
+      await deleteSavedItem(item);
+    };
+    box.appendChild(d);
+  });
+}
+
+async function deleteSavedItem(item){
+  if(!item) return;
+
+  if(item.remote){
+    const code=prompt('Admin code:');
+    if(!code) return;
+
+    if(!db){
+      alert('Shared delete is unavailable right now.');
+      return;
+    }
+
+    const {error}=await db.rpc('delete_combo_admin',{combo_id:item.id,admin_code:code});
+    if(error){
+      console.error('Supabase delete failed',error);
+      alert('Delete failed. Check admin code or Supabase delete setup.');
+      return;
+    }
+
+    saved=saved.filter(x=>x!==item);
+    renderSaved();
+    await loadSharedCombos();
+    return;
+  }
+
+  if(confirm('Delete "'+item.comboName+'"?')){
+    saved=saved.filter(x=>x!==item);
+    try{localStorage.setItem(STORAGE,JSON.stringify(saved.filter(x=>!x.remote)));}catch(e){}
+    renderSaved();
+  }
+}
 function renderSaved(){renderSavedList('digCombos','dig');renderSavedList('madeCombos','made');}
 function updateSaveState(){const ok=!!el('saveName').value.trim();el('confirmSave').disabled=!ok;el('saveBtn').classList.toggle('active-save',pendingSaveKind==='dig'&&el('saveDrawer').classList.contains('open'));el('madeBtn').classList.toggle('active-save',pendingSaveKind==='made'&&el('saveDrawer').classList.contains('open'));}
 function renderAll(){drawChart();renderDots();renderRoles();renderPalette();metrics();el('backBtn').disabled=!history.length;updateSaveState();}
@@ -547,6 +632,7 @@ async function loadSharedCombos(){
     kind: row.type==='digged'?'dig':'made',
     name: row.saved_by||'',
     note: row.note||'',
+    id: row.id,
     comboName: row.combo_name||'saved combo',
     selections: row.colors_json,
     at: row.created_at,
