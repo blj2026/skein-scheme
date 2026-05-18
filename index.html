@@ -324,97 +324,178 @@ function rgbToHsl(hex){const [r,g,b]=hexToRgb(hex).map(v=>v/255),max=Math.max(r,
 function hueFamily(c){const {h,s,l}=rgbToHsl(c.hex);if(s<.14||l<.12||l>.92)return 'Neutral'; if(h<18||h>=345)return 'Warm'; if(h<70)return 'Warm'; if(h<160)return 'Green'; if(h<205)return 'Cool'; if(h<255)return 'Cool'; if(h<320)return 'Purple'; return 'Warm';}
 function cloneSelections(src=selections){return Object.fromEntries(ROLES.map(r=>[r.key,src[r.key]]));}
 function comboHash(combo=selections){return ROLES.reduce((s,r,i)=>s+[...String(combo[r.key].number)].reduce((a,ch)=>a+ch.charCodeAt(0),0)*(i+7),0);}
-const NAME_LIBRARY={
-  Warm:[
-    'copper low tide','ember side quest','paprika afterparty','ruby weather','sunset receipt','tomato trouble','marigold motel','canyon signal','hot toddy static','campfire mixtape','sour cherry radio','terracotta secret','gold rush detour','mars on main','citrus backbeat','ginger postcard','neon bee sting','pumpkin alley','rose riot','brick house special','sunflower noir','red velvet detour','camelot receipt','fire escape bloom','orange crush hour','hot sauce horoscope','honey in the headlights','cherry cola weather','spice cabinet static','tiger lily gossip'
-  ],
-  Green:[
-    'moss side quest','forest dial tone','pickle jar parade','sage advice','greenhouse ghost','clover afterhours','lichen low tide','spruce alibi','kelp receipt','garden static','olive secret menu','fern radio','juniper motel','bog walk deluxe','mint condition','evergreen detour','seaweed snack','pine needle noir','turtle signal','chive drive','rainforest errand','clover club','mossy moonwalk','green tea static','forest floor gossip','olive oil weather','shamrock side door','garden hose disco'
-  ],
-  Cool:[
-    'cobalt low tide','storm static','denim noir','harbor afterhours','sapphire detour','blue hour radio','lagoon receipt','deep end deluxe','moon pool','tidal signal','weather channel','dock light','midnight snack','aqua alibi','thunder denim','lapis side quest','pool hall hush','sea glass secret','bluegrass backbeat','rain barrel','pacific postcard','faded denim ghost','storm drain glitter','mallard motel','robin egg riot','summer sky static','harbor noir','cobalt coffee run'
-  ],
-  Purple:[
-    'plum afterparty','orchid side quest','velvet static','cabernet moon','violet low tide','blackberry weather','regal detour','amethyst receipt','cosmic snack','eggplant alibi','razzleberry radio','lavender noir','tutu trouble','magenta motel','grape soda ghost','purple hyacinth hour','dusty rose secret','moon grape','orchid alley','soft pink static','cerise signal','plum velvet drive','mystic postcard','peony backbeat','raspberry side door','cabernet gossip','violet weather report','lavender receipt'
-  ],
-  Neutral:[
-    'dune secret menu','charcoal sapphire','fog machine','smoke signal','stone cold picnic','graphite gossip','oat milk noir','driftwood detour','ash tray radio','river rock remix','walnut weather','black coffee','silver lining club','greystone ghost','brown paper ticket','sand dune static','natural causes','storm cloud receipt','doeskin daydream','van dyke afterhours','mocha motel','beige alibi','white noise weekend','fog hatt field note','charcoal low tide','smoke blue errand','jet set hush','aspen backbeat'
-  ],
-  contrast:[
-    'sharp little detour','plot twist picnic','left turn deluxe','high contrast club','static at midnight','window seat weather','loud little secret','signal flare','wrong turn pretty','sidewalk fireworks','checkerboard gossip','big mood small font','afterparty receipt','front porch drama','tiny thunder','bright spot noir','hard candy weather','clean getaway','contrast committee','electric soft launch'
-  ],
-  bright:[
-    'neon picnic','fruit stand gossip','daylight racket','spark plug special','citrus buzz','confetti weather','sugar rush motel','pop quiz pretty','sunlit side quest','glow worm club','highlighter hush','happy accident','daybreak detour','candy shop static','lucky penny parade','summer weird','bright but behaving','fresh paint','sidewalk sorbet','electric lemonade'
-  ],
-  quiet:[
-    'soft static','fog bank field trip','low voice deluxe','quiet little riot','murmur club','slow blink','sleepy signal','dust note','hush money','almost loud','library weather','soft launch','tiny echo','muted but nosy','shade garden','quiet coffee','low-key postcard','barely weird','undercover sweater','Sunday static'
-  ],
-  moody:[
-    'afterhours weather','night shift snack','shadow radio','low tide noir','storm note','late light','cloud cover club','midnight errand','black coffee run','moody little thing','basement disco','rain check','dark room receipt','noir picnic','back alley velvet','storm window','moonlit detour','late checkout','dimmer switch','secret midnight'
-  ],
-  mixed:[
-    'secret menu','house blend','analog weather','field note','daily special','side quest','odd little errand','left turn','remix receipt','friend of a friend','second breakfast','tiny side plot','good weird','soft chaos','weekend plans','parking lot postcard','snack drawer','low-stakes drama','color gossip','slightly unhinged but cute'
-  ]
+const bannedWords = [
+  "hue", "palette", "color", "dream", "magic", "delight", "splash", "pop",
+  "burst", "harmony", "symphony", "melody", "whimsy", "charm", "bliss",
+  "serenade", "radiance", "wonder", "essence", "journey", "bright idea"
+];
+
+const colorClues = {
+  green: ["Moss", "Fern", "Pine", "Olive", "Pickle", "Swamp", "Lichen", "Jade", "Cactus", "Cabbage"],
+  yellow: ["Mustard", "Marigold", "Pollen", "Candle", "Turmeric", "Corn", "Dandelion", "Signal"],
+  orange: ["Paprika", "Copper", "Rust", "Clay", "Ember", "Pumpkin", "Tangerine", "Canyon"],
+  red: ["Brick", "Cherry", "Cranberry", "Chili", "Tomato", "Garnet", "Rhubarb"],
+  pink: ["Bubblegum", "Peony", "Rhubarb", "Taffy", "Flamingo", "Punch"],
+  purple: ["Plum", "Grape", "Bruise", "Violet", "Velvet", "Amethyst", "Eggplant"],
+  blue: ["Teal", "Denim", "Ink", "Storm", "Pool", "Harbor", "Midnight", "Cobalt"],
+  brown: ["Cedar", "Walnut", "Cocoa", "Molasses", "Bark", "Coffee", "Toast"],
+  gray: ["Smoke", "Concrete", "Ash", "Fog", "Graphite", "Tin"],
+  black: ["Ink", "Raven", "Midnight", "Blacktop"],
+  white: ["Chalk", "Salt", "Porcelain", "Moon"]
 };
-const STOP_NAME_WORDS=new Set(['a','an','the','and','or','with','in','of','to','for','plus','little']);
-let generatedNameHistory=[];
-let comboNameMemory={};
-function comboMood(combo=selections){
-  const hsls=ROLES.map(r=>rgbToHsl(combo[r.key].hex));
-  const avgS=hsls.reduce((s,x)=>s+x.s,0)/hsls.length;
-  const spread=Math.max(...hsls.map(x=>x.l))-Math.min(...hsls.map(x=>x.l));
-  const avgL=hsls.reduce((s,x)=>s+x.l,0)/hsls.length;
-  if(spread>.58)return 'contrast';
-  if(avgS>.55)return 'bright';
-  if(avgS<.20)return 'quiet';
-  if(avgL<.34)return 'moody';
-  return 'mixed';
+
+const funkyPatterns = [
+  "Trouble in {color}",
+  "The {color} Incident",
+  "{color} Gone Bad",
+  "The {color} Problem",
+  "{color} Situation",
+  "{color} Mix-Up",
+  "{color} Disco",
+  "{color} After Dark",
+  "{color} at Midnight",
+  "Pool Hall {color}",
+  "{color} Motel",
+  "{color} Diner",
+  "Suspicious {color}",
+  "Radioactive {color}",
+  "Haunted {object}",
+  "Midnight {color}",
+  "{color} Has Plans",
+  "{color} Gets Weird",
+  "{color} Riot",
+  "{color} Static",
+  "{color} Racket",
+  "{color} Signal",
+  "{color} Forecast",
+  "{color} Weather",
+  "{place} {color}",
+  "{color} in the Basement",
+  "{color} on the Loose",
+  "Too Much {color}",
+  "Return of the {color}",
+  "{color} with an Agenda"
+];
+
+const objects = [
+  "Thermos", "Payphone", "Lantern", "Mailbox", "Matchbook", "Radio",
+  "Motel Key", "Arcade Token", "Lawn Chair", "Lunchbox", "Boom Box",
+  "Snow Globe", "Traffic Cone", "Bowling Ball", "Jackalope"
+];
+
+const places = [
+  "Basement", "Diner", "Motel", "Arcade", "Boardwalk", "Greenhouse",
+  "Alley", "Cabin", "Outpost", "Pool Hall", "Roller Rink", "Truck Stop"
+];
+
+let recentNames = [];
+let recentPatterns = [];
+
+function pick(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
 }
-function nameTokens(name){
-  return String(name).toLowerCase().replace(/[^a-z0-9 ]+/g,' ').split(/\s+/).filter(w=>w.length>2&&!STOP_NAME_WORDS.has(w));
+
+function getColorFamilyFromHex(hex) {
+  const { h, s, l } = hexToHslPercent(hex);
+
+  if (l < 12) return "black";
+  if (l > 88 && s < 18) return "white";
+  if (s < 15) return "gray";
+  if (h >= 345 || h < 15) return "red";
+  if (h >= 15 && h < 45) return "orange";
+  if (h >= 45 && h < 70) return "yellow";
+  if (h >= 70 && h < 165) return "green";
+  if (h >= 165 && h < 250) return "blue";
+  if (h >= 250 && h < 300) return "purple";
+  if (h >= 300 && h < 345) return "pink";
+  return "brown";
 }
-function seededShuffle(list,seed){
-  const arr=[...list];
-  for(let i=arr.length-1;i>0;i--){
-    const j=Math.abs(Math.sin(seed*(i+1)+i*91.7)*10000|0)%(i+1);
-    [arr[i],arr[j]]=[arr[j],arr[i]];
+
+function getPaletteCluesFromCombo(combo = selections) {
+  const hexes = ROLES.map(role => combo[role.key]?.hex).filter(Boolean);
+  const families = [...new Set(hexes.map(getColorFamilyFromHex))];
+  let clues = [];
+
+  families.forEach(family => {
+    if (colorClues[family]) clues.push(...colorClues[family]);
+  });
+
+  if (!clues.length) clues = ["Static", "Motel", "Oddball"];
+
+  return [...new Set(clues)];
+}
+
+function generateComboName(combo = selections, offset = 0) {
+  const clues = getPaletteCluesFromCombo(combo);
+
+  for (let attempt = 0; attempt < 80; attempt++) {
+    const pattern = pick(funkyPatterns);
+
+    if (recentPatterns.includes(pattern) && Math.random() < 0.8) continue;
+
+    const name = pattern
+      .replaceAll("{color}", pick(clues))
+      .replaceAll("{object}", pick(objects))
+      .replaceAll("{place}", pick(places));
+
+    if (isGoodName(name)) {
+      recentNames.push(name);
+      recentPatterns.push(pattern);
+
+      recentNames = recentNames.slice(-20);
+      recentPatterns = recentPatterns.slice(-8);
+
+      return name;
+    }
   }
-  return arr;
+
+  return `${pick(clues)} Gets Weird`;
 }
-function generateComboName(combo=selections,offset=0){
-  const families=ROLES.map(r=>hueFamily(combo[r.key]));
-  const counts=families.reduce((m,f)=>{m[f]=(m[f]||0)+1;return m;},{});
-  const ordered=Object.keys(counts).sort((a,b)=>counts[b]-counts[a]);
-  const primary=ordered[0]||'Neutral';
-  const secondary=ordered.find(f=>f!==primary)||primary;
-  const mood=comboMood(combo);
-  const seed=comboHash(combo)+offset*7919;
-  const memory=comboNameMemory[String(comboHash(combo))] || (comboNameMemory[String(comboHash(combo))]={names:new Set(),tokens:new Set()});
-  const pool=[
-    ...(NAME_LIBRARY[primary]||[]),
-    ...(secondary!==primary?(NAME_LIBRARY[secondary]||[]):[]),
-    ...(NAME_LIBRARY[mood]||[]),
-    ...NAME_LIBRARY.mixed
-  ];
-  const candidates=seededShuffle([...new Set(pool)],seed);
-  let best=candidates.find(name=>{
-    const lower=name.toLowerCase();
-    if(lower.includes('+')||lower.includes(' idea'))return false;
-    if(memory.names.has(lower))return false;
-    const tokens=nameTokens(lower);
-    const repeated=tokens.filter(t=>memory.tokens.has(t)).length;
-    return repeated<=1;
-  }) || candidates.find(name=>!memory.names.has(name.toLowerCase())) || candidates[seed % candidates.length] || 'secret menu';
-  const lower=best.toLowerCase();
-  memory.names.add(lower);
-  nameTokens(lower).forEach(t=>memory.tokens.add(t));
-  if(memory.names.size>50){
-    memory.names=new Set([...memory.names].slice(-28));
-    memory.tokens=new Set([...memory.names].flatMap(nameTokens));
+
+function isGoodName(name) {
+  const lower = name.toLowerCase();
+
+  if (recentNames.includes(name)) return false;
+  if (bannedWords.some(word => lower.includes(word))) return false;
+  if (name.length < 8 || name.length > 32) return false;
+
+  const words = lower.split(/\s+/);
+  if (new Set(words).size !== words.length) return false;
+
+  return true;
+}
+
+function hexToHslPercent(hex) {
+  hex = hex.replace("#", "");
+  let r = parseInt(hex.substring(0, 2), 16) / 255;
+  let g = parseInt(hex.substring(2, 4), 16) / 255;
+  let b = parseInt(hex.substring(4, 6), 16) / 255;
+
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  let h = 0, s = 0;
+  const l = (max + min) / 2;
+
+  if (max !== min) {
+    const d = max - min;
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+
+    switch (max) {
+      case r:
+        h = ((g - b) / d + (g < b ? 6 : 0));
+        break;
+      case g:
+        h = ((b - r) / d + 2);
+        break;
+      case b:
+        h = ((r - g) / d + 4);
+        break;
+    }
+
+    h *= 60;
   }
-  generatedNameHistory.push(lower);
-  generatedNameHistory=generatedNameHistory.slice(-160);
-  return lower;
+
+  return { h, s: s * 100, l: l * 100 };
 }
 currentComboName=generateComboName();
 function getPattern(){const base=PATTERN.map(r=>r.repeat(3));let width=base[0].length;const sc=document.querySelector('.chart-scroll');if(sc){const inner=sc.clientWidth-14;width=Math.max(width,Math.floor(inner/12));}const body=base.map((row,i)=>row+PATTERN[i].repeat(Math.ceil((width-row.length)/PATTERN[i].length)).slice(0,Math.max(0,width-row.length)));const pad='D'.repeat(body[0].length);return [...Array(4).fill(pad),...body,...Array(4).fill(pad)];}
