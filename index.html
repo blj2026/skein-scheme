@@ -298,6 +298,14 @@ input[type="checkbox"].role-lock,
   color: #fff !important;
 }
 
+
+/* v29: hide grid control only; preserve chart */
+#gridLabel,
+#gridToggle,
+label:has(#gridToggle) {
+  display: none !important;
+}
+
 </style>
 </head>
 <body>
