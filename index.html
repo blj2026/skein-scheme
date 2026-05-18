@@ -797,10 +797,19 @@ function renderSavedList(id,kind){
 async function deleteSavedItem(item){
   if(!item) return;
 
-  if(item.remote){
-    const code=prompt('Admin code:');
-    if(!code) return;
+  const code=prompt(
+    'Whoops, did you accidentally save an ugly one? Contact Bryant Thee Builder to get it removed.\n\n' +
+    'Admin code:'
+  );
 
+  if(!code) return;
+
+  if(code !== '123'){
+    alert('Nice try.');
+    return;
+  }
+
+  if(item.remote){
     if(!db){
       alert('Shared delete is unavailable right now.');
       return;
@@ -812,17 +821,18 @@ async function deleteSavedItem(item){
       alert('Delete failed. Check admin code or Supabase delete setup.');
       return;
     }
-
-    saved=saved.filter(x=>x!==item);
-    renderSaved();
-    await loadSharedCombos();
-    return;
   }
 
-  if(confirm('Delete "'+item.comboName+'"?')){
-    saved=saved.filter(x=>x!==item);
-    try{localStorage.setItem(STORAGE,JSON.stringify(saved.filter(x=>!x.remote)));}catch(e){}
-    renderSaved();
+  saved=saved.filter(x=>x!==item);
+
+  try{
+    localStorage.setItem(STORAGE,JSON.stringify(saved.filter(x=>!x.remote)));
+  }catch(e){}
+
+  renderSaved();
+
+  if(db){
+    await loadSharedCombos();
   }
 }
 function renderSaved(){renderSavedList('digCombos','dig');renderSavedList('madeCombos','made');}
