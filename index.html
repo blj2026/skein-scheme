@@ -549,178 +549,481 @@ function renderSourceButtons(){
   if(warn) warn.classList.toggle('show',randomSource==='stash' && stashColors().length<ROLES.length);
 }
 function comboHash(combo=selections){return ROLES.reduce((s,r,i)=>s+[...String(combo[r.key].number)].reduce((a,ch)=>a+ch.charCodeAt(0),0)*(i+7),0);}
-const bannedWords = [
-  "hue", "palette", "color", "dream", "magic", "delight", "splash", "pop",
-  "burst", "harmony", "symphony", "melody", "whimsy", "charm", "bliss",
-  "serenade", "radiance", "wonder", "essence", "journey", "bright idea"
+const NAME_HISTORY_STORAGE='skeinSchemeNameEngineHistoryV4';
+const NAME_HISTORY_LIMITS={names:120,templates:42,families:24,anchors:44,endings:44,lengths:24,words:90};
+
+const bannedNameBits = [
+  'hue','palette','color','dream','magic','delight','splash','pop','burst','harmony',
+  'symphony','melody','whimsy','charm','bliss','serenade','radiance','wonder','essence',
+  'journey','bright idea','rainbow','unicorn','fairy','sparkle','vibe','vibes','knit happens',
+  'sew cute','teal the deal','olive it','wine not','plum intended','mustard up','berry good',
+  'no prob-llama','prob-llama','yarntastic','purlfection','soundcheck','encore','setlist',
+  'bootleg','vinyl','riff','solo','jam band','jam session','widespread','string cheese',
+  'disco biscuits','pigeons playing','dogs in a pile'
 ];
 
-const colorClues = {
-  green: ["Moss", "Fern", "Pine", "Olive", "Pickle", "Swamp", "Lichen", "Jade", "Cactus", "Cabbage"],
-  yellow: ["Mustard", "Marigold", "Pollen", "Candle", "Turmeric", "Corn", "Dandelion", "Signal"],
-  orange: ["Paprika", "Copper", "Rust", "Clay", "Ember", "Pumpkin", "Tangerine", "Canyon"],
-  red: ["Brick", "Cherry", "Cranberry", "Chili", "Tomato", "Garnet", "Rhubarb"],
-  pink: ["Bubblegum", "Peony", "Rhubarb", "Taffy", "Flamingo", "Punch"],
-  purple: ["Plum", "Grape", "Bruise", "Violet", "Velvet", "Amethyst", "Eggplant"],
-  blue: ["Teal", "Denim", "Ink", "Storm", "Pool", "Harbor", "Midnight", "Cobalt"],
-  brown: ["Cedar", "Walnut", "Cocoa", "Molasses", "Bark", "Coffee", "Toast"],
-  gray: ["Smoke", "Concrete", "Ash", "Fog", "Graphite", "Tin"],
-  black: ["Ink", "Raven", "Midnight", "Blacktop"],
-  white: ["Chalk", "Salt", "Porcelain", "Moon"]
+const boringYarnWords = new Set([
+  'heather','marl','twist','fusion','bright','deep','soft','pale','light','dark','christmas',
+  'neon','antique','antiqued','faded','dusty','sweet','new','old','blue','green','red',
+  'pink','grey','gray','black','white','brown','purple','orange','yellow','natural','beige',
+  'cloud','flower','wash','cascade','yarn','wool'
+]);
+
+const fillerWords = new Set(['the','and','of','in','at','on','with','a','an','to','for','by','from','it','this','that']);
+
+const colorWorldData = {
+  green:{
+    anchors:['Moss','Fern','Olive','Lichen','Cabbage','Pickle','Bog','Swamp','Pine','Cedar','Juniper','Spruce','Cactus','Kelp','Seagrass','Wasabi','Shire'],
+    world:['Porch','Greenhouse','Cabin','Trail Mix','Lawn Chair','Garden','Fence','Cottage','Yard','Bog','Dirtbag','Gate','Picnic','Possum','Raccoon','Mushroom','Pond','Campground','Treehouse','Backyard'],
+    prebuilt:[
+      'Mossanova','Porch Possum Parade','Fern Took the Van','Pickle Motel Fire Drill','The Cabbage Orbit','Bog Standard Deluxe','Trail Mix Conspiracy','Lawn Chair Mutiny','Lichen in Disguise','Cedar Moon Business','Swamp With Benefits','Greenhouse Raccoon Club','The Yard Was Open','Fernweh and Friends','Cactus Pajama Party','Moss in Witness Protection','Walnut Rodeo Royalty','Dirtbag Garden Party','Cabin Snacks Deluxe','Someone Fed the Fern','The Fence Was Open','Cottage Gremlin Weekend','Trail Mix Witness','Porch Goblin Energy','The Greenhouse Knows','Bog Standard Behavior','Lawn Chair Drama','Mushroom on the Loose','Backyard Side Quest','Treehouse Took Notes'
+    ]
+  },
+  blue:{
+    anchors:['Teal','Denim','Ink','Storm','Pool','Harbor','Midnight','Cobalt','Lapis','Sapphire','Atlantic','Mallard','Pacific','Sky','Stonewash','Blueberry','Stratosphere','Twilight','Smoke'],
+    world:['Harbor','Ferry','Aquarium','Basement','Static','Fog','Weather','Rain Check','Garage','Mailbox','Storm Door','Pool Hall','Cold Coffee','Night Shift','Blue Hour','Cloud','Thunder','Driveway','Blacktop','Shortcut'],
+    prebuilt:[
+      'Harbor Hiccup','Denim UFO Club','Static at the Snack Bar','Fog Went Sideways','Midnight Needs Supervision','Storm Door Rodeo','The Late-Night Aquarium','Cloudy With Snacks','Blue Hour Loitering','The Fog Has Keys','Pool Hall Daydream','Ink Took the Long Way','Basement Cloud Machine','The Weather Basement','Night Shift Narwhal','Smoke Showdown','Denim in the Driveway','Harbor Took Attendance','Blacktop Breakfast','Cold Coffee Club','Mailbox at Midnight','The Garage Was Haunted','Rain Check Ruckus','Thunder Basement Deluxe','Static in the Kitchen','Fog Machine Problems','The Late Ferry','Pool Goblin Holiday','Cobalt Took the Long Way','Storm Window Theory'
+    ]
+  },
+  yellow:{
+    anchors:['Mustard','Marigold','Pollen','Candle','Turmeric','Corn','Dandelion','Gold','Lemon','Straw','Honey','Wheat','Pear','Sunflower','Taxi','Lantern','Butterscotch'],
+    world:['Cornbread','Snack Table','Gas Station','Porch Light','Hot Sauce','Breakfast','Sunburn','Candle Wax','Goldfish','Taxi','Lantern','Picnic','Side Quest','Citrus','Honey','Kitchen','County Fair','Drive-Thru','Diner','Sauce'],
+    prebuilt:[
+      'Cornbread Weather Delay','No One Invited Turmeric','Goldfish in Traffic','Gas Station Breakfast','Hot Sauce Emergency','Snack Table Meltdown','The Porch Light Won','Sunburnt Picnic','Mustard Adjacent','Candle Wax Chaos','Spicy Little Number','Too Much Sauce','Citrus Goblin Parade','Marigold Mischief Map','Goldenrod Sneak Attack','Traffic Cone Vacation','Sunflower Static','Lantern Took the Long Way','Honey in the Driveway','Cornbread Side Quest','Diner Full of Lemons','Taxi to the Picnic','Butterscotch Got Weird','Kitchen Table Sunshine','County Fair Detour','Drive-Thru Dandelion','Pollen Rodeo Deluxe','The Sauce Went Sideways'
+    ]
+  },
+  orange:{
+    anchors:['Paprika','Copper','Rust','Clay','Ember','Pumpkin','Tangerine','Canyon','Spice','Camel','Traffic Cone','Cider','Terracotta','Blaze','Cayenne','Sunflower'],
+    world:['Parking Lot','Canyon','Cider','Pumpkin','Traffic Cone','Campfire','Rust Bucket','Detour','Carnival','Driveway','Trailer Park','Sunrise','Hot Sauce','Snack Table','Flannel','Roadside','Camp Stove','Motel','Thermos','Fire Drill'],
+    prebuilt:[
+      'Paprika Parking Lot','Candle Wax Carnival','Rusty Little Detour','Pumpkin Took a Wrong Turn','Copper in Public','Ember Had Questions','Pumpkin Spice Stakeout','Traffic Cone Vacation','Rust Bucket Holiday','Paprika Was Framed','Trailer Park Sunrise','Orange County Behavior','Canyon Snack Attack','Cider Rodeo Royalty','Campfire in the Driveway','The Flannel Detour','Roadside Pumpkin Club','Thermos Full of Paprika','Motel Fire Drill','Clay Pigeon Weekend','Cayenne Took Attendance','Blaze in the Backyard','Terracotta Side Quest','Copper Lunchbox Logic','Spice Rack Ruckus'
+    ]
+  },
+  red:{
+    anchors:['Brick','Cherry','Cranberry','Chili','Tomato','Garnet','Rhubarb','Burgundy','Cabernet','Oxblood','Pepper','Hot Sauce','Red Wine','Maple','Ruby'],
+    world:['Punch Bowl','Fruit Stand','Jam Jar','Birthday Cake','Lipstick','Velvet','Basement Valentine','County Line','Cherry Soda','Sauce','Pie Contest','Corner Booth','Barbecue','Flower Shop','Cake','Soda Fountain','Valentine','Neon Sign','Carnival','Back Room'],
+    prebuilt:[
+      'Punch Bowl Panic','Fruit Stand Fight','Jam Jar Behavior','Lipstick on the Couch','Basement Valentine','Rhubarb Side Quest','Cabernet Field Trip','Rhubarb After Hours','Cranberry Cousins','The Rhubarb Problem','Birthday Cake Crimes','Cake at Midnight','Plum Was Framed','Ruby Back Room','Cherry Soda Stakeout','Tomato Took the Wheel','Barbecue in Velvet','Corner Booth Cabernet','The Jam Jar Incident','Soda Fountain Witness','Red Wine in Public','Pie Contest Panic','Flower Shop Fight Club','Neon Sign Valentine','Garnet Went Missing','Oxblood on the Guest List'
+    ]
+  },
+  pink:{
+    anchors:['Bubblegum','Peony','Rhubarb','Taffy','Flamingo','Punch','Cotton Candy','Raspberry','Tutu','Rose','Lilac','Cherry Soda'],
+    world:['Birthday Cake','Taffy','Flamingo','Punch Bowl','Flower Shop','Cotton Candy','Roller Rink','Fruit Stand','Cupcake','Lipstick','Valentine','Confetti','Soda Fountain','Carnival','Pink Motel','Cake','Petal','Prom Night','Ribbon','Bubblegum'],
+    prebuilt:[
+      'Birthday Cake Crimes','Taffy in the Wild','Rose Cloud Ruckus','Magenta Made It Weird','The Peony Plot','Raspberry Moon Unit','Punch Bowl Witness','Someone Brought Flowers','Tutu Took a Cab','Cotton Candy Getaway','Flamingo in the Kitchen','Roller Rink Rhubarb','Cupcake Side Quest','Bubblegum Exit Strategy','Prom Night Picnic','Ribbon Took the Van','The Pink Motel Blinked','Confetti at Midnight','Lilac Left Early','Cherry Soda Static','Peony Parking Lot','Petal Pusher Deluxe'
+    ]
+  },
+  purple:{
+    anchors:['Plum','Grape','Bruise','Violet','Velvet','Amethyst','Eggplant','Cabernet','Razzleberry','Lavender','Orchid','Regal','Concord','Mystic'],
+    world:['Velvet','Basement','Moon Unit','Sleepover','Side Quest','Cake','Grape Soda','Fortune Teller','Purple House','Back Booth','Arcade','Theater','Upholstery','After Hours','Mystic','Lavender','Eggplant','Driveway','Plum Sauce','Velour'],
+    prebuilt:[
+      'Velvet Ruckus','Plum Forgot the Plan','Cake at Midnight','The Flamingo Problem','Raspberry Moon Unit','Eggplant Sleepover','Grape Soda Seance','Lavender Got Weird','The Plum Department','Plum Around Back','The Lavender Excuse','Rhubarb in Question','The Velvet Situation','The Grape Escape','Amethyst Afterparty Adjacent','Purple House Rules','Back Booth Mystic','Arcade Full of Plums','The Theater Was Velvet','Upholstery Side Quest','Eggplant in the Driveway','Plum Sauce Alibi','Velour Took Over','Mystic Snack Problem'
+    ]
+  },
+  brown:{
+    anchors:['Cedar','Walnut','Cocoa','Molasses','Bark','Coffee','Toast','Mocha','Chocolate','Praline','Carob','Sienna','Doeskin','River Rock','Camel','Vinci'],
+    world:['Cabin','Coffee Hour','Toast','Walnut','River Rock','Motel','Thermos','Woodpile','Diner','Trail Mix','Back Porch','Shed','Road Trip','Cocoa','Breakfast','Brown Bag','Cedar Chest','Camp Chair','Dusty Road','Pancake'],
+    prebuilt:[
+      'Toast Trouble Deluxe','Walnut Rodeo Royalty','Cedar Moon Business','Coffee Took Over','Thermos in the Shed','Cabin Snacks','Trail Mix Conspiracy','Back Porch Committee','River Rock Riot','Brown Bag Side Quest','Mocha in the Motel','Pancake Weather Delay','Woodpile Witness','Cocoa After Hours','Diner Full of Walnut','Camel Took the Scenic Route','Cedar Chest Mystery','Camp Chair Coup','Dusty Road Breakfast','Praline Parking Lot','Chocolate in Public','Carob Went Sideways'
+    ]
+  },
+  gray:{
+    anchors:['Smoke','Concrete','Ash','Fog','Graphite','Tin','Charcoal','Nimbus','Mist','Gris','Greystone','Blacktop','Harbor Mist','Storm Cloud'],
+    world:['Fog','Basement','Garage','Blacktop','Concrete','Tin Roof','Cold Coffee','Static','Weather','Back Alley','Smoke Machine','Rain Check','Night Shift','Mailbox','Parking Garage','Storm Door','Ashtray','Gravel','Overcast','Laundry Room'],
+    prebuilt:[
+      'Fog Went Sideways','Static at the Snack Bar','The Fog Has Keys','Blacktop Breakfast','Smoke Needs a Minute','Concrete Mischief','Tin Roof Detour','Cold Coffee Club','Garage Got Involved','Rain Check Ruckus','Night Shift Snacks','Mailbox at Midnight','Parking Garage Picnic','Storm Door Rodeo','Ashtray Moonwalk','Gravel Road Goblin','Overcast with Snacks','Laundry Room Static','Charcoal Took Attendance','Greystone Gremlin Weekend','Nimbus in Public','The Mist Came Back'
+    ]
+  },
+  black:{
+    anchors:['Ink','Raven','Midnight','Blacktop','Jet','Galaxy','Abyss','Night Shift','Back Alley'],
+    world:['Midnight','Back Alley','Night Shift','Blacktop','Galaxy','Abyss','Basement','Garage','Static','Motel','Neon Sign','Parking Lot','Late Ferry','Moon','Raven','Jet Lag','Corner Booth','Dark Room','Smoke','After Hours'],
+    prebuilt:[
+      'Midnight Needs Supervision','Back Alley Static','Night Shift Snacks','Blacktop Breakfast','Galaxy Gremlin Weekend','Abyss Afterparty Adjacent','Basement Cloud Machine','Garage Got Involved','Motel at Midnight','Neon Sign Nonsense','Parking Lot Moonwalk','The Late Ferry','Raven Took the Van','Jet Lag Picnic','Corner Booth Galaxy','The Dark Room Blinked','Smoke Took Over','After Hours With Snacks','Midnight in the Driveway','Blacktop Side Quest'
+    ]
+  },
+  white:{
+    anchors:['Chalk','Salt','Porcelain','Moon','Vanilla','Marshmallow','Frost','Ivory','Natural'],
+    world:['Moon','Chalk Dust','Salt Shaker','Porcelain','Marshmallow','Frost','Laundry Room','Vanilla','Kitchen Counter','Whiteout','Snow Day','Moon Pie','Ivory Tower','Blanket Fort','Powder Room','Milk Glass','Cloud Cover','Freezer','Biscuit','Porch Light'],
+    prebuilt:[
+      'Chalk Dust Detour','Salt Shaker Side Quest','Moon Trouble Deluxe','Porcelain Panic Room','Marshmallow Mayhem Adjacent','Frost Bite Lite','Laundry Room Moon','Vanilla in Public','Kitchen Counter Conspiracy','Whiteout Weekend','Snow Day Snacks','Moon Pie Mystery','Ivory Tower-ish','Blanket Fort Protocol','Powder Room Ruckus','Milk Glass Mischief','Cloud Cover Club','Freezer Burn Picnic','Biscuit Moon Business','Porch Light Problem'
+    ]
+  },
+  loud:{
+    anchors:['Contrast','Stripe','Chart','Lineup','Main Character','Wild Card','Side Quest','Chaos','Good Bad','Not Beige'],
+    world:['Kitchen Sink','Clown Car','Side Quest','Outfit','Main Character','Chart Gremlin','Garage','Stripe','Contrast','Wrong Turn','Table Two','Boundary','Sweater','Decision','Lineup','Wild Card','Emergency','Good Bad','Chaos','Accident'],
+    prebuilt:[
+      'Good Bad Sweater','The Contrast Incident','Feral Little Lineup','Somehow This Knits','Chart Gremlin Deluxe','A Lotta Not Beige','Color Crime Scene','The Loud Little Thing','Bad Idea Great Chart','Too Many Main Characters','Pattern Panic at Table Two','The Whole Situation Glows','Accidentally Excellent','Zero Chill Chart','Maximum Side Quest','The Stripe Went Rogue','Chaos With Boundaries','High Contrast Hooligans','The Chart Fought Back','Wrong in a Good Way','This Was a Choice','Side Quest Colors','Questionable Decisions','Kitchen Sink Rodeo','Feral Contrast','Clown Car Deluxe','The Outfit Was Intentional'
+    ]
+  }
 };
 
-const funkyPatterns = [
-  "Trouble in {color}",
-  "The {color} Incident",
-  "{color} Gone Bad",
-  "The {color} Problem",
-  "{color} Situation",
-  "{color} Mix-Up",
-  "{color} Disco",
-  "{color} After Dark",
-  "{color} at Midnight",
-  "Pool Hall {color}",
-  "{color} Motel",
-  "{color} Diner",
-  "Suspicious {color}",
-  "Radioactive {color}",
-  "Haunted {object}",
-  "Midnight {color}",
-  "{color} Has Plans",
-  "{color} Gets Weird",
-  "{color} Riot",
-  "{color} Static",
-  "{color} Racket",
-  "{color} Signal",
-  "{color} Forecast",
-  "{color} Weather",
-  "{place} {color}",
-  "{color} in the Basement",
-  "{color} on the Loose",
-  "Too Much {color}",
-  "Return of the {color}",
-  "{color} with an Agenda"
+const phraseTemplates = [
+  {family:'world-noun-noun', weight:12, template:'{world} {oddNoun}'},
+  {family:'the-world-noun', weight:10, template:'The {world} {oddNoun}'},
+  {family:'world-action-short', weight:12, template:'{subject} Went Sideways'},
+  {family:'world-action-short', weight:11, template:'{subject} Took the Van'},
+  {family:'world-action-short', weight:10, template:'{subject} Needs Supervision'},
+  {family:'world-action-short', weight:10, template:'{subject} Had Questions'},
+  {family:'world-social', weight:10, template:'No One Invited {subject}'},
+  {family:'world-social', weight:9, template:'Someone Left the {openable} Open'},
+  {family:'world-place', weight:11, template:'{subject} in the Driveway'},
+  {family:'world-place', weight:9, template:'{subject} at Midnight'},
+  {family:'world-place', weight:8, template:'{subject} in Public'},
+  {family:'world-event', weight:12, template:'{world} Fire Drill'},
+  {family:'world-event', weight:11, template:'{world} Side Quest'},
+  {family:'world-event', weight:10, template:'{world} Weather Delay'},
+  {family:'world-event', weight:9, template:'{world} Snack Attack'},
+  {family:'anchor-lite', weight:8, template:'{anchor} Forgot the Plan'},
+  {family:'anchor-lite', weight:7, template:'The {anchor} Arrangement'},
+  {family:'anchor-lite', weight:7, template:'{anchor} Took the Long Way'},
+  {family:'anchor-lite', weight:7, template:'{anchor} Was Framed'},
+  {family:'anchor-lite', weight:7, template:'{anchor} Parking Lot'},
+  {family:'anchor-lite', weight:6, template:'{anchor} in the Wild'}
 ];
 
-const objects = [
-  "Thermos", "Payphone", "Lantern", "Mailbox", "Matchbook", "Radio",
-  "Motel Key", "Arcade Token", "Lawn Chair", "Lunchbox", "Boom Box",
-  "Snow Globe", "Traffic Cone", "Bowling Ball", "Jackalope"
+const oddNouns = [
+  'Parade','Conspiracy','Mutiny','Side Quest','Fire Drill','Rodeo','Orbit','Witness','Club','Caper','Picnic','Field Trip','Detour','Snack Attack','Weather Delay','Mystery','Protocol','Weekend','Committee','Holiday','Moonwalk','Shortcut','Emergency','Business','Coup','Stakeout','Getaway','Exit Strategy','Ruckus','Mischief','Drama','Nonsense','Problem','Incident','Situation','Meltdown','Panic','Chaos','Hiccup','Crime Scene','Fiasco','Deluxe','Royalty'
 ];
 
-const places = [
-  "Basement", "Diner", "Motel", "Arcade", "Boardwalk", "Greenhouse",
-  "Alley", "Cabin", "Outpost", "Pool Hall", "Roller Rink", "Truck Stop"
-];
-
-let recentNames = [];
-let recentPatterns = [];
-
-function pick(arr) {
-  return arr[Math.floor(Math.random() * arr.length)];
+const weakSubjectTerms = new Set(['side quest','weather delay','good bad','not beige','decision','boundary','accident','emergency','static','contrast','chart','lineup','wild card','wrong turn','table two']);
+const openableThings = ['Gate','Garage','Back Door','Cooler','Snack Table','Basement Door','Motel Room','Lunchbox','Camp Chair','Driveway','Window','Porch Light','Shed','Thermos','Diner','Garden Fence','Parking Lot'];
+function subjectSafe(term){
+  const t=String(term||'').toLowerCase();
+  return t && !weakSubjectTerms.has(t) && t.length<=22;
 }
 
-function getColorFamilyFromHex(hex) {
-  const { h, s, l } = hexToHslPercent(hex);
+let nameHistory={names:[],templates:[],families:[],anchors:[],endings:[],lengths:[],words:[]};
 
-  if (l < 12) return "black";
-  if (l > 88 && s < 18) return "white";
-  if (s < 15) return "gray";
-  if (h >= 345 || h < 15) return "red";
-  if (h >= 15 && h < 45) return "orange";
-  if (h >= 45 && h < 70) return "yellow";
-  if (h >= 70 && h < 165) return "green";
-  if (h >= 165 && h < 250) return "blue";
-  if (h >= 250 && h < 300) return "purple";
-  if (h >= 300 && h < 345) return "pink";
-  return "brown";
+function loadNameHistory(){
+  try{
+    const saved=JSON.parse(localStorage.getItem(NAME_HISTORY_STORAGE)||'{}')||{};
+    nameHistory={
+      names:Array.isArray(saved.names)?saved.names:[],
+      templates:Array.isArray(saved.templates)?saved.templates:[],
+      families:Array.isArray(saved.families)?saved.families:[],
+      anchors:Array.isArray(saved.anchors)?saved.anchors:[],
+      endings:Array.isArray(saved.endings)?saved.endings:[],
+      lengths:Array.isArray(saved.lengths)?saved.lengths:[],
+      words:Array.isArray(saved.words)?saved.words:[]
+    };
+  }catch(e){nameHistory={names:[],templates:[],families:[],anchors:[],endings:[],lengths:[],words:[]};}
 }
 
-function getPaletteCluesFromCombo(combo = selections) {
-  const hexes = ROLES.map(role => combo[role.key]?.hex).filter(Boolean);
-  const families = [...new Set(hexes.map(getColorFamilyFromHex))];
-  let clues = [];
-
-  families.forEach(family => {
-    if (colorClues[family]) clues.push(...colorClues[family]);
+function saveNameHistory(){try{localStorage.setItem(NAME_HISTORY_STORAGE,JSON.stringify(nameHistory));}catch(e){}}
+function pick(arr){return arr[Math.floor(Math.random()*arr.length)];}
+function uniq(arr){return [...new Set(arr.filter(Boolean))];}
+function weightedPick(items){
+  const total=items.reduce((sum,item)=>sum+(item.weight||1),0);
+  let roll=Math.random()*total;
+  for(const item of items){roll-=item.weight||1;if(roll<=0)return item;}
+  return items[items.length-1];
+}
+function titleCase(str){
+  return String(str||'').trim().split(/\s+/).filter(Boolean).map((word,index)=>{
+    const lower=word.toLowerCase();
+    if(index>0 && ['and','of','the','in','at','on','with','a','an','to','for'].includes(lower)) return lower;
+    if(/^[A-Z]{2,}$/.test(word)) return word;
+    return word.charAt(0).toUpperCase()+word.slice(1).toLowerCase();
+  }).join(' ');
+}
+function cleanYarnPhrase(name){
+  return String(name||'')
+    .replace(/\b(Heather|Marl|Twist|Fusion)\b/gi,'')
+    .replace(/\s+/g,' ')
+    .trim();
+}
+function getYarnAnchorsFromCombo(combo=selections){
+  const anchors=[];
+  ROLES.forEach(role=>{
+    const color=combo[role.key];
+    if(!color?.name) return;
+    const phrase=cleanYarnPhrase(color.name);
+    phrase.split(/\s+/).forEach(part=>{
+      const clean=part.replace(/[^a-z0-9]/gi,'');
+      if(clean.length>=4 && !boringYarnWords.has(clean.toLowerCase())) anchors.push(titleCase(clean));
+    });
+    if(phrase && phrase.length>=4 && phrase.length<=18 && !boringYarnWords.has(phrase.toLowerCase())) anchors.push(titleCase(phrase));
   });
-
-  if (!clues.length) clues = ["Static", "Motel", "Oddball"];
-
-  return [...new Set(clues)];
+  return uniq(anchors).slice(0,24);
 }
-
-function generateComboName(combo = selections, offset = 0) {
-  const clues = getPaletteCluesFromCombo(combo);
-
-  for (let attempt = 0; attempt < 80; attempt++) {
-    const pattern = pick(funkyPatterns);
-
-    if (recentPatterns.includes(pattern) && Math.random() < 0.8) continue;
-
-    const name = pattern
-      .replaceAll("{color}", pick(clues))
-      .replaceAll("{object}", pick(objects))
-      .replaceAll("{place}", pick(places));
-
-    if (isGoodName(name)) {
-      recentNames.push(name);
-      recentPatterns.push(pattern);
-
-      recentNames = recentNames.slice(-20);
-      recentPatterns = recentPatterns.slice(-8);
-
-      return name;
+function hexToHslPercent(hex){
+  hex=hex.replace('#','');
+  let r=parseInt(hex.substring(0,2),16)/255;
+  let g=parseInt(hex.substring(2,4),16)/255;
+  let b=parseInt(hex.substring(4,6),16)/255;
+  const max=Math.max(r,g,b),min=Math.min(r,g,b);
+  let h=0,s=0;
+  const l=(max+min)/2;
+  if(max!==min){
+    const d=max-min;
+    s=l>.5?d/(2-max-min):d/(max+min);
+    switch(max){
+      case r:h=((g-b)/d+(g<b?6:0));break;
+      case g:h=((b-r)/d+2);break;
+      case b:h=((r-g)/d+4);break;
     }
+    h*=60;
+  }
+  return {h,s:s*100,l:l*100};
+}
+function getColorFamilyFromHex(hex){
+  const {h,s,l}=hexToHslPercent(hex);
+  if(l<12) return 'black';
+  if(l>88 && s<18) return 'white';
+  if(s<15) return 'gray';
+  if(h>=345||h<15) return 'red';
+  if(h>=15&&h<45) return 'orange';
+  if(h>=45&&h<70) return 'yellow';
+  if(h>=70&&h<165) return 'green';
+  if(h>=165&&h<250) return 'blue';
+  if(h>=250&&h<300) return 'purple';
+  if(h>=300&&h<345) return 'pink';
+  return 'brown';
+}
+function getComboFamilies(combo=selections){
+  const families=ROLES.map(role=>combo[role.key]?.hex).filter(Boolean).map(getColorFamilyFromHex);
+  return uniq(families);
+}
+function getComboMood(combo=selections){
+  const families=getComboFamilies(combo);
+  const lum=ROLES.map(role=>luminance(combo[role.key]?.hex||'#777'));
+  const spread=Math.max(...lum)-Math.min(...lum);
+  const hasWarm=families.some(f=>['yellow','orange','red','pink','brown'].includes(f));
+  const hasCool=families.some(f=>['green','blue','purple','gray','black'].includes(f));
+  const hasDark=lum.some(x=>x<.08);
+  const hasLight=lum.some(x=>x>.75);
+  if(spread>.72 || (hasDark&&hasLight&&families.length>=4)) return 'loud';
+  if(hasWarm&&hasCool&&families.length>=4) return 'loud';
+  return null;
+}
+function getComboAnchors(combo=selections){
+  const families=getComboFamilies(combo);
+  const mood=getComboMood(combo);
+  const yarnAnchors=getYarnAnchorsFromCombo(combo);
+  const colorAnchors=[];
+  const worlds=[];
+  const prebuilts=[];
+  families.forEach(fam=>{
+    const data=colorWorldData[fam];
+    if(!data) return;
+    colorAnchors.push(...data.anchors);
+    worlds.push(...data.world);
+    prebuilts.push(...data.prebuilt);
+  });
+  if(mood && colorWorldData[mood]){
+    colorAnchors.push(...colorWorldData[mood].anchors);
+    worlds.push(...colorWorldData[mood].world);
+    prebuilts.push(...colorWorldData[mood].prebuilt);
+  }
+  return {
+    families:mood?uniq([...families,mood]):families,
+    yarnAnchors,
+    colorAnchors:uniq(colorAnchors),
+    worlds:uniq(worlds),
+    prebuilts:uniq(prebuilts),
+    allAnchors:uniq([...yarnAnchors,...colorAnchors])
+  };
+}
+function familyForAnchor(anchor, families){
+  const lower=String(anchor||'').toLowerCase();
+  for(const fam of families){
+    const data=colorWorldData[fam];
+    if(!data) continue;
+    if(data.anchors.some(a=>a.toLowerCase()===lower) || data.world.some(a=>a.toLowerCase()===lower)) return fam;
+  }
+  return families[0]||'green';
+}
+function meaningfulWords(name){
+  return String(name||'').toLowerCase().replace(/[^a-z0-9\s-]/g,'').split(/\s+/).filter(w=>w.length>2 && !fillerWords.has(w));
+}
+function endingKey(name){
+  const words=meaningfulWords(name);
+  return words.slice(-2).join(' ');
+}
+function makeCoinedName(anchor){
+  const clean=String(anchor||'').replace(/\s+/g,'');
+  const options=[`${clean}nova`,`${clean}orama`,`${clean}wise`,`${clean}ville`,`${clean}town`,`${clean}berry`,`${clean}house`];
+  return pick(options);
+}
+function makeNameCandidate(combo=selections){
+  const info=getComboAnchors(combo);
+  const usableFamilies=info.families.filter(f=>colorWorldData[f]);
+  const family=pick(usableFamilies.length?usableFamilies:['green']);
+  const data=colorWorldData[family]||colorWorldData.green;
+  const mode=weightedPick([
+    {type:'prebuilt',weight:47},
+    {type:'world-template',weight:31},
+    {type:'anchor-template',weight:14},
+    {type:'coined',weight:3},
+    {type:'wild-loud',weight:5}
+  ]).type;
+  const anchorPool=uniq([...info.yarnAnchors,...info.colorAnchors,data.anchors]);
+  const worldPool=uniq([...info.worlds,data.world]);
+  const subjectPool=uniq([...anchorPool,...worldPool]).filter(subjectSafe);
+  const openablePool=uniq([...openableThings,...worldPool.filter(w=>/gate|garage|door|table|room|chair|driveway|window|porch|shed|motel|diner|fence|lot/i.test(w))]);
+  const prebuiltPool=uniq([...info.prebuilts,data.prebuilt]);
+  let name='', template='', anchor='', familyTag='', literal=false;
+
+  if(mode==='prebuilt' && prebuiltPool.length){
+    name=pick(prebuiltPool);
+    template='prebuilt:'+family;
+    familyTag='prebuilt-'+family;
+    literal=info.colorAnchors.some(a=>new RegExp('\\b'+escapeRegExp(a)+'\\b','i').test(name));
+  }else if(mode==='world-template' && worldPool.length){
+    const t=weightedPick(phraseTemplates.filter(x=>!x.family.startsWith('anchor')));
+    const world=pick(worldPool);
+    const subject=pick(subjectPool.length?subjectPool:worldPool);
+    const openable=pick(openablePool);
+    const odd=pick(oddNouns);
+    name=t.template.replaceAll('{world}',world).replaceAll('{subject}',subject).replaceAll('{openable}',openable).replaceAll('{oddNoun}',odd);
+    template=t.template;
+    familyTag=t.family;
+    anchor=subject||world;
+    literal=false;
+  }else if(mode==='coined' && anchorPool.filter(subjectSafe).length){
+    anchor=pick(anchorPool.filter(subjectSafe));
+    name=makeCoinedName(anchor);
+    template='coined';
+    familyTag='coined-'+familyForAnchor(anchor,usableFamilies);
+    literal=true;
+  }else if(mode==='wild-loud' && colorWorldData.loud){
+    name=pick(colorWorldData.loud.prebuilt);
+    template='wild-loud';
+    familyTag='loud';
+    literal=false;
+  }else{
+    const t=weightedPick(phraseTemplates.filter(x=>x.family.startsWith('anchor')));
+    anchor=pick(anchorPool.length?anchorPool:data.anchors);
+    name=t.template.replaceAll('{anchor}',anchor).replaceAll('{oddNoun}',pick(oddNouns));
+    template=t.template;
+    familyTag=t.family;
+    literal=true;
   }
 
-  return `${pick(clues)} Gets Weird`;
+  name=titleCase(name);
+  if(!anchor){
+    const words=meaningfulWords(name);
+    anchor=words[0]||family;
+  }
+  return {
+    name,
+    family:familyTag||family,
+    template,
+    anchor,
+    ending:endingKey(name),
+    length:meaningfulWords(name).length,
+    literal,
+    mode
+  };
 }
+function escapeRegExp(s){return String(s).replace(/[.*+?^${}()|[\]\\]/g,'\\$&');}
+function nameSimilarity(a,b){
+  const aw=new Set(meaningfulWords(a));
+  const bw=new Set(meaningfulWords(b));
+  if(!aw.size||!bw.size) return 0;
+  let shared=0; aw.forEach(w=>{if(bw.has(w)) shared++;});
+  return shared/Math.min(aw.size,bw.size);
+}
+function scoreName(candidate){
+  let score=45;
+  const lower=candidate.name.toLowerCase();
+  const words=meaningfulWords(candidate.name);
+  const recentNames=nameHistory.names.slice(-56);
+  const recentTemplates=nameHistory.templates.slice(-16);
+  const recentFamilies=nameHistory.families.slice(-12);
+  const recentAnchors=nameHistory.anchors.slice(-26);
+  const recentEndings=nameHistory.endings.slice(-26);
+  const recentLengths=nameHistory.lengths.slice(-8);
+  const recentWords=nameHistory.words.slice(-70);
 
-function isGoodName(name) {
-  const lower = name.toLowerCase();
+  if(candidate.mode==='prebuilt') score+=22;
+  if(candidate.mode==='world-template') score+=14;
+  if(candidate.mode==='anchor-template') score+=7;
+  if(candidate.mode==='coined') score+=3;
+  if(words.length===1) score+=4;
+  if(words.length===2) score+=6;
+  if(words.length===3) score+=13;
+  if(words.length===4) score+=11;
+  if(words.length===5) score+=5;
+  if(candidate.name.length>=10 && candidate.name.length<=32) score+=10;
+  if(candidate.name.length>42) score-=28;
+  if(/\b(Deluxe|Side Quest|Fire Drill|Weather Delay|Snack|Rodeo|Orbit|Conspiracy|Mutiny|Took|Forgot|Supervision|Traffic|Parking|Witness|Moon|Goblin|Gremlin|Mystery|Wrong|Excellent|Feral|Ruckus|Mischief)\b/i.test(candidate.name)) score+=8;
+  if(candidate.literal) score-=2;
+  if(nameHistory.names.includes(lower)) score-=120;
+  if(recentTemplates.includes(candidate.template)) score-=24;
+  if(recentFamilies.includes(candidate.family)) score-=12;
+  if(recentAnchors.includes(String(candidate.anchor||'').toLowerCase())) score-=20;
+  if(candidate.ending && recentEndings.includes(String(candidate.ending).toLowerCase())) score-=22;
+  if(recentLengths.filter(x=>x===candidate.length).length>=3) score-=18;
+  if(candidate.literal && recentNames.slice(-7).filter(n=>{
+    const recentWords=meaningfulWords(n);
+    return recentWords.some(w=>nameHistory.anchors.slice(-18).includes(w));
+  }).length>=4) score-=14;
 
-  if (recentNames.includes(name)) return false;
-  if (bannedWords.some(word => lower.includes(word))) return false;
-  if (name.length < 8 || name.length > 32) return false;
-
-  const words = lower.split(/\s+/);
-  if (new Set(words).size !== words.length) return false;
-
+  const duplicateWordHits=words.filter(w=>recentWords.includes(w)).length;
+  score-=duplicateWordHits*8;
+  recentNames.forEach(old=>{
+    const sim=nameSimilarity(candidate.name,old);
+    if(sim>=.67) score-=42;
+    else if(sim>=.45) score-=22;
+    else if(sim>=.34) score-=10;
+  });
+  if(/^the\s+/i.test(candidate.name) && recentNames.slice(-7).some(n=>/^the\s+/.test(n))) score-=10;
+  if(/\b(situation|problem|incident|committee)\b/i.test(candidate.name) && recentNames.slice(-12).some(n=>/\b(situation|problem|incident|committee)\b/i.test(n))) score-=18;
+  score+=Math.random()*15;
+  return score;
+}
+function rememberName(candidate){
+  const words=meaningfulWords(candidate.name);
+  nameHistory.names.push(candidate.name.toLowerCase());
+  nameHistory.templates.push(candidate.template);
+  nameHistory.families.push(candidate.family);
+  nameHistory.lengths.push(candidate.length);
+  words.forEach(w=>nameHistory.words.push(w));
+  if(candidate.anchor) nameHistory.anchors.push(String(candidate.anchor).toLowerCase());
+  if(candidate.ending) nameHistory.endings.push(String(candidate.ending).toLowerCase());
+  nameHistory.names=nameHistory.names.slice(-NAME_HISTORY_LIMITS.names);
+  nameHistory.templates=nameHistory.templates.slice(-NAME_HISTORY_LIMITS.templates);
+  nameHistory.families=nameHistory.families.slice(-NAME_HISTORY_LIMITS.families);
+  nameHistory.anchors=nameHistory.anchors.slice(-NAME_HISTORY_LIMITS.anchors);
+  nameHistory.endings=nameHistory.endings.slice(-NAME_HISTORY_LIMITS.endings);
+  nameHistory.lengths=nameHistory.lengths.slice(-NAME_HISTORY_LIMITS.lengths);
+  nameHistory.words=nameHistory.words.slice(-NAME_HISTORY_LIMITS.words);
+  saveNameHistory();
+}
+function isGoodName(name){
+  const lower=String(name||'').toLowerCase().trim();
+  if(!lower) return false;
+  if(lower.length<6 || lower.length>46) return false;
+  if(nameHistory.names.includes(lower)) return false;
+  if(bannedNameBits.some(bit=>lower.includes(bit))) return false;
+  if(/\b(undefined|null|nan)\b/i.test(name)) return false;
+  const words=meaningfulWords(name);
+  if(words.length<1 || words.length>5) return false;
+  if(new Set(words).size!==words.length) return false;
+  if(/(.)\1{4,}/.test(lower)) return false;
+  if(/\b(very|really|pretty|super|totally)\b/i.test(name)) return false;
   return true;
 }
-
-function hexToHslPercent(hex) {
-  hex = hex.replace("#", "");
-  let r = parseInt(hex.substring(0, 2), 16) / 255;
-  let g = parseInt(hex.substring(2, 4), 16) / 255;
-  let b = parseInt(hex.substring(4, 6), 16) / 255;
-
-  const max = Math.max(r, g, b);
-  const min = Math.min(r, g, b);
-  let h = 0, s = 0;
-  const l = (max + min) / 2;
-
-  if (max !== min) {
-    const d = max - min;
-    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-
-    switch (max) {
-      case r:
-        h = ((g - b) / d + (g < b ? 6 : 0));
-        break;
-      case g:
-        h = ((b - r) / d + 2);
-        break;
-      case b:
-        h = ((r - g) / d + 4);
-        break;
+function generateComboName(combo=selections, offset=0){
+  loadNameHistory();
+  const candidates=[];
+  for(let i=0;i<420;i++){
+    const candidate=makeNameCandidate(combo);
+    if(isGoodName(candidate.name)){
+      candidate.score=scoreName(candidate);
+      candidates.push(candidate);
     }
-
-    h *= 60;
   }
-
-  return { h, s: s * 100, l: l * 100 };
+  candidates.sort((a,b)=>b.score-a.score);
+  const winner=candidates[0];
+  if(winner){rememberName(winner);return winner.name;}
+  const info=getComboAnchors(combo);
+  const fallbackPool=info.prebuilts.length?info.prebuilts:['Good Bad Sweater','Somehow This Knits','Mossanova','Static at the Snack Bar'];
+  const fallback={name:titleCase(pick(fallbackPool)),template:'fallback',family:'fallback',anchor:'fallback',ending:'fallback',length:2,literal:false};
+  rememberName(fallback);
+  return fallback.name;
 }
 currentComboName=generateComboName();
 function getPattern(){const base=PATTERN.map(r=>r.repeat(3));let width=base[0].length;const sc=document.querySelector('.chart-scroll');if(sc){const inner=sc.clientWidth-14;width=Math.max(width,Math.floor(inner/12));}const body=base.map((row,i)=>row+PATTERN[i].repeat(Math.ceil((width-row.length)/PATTERN[i].length)).slice(0,Math.max(0,width-row.length)));const pad='D'.repeat(body[0].length);return [...Array(4).fill(pad),...body,...Array(4).fill(pad)];}
