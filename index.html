@@ -1295,6 +1295,7 @@ function assistantNormalizeSuggestion(raw){
   }
   const nums=ROLES.map(r=>sel[r.key].number);
   if(new Set(nums.map(String)).size!==nums.length) return null;
+  if(!isReadable(sel)) return null;
   const name=String(raw?.name||'AI remix').trim().slice(0,40) || 'AI remix';
   const note=String(raw?.note||'click to preview').trim().slice(0,90) || 'click to preview';
   return {name,note,selections:sel,key:assistantSelectionKey(sel)};
@@ -1322,7 +1323,7 @@ function assistantRenderSuggestions(interpretation,suggestions){
   const box=el('assistantResults');
   if(!box) return;
   if(!assistantSuggestions.length){
-    box.innerHTML='<div class="assistant-empty">No valid Cascade 220 combos came back. Try the same ask with one clearer color direction.</div>';
+    box.innerHTML='<div class="assistant-empty">The AI came back with combos that failed the chart-readability checks. Try one clear color direction plus contrast.</div>';
     return;
   }
   box.innerHTML='';
