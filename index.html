@@ -1386,7 +1386,7 @@ async function assistantRequest(more=false){
     assistantRenderSuggestions(parsed.interpretation,parsed.suggestions);
   }catch(err){
     console.error('Ask Skein Scheme failed',err);
-    assistantSetRead(more && assistantSuggestions.length ? 'More options hit a snag, so I kept the current suggestions. Try Build Options again or tweak the prompt.' : 'AI request failed. Check the skein-assistant Edge Function logs if this repeats.','error');
+    assistantSetRead(assistantSuggestions.length ? 'That request hit a snag, so I kept the current suggestions. Try again or tweak the ask.' : 'AI request failed. Try again with a clearer color direction plus contrast.','error');
   }finally{
     assistantLoading=false;
     if(buildBtn) buildBtn.disabled=false;
