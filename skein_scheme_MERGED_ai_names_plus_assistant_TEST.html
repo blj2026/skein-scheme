@@ -480,7 +480,7 @@ label:has(#gridToggle) {
       <div class="below">
         <details class="section" id="rolesSection"><summary>Your 5 Colors</summary><div class="section-body"><div class="roles-row" id="roleCards"></div></div></details>
         <details class="section" id="paletteSection"><summary>Palette <span style="font-weight:600;color:var(--muted);letter-spacing:0;text-transform:none">(175 colors)</span></summary><div class="section-body"><div class="palette-tools"><input class="search" id="search" placeholder="Search number, name, hex"/><div class="active-pill" id="activeRoleLabel">Main</div></div><div class="filters" id="filters"></div><div class="palette" id="palette"></div></div></details>
-        <details class="section" id="assistantSection"><summary>Ask Skein Scheme</summary><div class="section-body"><div class="assistant-box"><textarea class="assistant-input" id="assistantPrompt" placeholder="Ask for a combo: high contrast purple, red white and blue, purple/gold version of Graphitica..."></textarea><div class="assistant-actions"><button class="btn primary" id="assistantBuildBtn" type="button">Build Options</button><button class="btn" id="assistantMoreBtn" type="button">More Options</button></div><div class="assistant-read" id="assistantRead"></div><div class="assistant-results" id="assistantResults"><div class="assistant-empty">AI suggestions will show here. Click one to preview it in the chart.</div></div></div></div></details>
+        <details class="section" id="assistantSection"><summary>Ask Skein Scheme</summary><div class="section-body"><div class="assistant-box"><textarea class="assistant-input" id="assistantPrompt" placeholder="Have a more specific edit in mind? Shoot your shot!"></textarea><div class="assistant-actions"><button class="btn primary" id="assistantBuildBtn" type="button">Build Options</button><button class="btn" id="assistantMoreBtn" type="button">More Options</button></div><div class="assistant-read" id="assistantRead"></div><div class="assistant-results" id="assistantResults"><div class="assistant-empty">AI suggestions will show here. Click one to preview it in the chart.</div></div></div></div></details>
         <details class="section" id="readabilitySection"><summary>Readability Check</summary><div class="section-body"><div class="metrics" id="metrics"></div></div></details>
         <details class="section" id="savedSection"><summary>Saved Combos</summary><div class="section-body"><h3 style="margin:0 0 8px;font-size:11px;letter-spacing:.08em">COMBOS WE DIG</h3><div class="saved-grid" id="digCombos"></div><h3 style="margin:14px 0 8px;font-size:11px;letter-spacing:.08em">COMBOS WE MADE</h3><div class="saved-grid" id="madeCombos"></div></div></details>
       </div>
@@ -1131,7 +1131,7 @@ async function deleteSavedItem(item){
   if(!item) return;
 
   const code=prompt(
-    'Whoops, did you accidentally save an ugly one? Contact Bryant Thee Builder to get it removed.\n\n' +
+    'Whoops, did you accidentally save an ugly one? Embarrassing! Text Bryant and he'll delete it.\n\n' +
     'Admin code:'
   );
 
@@ -1324,7 +1324,7 @@ async function assistantRequest(more=false){
   const buildBtn=el('assistantBuildBtn'), moreBtn=el('assistantMoreBtn');
   if(buildBtn) buildBtn.disabled=true;
   if(moreBtn) moreBtn.disabled=true;
-  assistantSetRead(more?'Asking for more chart-ready options...':'Building chart-ready options...','loading');
+  assistantSetRead(more?'Finding more options…':'Building options…','loading');
   try{
     const payload={
       prompt: prompt || 'more options based on the current preview',
@@ -1346,7 +1346,7 @@ async function assistantRequest(more=false){
     assistantRenderSuggestions(parsed.interpretation,parsed.suggestions);
   }catch(err){
     console.error('Ask Skein Scheme failed',err);
-    assistantSetRead('AI request failed. Check that the skein-assistant Edge Function is deployed and OPENAI_API_KEY is set.','error');
+    assistantSetRead(more && assistantSuggestions.length ? 'More options hit a snag, so I kept the current suggestions. Try Build Options again or tweak the prompt.' : 'AI request failed. Check the skein-assistant Edge Function logs if this repeats.','error');
   }finally{
     assistantLoading=false;
     if(buildBtn) buildBtn.disabled=false;
