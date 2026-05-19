@@ -99,6 +99,7 @@ button,input,textarea,summary{font-family:var(--font)}
   .toggle{color:#fff;font-size:10px;letter-spacing:.02em;text-transform:uppercase;}
   .toggle input{width:19px;height:19px;accent-color:#fff;}
   .chart-scroll{
+    min-height:230px;
     border-radius:17px;
     background:#f1e8dc;
     border-color:#a99f91;
@@ -405,6 +406,68 @@ label:has(#gridToggle) {
   .tagline{font-size:6.2px !important;letter-spacing:.025em !important;text-transform:lowercase !important;}
 }
 
+
+/* v21: real AI-backed Ask Skein Scheme panel — compact, no fake parser */
+.assistant-box{display:grid;gap:10px;}
+.assistant-input{
+  width:100%;
+  border:1px solid var(--line);
+  background:#fffaf2;
+  color:#111;
+  border-radius:13px;
+  padding:11px 12px;
+  font-size:12px;
+  line-height:1.25;
+  min-height:68px;
+  resize:vertical;
+  outline:none;
+}
+.assistant-input:focus{box-shadow:0 0 0 3px rgba(17,17,17,.10);border-color:#111;}
+.assistant-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.assistant-actions .btn{min-height:42px;}
+.assistant-read{
+  display:none;
+  border:1px solid var(--line-soft);
+  background:#f8f2e7;
+  color:#62584e;
+  border-radius:12px;
+  padding:8px 9px;
+  font-size:10px;
+  font-weight:700;
+  line-height:1.25;
+}
+.assistant-read.show{display:block;}
+.assistant-read.error{background:#fff1ec;border-color:#d2a89a;color:#7a2f20;}
+.assistant-read.loading{background:#f8f2e7;color:#62584e;}
+.assistant-results{display:grid;gap:7px;}
+.assistant-suggestion{
+  width:100%;
+  text-align:left;
+  border:1px solid var(--line-soft);
+  background:#fffaf2;
+  border-radius:13px;
+  padding:9px 9px;
+  cursor:pointer;
+  color:#111;
+}
+.assistant-suggestion:hover,.assistant-suggestion.active{outline:2px solid #111;outline-offset:-2px;}
+.assistant-suggestion-title{font-size:11px;font-weight:800;letter-spacing:-.035em;text-transform:lowercase;margin-bottom:6px;}
+.assistant-dots{display:flex;gap:5px;align-items:center;margin-bottom:5px;}
+.assistant-dot{width:17px;height:17px;border-radius:50%;border:1px solid rgba(18,18,18,.25);box-shadow:0 1px 2px rgba(18,18,18,.07);}
+.assistant-note{font-size:9px;color:var(--muted);font-weight:700;line-height:1.2;}
+.assistant-empty{font-size:10px;color:var(--muted);border:1px dashed var(--line);border-radius:10px;padding:9px;}
+@media (max-width:720px){
+  .assistant-actions .btn{min-height:41px;font-size:11px;}
+  .assistant-input{font-size:12px;min-height:64px;}
+  .assistant-suggestion{padding:9px;}
+}
+
+
+
+/* v34 safety: chart area should never collapse if a network script is slow */
+.chart-scroll{min-height:230px;}
+@media (max-width:720px){.chart-scroll{min-height:190px;}}
+
 </style>
 </head>
 <body>
@@ -423,6 +486,7 @@ label:has(#gridToggle) {
       <div class="below">
         <details class="section" id="rolesSection"><summary>Your 5 Colors</summary><div class="section-body"><div class="roles-row" id="roleCards"></div></div></details>
         <details class="section" id="paletteSection"><summary>Palette <span style="font-weight:600;color:var(--muted);letter-spacing:0;text-transform:none">(175 colors)</span></summary><div class="section-body"><div class="palette-tools"><input class="search" id="search" placeholder="Search number, name, hex"/><div class="active-pill" id="activeRoleLabel">Main</div></div><div class="filters" id="filters"></div><div class="palette" id="palette"></div></div></details>
+        <details class="section" id="assistantSection"><summary>Ask Skein Scheme</summary><div class="section-body"><div class="assistant-box"><textarea class="assistant-input" id="assistantPrompt" placeholder="Have a more specific edit in mind? Shoot your shot!"></textarea><div class="assistant-actions"><button class="btn primary" id="assistantBuildBtn" type="button">Build Options</button><button class="btn" id="assistantMoreBtn" type="button">More Options</button></div><div class="assistant-read" id="assistantRead"></div><div class="assistant-results" id="assistantResults"><div class="assistant-empty">AI suggestions will show here. Click one to preview it in the chart.</div></div></div></div></details>
         <details class="section" id="readabilitySection"><summary>Readability Check</summary><div class="section-body"><div class="metrics" id="metrics"></div></div></details>
         <details class="section" id="savedSection"><summary>Saved Combos</summary><div class="section-body"><h3 style="margin:0 0 8px;font-size:11px;letter-spacing:.08em">COMBOS WE DIG</h3><div class="saved-grid" id="digCombos"></div><h3 style="margin:14px 0 8px;font-size:11px;letter-spacing:.08em">COMBOS WE MADE</h3><div class="saved-grid" id="madeCombos"></div></div></details>
       </div>
@@ -446,7 +510,6 @@ label:has(#gridToggle) {
     </div>
   </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 const COLORS = [{"hex":"#440C17","number":"2401","name":"Burgundy"},{"hex":"#470E1D","number":"9489","name":"Red Wine Heather"},{"hex":"#660D16","number":"1095","name":"Red Marl"},{"hex":"#7D1417","number":"2413","name":"Red"},{"hex":"#2D0104","number":"9404","name":"Ruby"},{"hex":"#7C0511","number":"8895","name":"Christmas Red"},{"hex":"#811C1C","number":"8414","name":"Bright Red"},{"hex":"#992927","number":"9668","name":"Paprika"},{"hex":"#CF4A34","number":"1048","name":"Camelia"},{"hex":"#FA9079","number":"9682","name":"Desert Flower"},{"hex":"#D7B0A2","number":"1049","name":"Peach Dust"},{"hex":"#BB8A7C","number":"1065","name":"Rose Cloud"},{"hex":"#9E5A4F","number":"9681","name":"Crabapple"},{"hex":"#2D1C17","number":"9656","name":"Burnt Sienna Heather"},{"hex":"#1E161F","number":"4006","name":"Galaxy"},{"hex":"#A97F69","number":"1084","name":"Blush Heather"},{"hex":"#B38E77","number":"1033","name":"Nectarine"},{"hex":"#B54E38","number":"7824","name":"Jack O Lantern"},{"hex":"#AC361B","number":"9465B","name":"Burnt Orange"},{"hex":"#4B1A0A","number":"2414","name":"Ginger"},{"hex":"#9E4E2F","number":"1068","name":"Copper"},{"hex":"#5A180A","number":"2435","name":"Japanese Maple"},{"hex":"#A03226","number":"1097","name":"Pumpkin Marl"},{"hex":"#802A21","number":"2425","name":"Provence"},{"hex":"#C8320F","number":"9605","name":"Tiger Lily"},{"hex":"#E64405","number":"9542","name":"Blaze"},{"hex":"#E7B53D","number":"9463B","name":"Gold"},{"hex":"#FDAD00","number":"9669","name":"Gold Fusion"},{"hex":"#BF8F19","number":"7827","name":"Goldenrod"},{"hex":"#C5BD71","number":"4147","name":"Lemon Yellow"},{"hex":"#BFBA8F","number":"1069","name":"Anise Flower"},{"hex":"#EEE3A7","number":"8687","name":"Butter"},{"hex":"#E3DE09","number":"7828","name":"Neon Yellow"},{"hex":"#C3C13C","number":"1070","name":"Golden Kiwi"},{"hex":"#8FB450","number":"8910","name":"Citron"},{"hex":"#8B933E","number":"1002","name":"Leaf Green"},{"hex":"#355B2A","number":"1035","name":"Fern Heather"},{"hex":"#12642A","number":"2409","name":"Palm"},{"hex":"#192320","number":"8267","name":"Forest Green"},{"hex":"#0E230F","number":"9430","name":"Highland Green"},{"hex":"#445944","number":"9684","name":"Green Tea"},{"hex":"#13281A","number":"2445","name":"Shire"},{"hex":"#2F401F","number":"1093","name":"Shire Marl"},{"hex":"#47592A","number":"2429","name":"Irelande"},{"hex":"#798736","number":"1051","name":"Fern"},{"hex":"#434F1A","number":"1052","name":"Calla Green"},{"hex":"#1B1E10","number":"1036","name":"Chive"},{"hex":"#1C1F1C","number":"1089","name":"Lichen Twist"},{"hex":"#5D602C","number":"2452","name":"Turtle"},{"hex":"#87845E","number":"1082","name":"Savannah Heather"},{"hex":"#9FB68E","number":"1034","name":"Tender Greens"},{"hex":"#7F9580","number":"1090","name":"Fluorite Heather"},{"hex":"#034E39","number":"8894","name":"Christmas Green"},{"hex":"#081C15","number":"9447","name":"Forest Heather"},{"hex":"#132C2C","number":"1087","name":"Rainforest Heather"},{"hex":"#002F2D","number":"8893","name":"Hunter Green"},{"hex":"#224038","number":"1104","name":"Forest Marl"},{"hex":"#2A4A48","number":"9322","name":"Silver Spruce Heather"},{"hex":"#2C605C","number":"9451","name":"Lake Chelan Heather"},{"hex":"#5CB298","number":"1072","name":"Key West"},{"hex":"#009180","number":"7812","name":"Lagoon"},{"hex":"#004D4D","number":"9687","name":"Deep Blue Grass"},{"hex":"#86C6C5","number":"9634","name":"Aqua Haze"},{"hex":"#336172","number":"1054","name":"Mallard Blue"},{"hex":"#222E34","number":"8836","name":"Stonewash"},{"hex":"#507584","number":"9452","name":"Summer Sky Heather"},{"hex":"#7DC2C4","number":"1073","name":"Water Spout"},{"hex":"#4B9297","number":"1004","name":"Bristol Blue"},{"hex":"#0B4858","number":"2433","name":"Pacific"},{"hex":"#023D5A","number":"8891","name":"Cyan Blue"},{"hex":"#010712","number":"8892","name":"Azure"},{"hex":"#01030B","number":"4009","name":"Aporto"},{"hex":"#0B111E","number":"2448","name":"Mallard"},{"hex":"#08080E","number":"9449","name":"Midnight Heather"},{"hex":"#0B0D4F","number":"9484","name":"Stratosphere"},{"hex":"#06113B","number":"9568","name":"Twilight Blue"},{"hex":"#617386","number":"1005","name":"Blue Quartz Heather"},{"hex":"#0E264D","number":"9689","name":"Lapis Heather"},{"hex":"#28282C","number":"1091","name":"Stormy Seas Heather"},{"hex":"#5A6063","number":"1081","name":"Coast Heather"},{"hex":"#0F2244","number":"2404","name":"Atlantic"},{"hex":"#6A9AAF","number":"7815","name":"Summer Sky"},{"hex":"#0E1518","number":"9567","name":"Smoke Blue"},{"hex":"#6B7B87","number":"1037","name":"Faded Denim Heather"},{"hex":"#0D1621","number":"9332","name":"Sapphire"},{"hex":"#222D3E","number":"1100","name":"Sapphire Marl"},{"hex":"#181D28","number":"8393","name":"Navy"},{"hex":"#2F3E5B","number":"9326","name":"Colonial Blue Heather"},{"hex":"#56637B","number":"9325","name":"West Point Blue Heather"},{"hex":"#7F8F98","number":"1006","name":"Sky Blue"},{"hex":"#5982AE","number":"8905","name":"Robin Egg Blue"},{"hex":"#101E4B","number":"7818","name":"Blue Velvet"},{"hex":"#101018","number":"9543","name":"Midnight Blue"},{"hex":"#2C3B6D","number":"9655","name":"Blueberry Heather"},{"hex":"#5D6193","number":"2423","name":"Montmartre"},{"hex":"#3E3D4D","number":"1038","name":"Dusky Violet"},{"hex":"#7F7996","number":"2422","name":"Lavender Heather"},{"hex":"#6B5B7D","number":"1102","name":"Lavender Marl"},{"hex":"#45395D","number":"2450","name":"Mystic Purple"},{"hex":"#110E1C","number":"8886","name":"Italian Plum"},{"hex":"#3D1755","number":"9570","name":"Concord Grape"},{"hex":"#785BC8","number":"8762","name":"Deep Lavender"},{"hex":"#867382","number":"1083","name":"Sweet Pea Heather"},{"hex":"#442FA0","number":"7808","name":"Purple Hyacinth"},{"hex":"#A24297","number":"1056","name":"Orchid"},{"hex":"#831977","number":"7803","name":"Magenta"},{"hex":"#813AA0","number":"2420","name":"Heather"},{"hex":"#281B34","number":"7807","name":"Regal"},{"hex":"#783F6E","number":"1075","name":"Raspberry Coulis"},{"hex":"#280C1A","number":"9572","name":"Cabernet"},{"hex":"#997385","number":"1039","name":"Helleborus Heather"},{"hex":"#2E1929","number":"9642","name":"Crushed Grapes"},{"hex":"#482034","number":"1103","name":"Razzleberry Marl"},{"hex":"#613853","number":"9692","name":"Razzleberry Heather"},{"hex":"#B57D9A","number":"8114","name":"Dusty Rose"},{"hex":"#806971","number":"1007","name":"Lepidolite Heather"},{"hex":"#200B1A","number":"8418","name":"Eggplant"},{"hex":"#84757C","number":"8872","name":"Iridescense"},{"hex":"#AD8698","number":"1076","name":"Antique Lilac"},{"hex":"#963239","number":"1008","name":"Flamingo Heather"},{"hex":"#DE7D88","number":"1057","name":"Peony"},{"hex":"#EEDFE9","number":"4192","name":"Soft Pink"},{"hex":"#D0819B","number":"9477","name":"Tutu"},{"hex":"#CA5A84","number":"9478","name":"Cotton Candy"},{"hex":"#B32F64","number":"9469","name":"Hot Pink"},{"hex":"#942A69","number":"7802","name":"Cerise"},{"hex":"#6C6D6B","number":"1009","name":"Storm Cloud Heather"},{"hex":"#4D617B","number":"1101","name":"Faded Denim Marl"},{"hex":"#7C8091","number":"9559","name":"Indigo Frost Heather"},{"hex":"#E5E5DB","number":"8505","name":"White"},{"hex":"#AEAEB1","number":"1058","name":"Nimbus Cloud"},{"hex":"#868588","number":"1050","name":"Harbor Mist"},{"hex":"#6D6F71","number":"8509","name":"Grey"},{"hex":"#2D3443","number":"9473","name":"Gris"},{"hex":"#101114","number":"8555","name":"Black"},{"hex":"#1E1F21","number":"4002","name":"Jet"},{"hex":"#363939","number":"8400","name":"Charcoal Grey"},{"hex":"#5E5D59","number":"1094","name":"Charcoal Marl"},{"hex":"#5B5C53","number":"8401","name":"Silver Grey"},{"hex":"#ABA597","number":"8011","name":"Aspen Heather"},{"hex":"#52545D","number":"9491","name":"Greystone Heather"},{"hex":"#3C2128","number":"1077","name":"Oxblood Red"},{"hex":"#110E0F","number":"7822","name":"Van Dyke Brown"},{"hex":"#322217","number":"2431","name":"Chocolate Heather"},{"hex":"#846651","number":"9695","name":"Praline"},{"hex":"#794A33","number":"1010","name":"Carob Brown"},{"hex":"#1B110C","number":"8686","name":"Brown"},{"hex":"#623F1F","number":"8622","name":"Camel"},{"hex":"#DFC9AB","number":"8021","name":"Beige"},{"hex":"#EEE9D3","number":"8010","name":"Natural"},{"hex":"#B5A564","number":"8412","name":"Pear"},{"hex":"#653A16","number":"2415","name":"Sunflower"},{"hex":"#A66129","number":"1096","name":"Spice Marl"},{"hex":"#613B2F","number":"2453","name":"Pumpkin Spice"},{"hex":"#806627","number":"4010","name":"Straw"},{"hex":"#A08527","number":"9564","name":"Birch Heather"},{"hex":"#826A02","number":"9566","name":"Olive Oil"},{"hex":"#B98E4A","number":"1088","name":"Wheat Heather"},{"hex":"#71705B","number":"4011","name":"Sparrow"},{"hex":"#1E2316","number":"9448","name":"Olive Heather"},{"hex":"#302E2D","number":"9465","name":"Vashon Island Heather"},{"hex":"#513F31","number":"9748","name":"Mocha Heather"},{"hex":"#806E5B","number":"8013","name":"Walnut Heather"},{"hex":"#6F5D4D","number":"1092","name":"Walnut Marl"},{"hex":"#7E7771","number":"8012","name":"Doeskin Heather"},{"hex":"#9A8F7D","number":"2442","name":"Fog Hatt"},{"hex":"#8E7E6F","number":"2441","name":"River Rock"},{"hex":"#E2D6B7","number":"9600","name":"Antiqued Heather"},{"hex":"#B19772","number":"1099","name":"Antique Marl"},{"hex":"#716252","number":"2440","name":"Vinci"},{"hex":"#B18F74","number":"9499","name":"Sand"},{"hex":"#564C3F","number":"9696","name":"Copper Heather"},{"hex":"#5A6862","number":"9450","name":"Smoke Heather"},{"hex":"#798878","number":"1059","name":"Seagrass"},{"hex":"#07070B","number":"9674","name":"Pine Grove"}];
 const PATTERN = ["LDDDLDLDDLLLLLLLDDLDLDDDLD","LDDLDLDDLLLDDDLLLDDLDLDDLD","LDLDLDDLLLLDDDLLLLDDLDLDLD","LLDLDDLLLLLDDDLLLLLDDLDLLD","MDMDDMMMDDDMMMDDDMMMDDMDMD","MMDDMMMMDDDMMMDDDMMMMDDMMD","MDDMMMMMDDDMMMDDDMMMMMDDMD","STTSSTTTSSSTTTSSSTTTSSTTST","STTSSTTTSSSTTTSSSTTTSSTTST","STTSSTTTSSSTTTSSSTTTSSTTST","MDDMMMMMDDDMMMDDDMMMMMDDMD","MMDDMMMMDDDMMMDDDMMMMDDMMD","MDMDDMMMDDDMMMDDDMMMDDMDMD","LLDLDDLLLLLDDDLLLLLDDLDLLD","LDLDLDDLLLLDDDLLLLDDLDLDLD","LDDLDLDDLLLDDDLLLDDLDLDDLD","LDDDLDLDDLLLLLLLDDLDLDDDLD"];
@@ -467,7 +530,40 @@ const NAME_CACHE_STORAGE = 'skeinSchemeAINameCacheV1';
 const NAME_BATCH_SIZE = 12;
 let nameRequestInProgress = false;
 let db=null;
-try{db=window.supabase?.createClient(SUPABASE_URL,SUPABASE_KEY)||null;}catch(e){db=null;}
+let supabaseClientPromise=null;
+function initSupabaseClient(){
+  try{
+    db=window.supabase?.createClient(SUPABASE_URL,SUPABASE_KEY)||null;
+  }catch(e){
+    console.warn('Supabase client init failed.',e);
+    db=null;
+  }
+  return !!db;
+}
+function loadSupabaseClient(){
+  if(db) return Promise.resolve(true);
+  if(initSupabaseClient()) return Promise.resolve(true);
+  if(supabaseClientPromise) return supabaseClientPromise;
+  supabaseClientPromise=new Promise(resolve=>{
+    const existing=document.querySelector('script[data-supabase-client]');
+    if(existing){
+      existing.addEventListener('load',()=>resolve(initSupabaseClient()),{once:true});
+      existing.addEventListener('error',()=>resolve(false),{once:true});
+      return;
+    }
+    const script=document.createElement('script');
+    script.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+    script.async=true;
+    script.dataset.supabaseClient='true';
+    script.onload=()=>resolve(initSupabaseClient());
+    script.onerror=()=>{
+      console.warn('Supabase client script failed to load. Core chart still works; shared stash/saves/assistant will be unavailable until it loads.');
+      resolve(false);
+    };
+    document.head.appendChild(script);
+  });
+  return supabaseClientPromise;
+}
 function hexToRgb(hex){const c=hex.replace('#','');return [0,2,4].map(i=>parseInt(c.slice(i,i+2),16));}
 function luminance(hex){const [r,g,b]=hexToRgb(hex).map(v=>{const s=v/255;return s<=.03928?s/12.92:Math.pow((s+.055)/1.055,2.4);});return .2126*r+.7152*g+.0722*b;}
 function contrastRatio(a,b){const l1=luminance(a),l2=luminance(b);return (Math.max(l1,l2)+.05)/(Math.min(l1,l2)+.05);}
@@ -943,7 +1039,7 @@ function drawChart(){const chart=el('chart'),pat=getPattern(),show=el('gridToggl
 function renderDots(){el('comboDots').innerHTML=ROLES.map(r=>`<span class="dot" style="background:${selections[r.key].hex}"></span>`).join(''); el('comboName').textContent=currentComboName;}
 function renderRoles(){el('activeRoleLabel').textContent=ROLE_LABELS[activeRole];el('roleCards').innerHTML='';ROLES.forEach(r=>{const c=selections[r.key];const card=document.createElement('button');card.className='role-card'+(activeRole===r.key?' active':'')+(lockedRoles[r.key]?' locked':'');card.innerHTML=`<div class="role-dot" style="background:${c.hex}"></div><div class="role-label">${r.label}</div><div class="role-num">${c.number}</div><div class="role-name">${c.name}</div><label class="lock-wrap"><input class="lock-check" type="checkbox" ${lockedRoles[r.key]?'checked':''}> lock</label>`;card.addEventListener('click',()=>{activeRole=r.key;renderAll();});card.querySelector('.lock-check').addEventListener('click',e=>{e.stopPropagation();lockedRoles[r.key]=e.target.checked;renderAll();});el('roleCards').appendChild(card);});}
 function renderFilters(){const items=['Full Palette','Current Stash'];el('filters').innerHTML=items.map(x=>`<button class="filter ${filter===x?'active':''}" data-filter="${x}">${x}</button>`).join('');document.querySelectorAll('.filter').forEach(b=>b.onclick=()=>{filter=b.dataset.filter;randomSource=(filter==='Current Stash')?'stash':'full';renderSourceButtons();renderPalette();renderFilters();});}
-function renderPalette(){const q=el('search').value.trim().toLowerCase();const p=el('palette');p.innerHTML='';COLORS.filter(c=>(filter==='Full Palette'||isInStash(c))&&(!q||c.name.toLowerCase().includes(q)||c.number.toLowerCase().includes(q)||c.hex.toLowerCase().includes(q))).forEach(c=>{const used=ROLES.some(r=>selections[r.key].number===c.number);const inStash=isInStash(c);const b=document.createElement('button');b.className='color-btn'+(used?' selected':'')+(inStash?' in-stash':'');b.innerHTML=`<span class="stash-check" title="Toggle Current Stash" aria-label="Toggle Current Stash">✓</span><div class="color-swatch" style="background:${c.hex}"></div><div class="color-num">${c.number}</div><div class="color-name">${c.name}</div>`;b.onclick=()=>{selections[activeRole]=c;currentComboName='custom mix';currentNameSeed=0;renderAll();};b.querySelector('.stash-check').onclick=e=>{e.stopPropagation();toggleStash(c);};p.appendChild(b);});}
+function renderPalette(){const q=el('search').value.trim().toLowerCase();const p=el('palette');p.innerHTML='';COLORS.filter(c=>(filter==='Full Palette'||isInStash(c))&&(!q||c.name.toLowerCase().includes(q)||c.number.toLowerCase().includes(q)||c.hex.toLowerCase().includes(q))).forEach(c=>{const used=ROLES.some(r=>selections[r.key].number===c.number);const inStash=isInStash(c);const b=document.createElement('button');b.className='color-btn'+(used?' selected':'')+(inStash?' in-stash':'');b.innerHTML=`<span class="stash-check" title="Toggle Current Stash" aria-label="Toggle Current Stash">✓</span><div class="color-swatch" style="background:${c.hex}"></div><div class="color-num">${c.number}</div><div class="color-name">${c.name}</div>`;b.onclick=()=>{selections[activeRole]=c;currentNameSeed=0;renderAll();};b.querySelector('.stash-check').onclick=e=>{e.stopPropagation();toggleStash(c);};p.appendChild(b);});}
 function metrics(){const pairs=[['Main vs Contrast',selections.D,selections.L,3],['Main vs Accent',selections.D,selections.M,1.6],['Stripe A vs B',selections.S,selections.T,1.6]];el('metrics').innerHTML=pairs.map(([t,a,b,target])=>{const r=contrastRatio(a.hex,b.hex),w=Math.min(100,Math.round(r/7*100));return `<div class="metric"><div class="metric-top"><span>${t}</span><strong>${r.toFixed(1)}:1</strong></div><div class="bar"><div class="fill" style="width:${w}%"></div></div></div>`;}).join('');}
 function isReadable(combo){const nums=ROLES.map(r=>combo[r.key].number);return new Set(nums).size===nums.length&&contrastRatio(combo.D.hex,combo.L.hex)>=3&&contrastRatio(combo.D.hex,combo.M.hex)>=1.6&&contrastRatio(combo.S.hex,combo.T.hex)>=1.6;}
 function randomize(){
@@ -1073,7 +1169,7 @@ async function deleteSavedItem(item){
   if(!item) return;
 
   const code=prompt(
-    'Whoops, did you accidentally save an ugly one? Contact Bryant Thee Builder to get it removed.\n\n' +
+    "Whoops, did you accidentally save an ugly one? Embarrassing! Text Bryant and he\'ll delete it.\n\n" +
     'Admin code:'
   );
 
@@ -1132,13 +1228,182 @@ async function loadSharedCombos(){
   saved=[...remote,...local.filter(x=>!x.remote)];
   renderSaved();
 }
+
+/* v21: real AI-backed Ask Skein Scheme. The browser calls a Supabase Edge Function.
+   No OpenAI key belongs in this HTML file. */
+const ASSISTANT_FUNCTION_NAME='skein-assistant';
+let assistantSuggestions=[];
+let assistantSeenKeys=[];
+let assistantSelectedKey='';
+let assistantLoading=false;
+
+function assistantSelectionKey(sel){
+  if(!sel) return '';
+  return ROLES.map(r=>String(sel[r.key]?.number||'')).join('|');
+}
+function assistantCompactCombo(sel=selections){
+  return Object.fromEntries(ROLES.map(r=>{
+    const c=sel[r.key];
+    return [r.key,{role:r.label,number:String(c?.number||''),name:c?.name||'',hex:c?.hex||''}];
+  }));
+}
+function assistantPalettePayload(){
+  return COLORS.map(c=>({
+    number:String(c.number),
+    name:c.name,
+    hex:c.hex,
+    family:hueFamily(c),
+    luminance:+luminance(c.hex).toFixed(4)
+  }));
+}
+function assistantSavedPayload(){
+  return saved.slice(0,100).map(item=>({
+    comboName:item.comboName||'',
+    kind:item.kind||'',
+    selections:assistantCompactCombo(item.selections||{})
+  })).filter(x=>x.comboName && x.selections?.D?.number);
+}
+function assistantSetRead(text,type=''){
+  const box=el('assistantRead');
+  if(!box) return;
+  box.textContent=text||'';
+  box.className='assistant-read'+(text?' show':'')+(type?' '+type:'');
+}
+function assistantColorByNumber(number){
+  const wanted=String(number||'').trim().toLowerCase();
+  return COLORS.find(c=>String(c.number).trim().toLowerCase()===wanted)||null;
+}
+function assistantNormalizeSuggestion(raw){
+  const src=raw?.colors||raw?.selections||raw?.roles||{};
+  const aliases={
+    D:['D','Main','main'],
+    L:['L','Contrast','contrast'],
+    M:['M','Accent','accent'],
+    S:['S','Stripe A','stripeA','stripe_a','stripe a','StripeA'],
+    T:['T','Stripe B','stripeB','stripe_b','stripe b','StripeB']
+  };
+  const sel={};
+  for(const r of ROLES){
+    let value=null;
+    for(const key of aliases[r.key]){
+      if(src[key]!==undefined){value=src[key];break;}
+    }
+    if(value && typeof value==='object') value=value.number;
+    const color=assistantColorByNumber(value);
+    if(!color) return null;
+    sel[r.key]=color;
+  }
+  const nums=ROLES.map(r=>sel[r.key].number);
+  if(new Set(nums.map(String)).size!==nums.length) return null;
+  const name=String(raw?.name||'AI remix').trim().slice(0,40) || 'AI remix';
+  const note=String(raw?.note||'click to preview').trim().slice(0,90) || 'click to preview';
+  return {name,note,selections:sel,key:assistantSelectionKey(sel)};
+}
+function assistantValidateResponse(data){
+  const suggestionsRaw=Array.isArray(data?.suggestions)?data.suggestions:[];
+  const out=[];
+  const used=new Set();
+  for(const raw of suggestionsRaw){
+    const normalized=assistantNormalizeSuggestion(raw);
+    if(!normalized) continue;
+    if(used.has(normalized.key)) continue;
+    used.add(normalized.key);
+    out.push(normalized);
+    if(out.length>=6) break;
+  }
+  return {
+    interpretation:String(data?.interpretation||'chart-ready alternatives').trim().slice(0,130),
+    suggestions:out
+  };
+}
+function assistantRenderSuggestions(interpretation,suggestions){
+  assistantSuggestions=suggestions||[];
+  if(interpretation) assistantSetRead('I read this as: '+interpretation);
+  const box=el('assistantResults');
+  if(!box) return;
+  if(!assistantSuggestions.length){
+    box.innerHTML='<div class="assistant-empty">No valid Cascade 220 combos came back. Try the same ask with one clearer color direction.</div>';
+    return;
+  }
+  box.innerHTML='';
+  assistantSuggestions.forEach((item,idx)=>{
+    const b=document.createElement('button');
+    b.type='button';
+    b.className='assistant-suggestion'+(item.key===assistantSelectedKey?' active':'');
+    b.innerHTML=`<div class="assistant-suggestion-title">${escapeHTML(item.name)}</div><div class="assistant-dots">${ROLES.map(r=>`<span class="assistant-dot" style="background:${item.selections[r.key].hex}"></span>`).join('')}</div><div class="assistant-note">${escapeHTML(item.note||'click to preview')}</div>`;
+    b.onclick=()=>assistantApplySuggestion(idx);
+    box.appendChild(b);
+  });
+}
+function assistantApplySuggestion(index){
+  const item=assistantSuggestions[index];
+  if(!item) return;
+  history.push({selections:cloneSelections(),name:currentComboName,seed:currentNameSeed});
+  selections=cloneSelections(item.selections);
+  currentComboName=item.name;
+  currentNameSeed=0;
+  assistantSelectedKey=item.key;
+  assistantSeenKeys=[...new Set([...assistantSeenKeys,item.key])].slice(-80);
+  renderAll();
+  assistantRenderSuggestions(null,assistantSuggestions);
+}
+async function assistantRequest(more=false){
+  if(assistantLoading) return;
+  const prompt=(el('assistantPrompt')?.value||'').trim();
+  if(!prompt && !more){
+    assistantSetRead('Type what you want first — for example: high contrast purple but keep the main neutral.','error');
+    return;
+  }
+  if(!db) await loadSupabaseClient();
+  if(!db || !db.functions || !db.functions.invoke){
+    assistantSetRead('AI backend is not connected yet. Supabase did not load, or the skein-assistant function is not available. Refresh and try again.','error');
+    return;
+  }
+  assistantLoading=true;
+  const buildBtn=el('assistantBuildBtn'), moreBtn=el('assistantMoreBtn');
+  if(buildBtn) buildBtn.disabled=true;
+  if(moreBtn) moreBtn.disabled=true;
+  assistantSetRead(more?'Finding more options…':'Building options…','loading');
+  try{
+    const payload={
+      prompt: prompt || 'more options based on the current preview',
+      mode: more?'more':'build',
+      currentComboName,
+      currentCombo:assistantCompactCombo(selections),
+      palette:assistantPalettePayload(),
+      savedCombos:assistantSavedPayload(),
+      previousSuggestionKeys:assistantSeenKeys.slice(-50),
+      previousSuggestions:assistantSuggestions.map(s=>({name:s.name,colors:assistantCompactCombo(s.selections)})).slice(-12),
+      roleGuide:{D:'Main / largest background areas',L:'Contrast / strongest motif and linework',M:'Accent / middle motif areas',S:'Stripe A / stripe details',T:'Stripe B / stripe details'}
+    };
+    const {data,error}=await db.functions.invoke(ASSISTANT_FUNCTION_NAME,{body:payload});
+    if(error) throw error;
+    if(data?.error) throw new Error(data.error);
+    const parsed=assistantValidateResponse(data);
+    parsed.suggestions.forEach(s=>assistantSeenKeys.push(s.key));
+    assistantSeenKeys=[...new Set(assistantSeenKeys)].slice(-80);
+    assistantRenderSuggestions(parsed.interpretation,parsed.suggestions);
+  }catch(err){
+    console.error('Ask Skein Scheme failed',err);
+    assistantSetRead(more && assistantSuggestions.length ? 'More options hit a snag, so I kept the current suggestions. Try Build Options again or tweak the prompt.' : 'AI request failed. Check the skein-assistant Edge Function logs if this repeats.','error');
+  }finally{
+    assistantLoading=false;
+    if(buildBtn) buildBtn.disabled=false;
+    if(moreBtn) moreBtn.disabled=false;
+  }
+}
+
+
 async function init(){
-  renderFilters(); renderAll();
+  // Render the chart immediately. Do not let a slow CDN/Supabase load leave the page half-built.
+  renderFilters();
+  renderAll();
+  await loadSupabaseClient();
   await loadStashInventory();
   renderAll();
   await loadSharedCombos();
 }
-el('gridToggle').onchange=drawChart;el('randomBtn').onclick=randomize;el('backBtn').onclick=back;el('sourceFullBtn').onclick=()=>setRandomSource('full');el('sourceStashBtn').onclick=()=>setRandomSource('stash');el('newNameBtn').onclick=newName;el('saveBtn').onclick=()=>openSaveDrawer('dig');el('madeBtn').onclick=()=>openSaveDrawer('made');el('confirmSave').onclick=savePending;el('cancelSave').onclick=closeSaveDrawer;el('closeSaveDrawer').onclick=closeSaveDrawer;el('saveDrawer').addEventListener('click',e=>{if(e.target.id==='saveDrawer')closeSaveDrawer();});el('search').oninput=renderPalette;el('saveName').oninput=updateSaveState;window.addEventListener('resize',drawChart);init();
+el('gridToggle').onchange=drawChart;el('randomBtn').onclick=randomize;el('backBtn').onclick=back;el('sourceFullBtn').onclick=()=>setRandomSource('full');el('sourceStashBtn').onclick=()=>setRandomSource('stash');el('newNameBtn').onclick=newName;el('saveBtn').onclick=()=>openSaveDrawer('dig');el('madeBtn').onclick=()=>openSaveDrawer('made');el('confirmSave').onclick=savePending;el('cancelSave').onclick=closeSaveDrawer;el('closeSaveDrawer').onclick=closeSaveDrawer;el('saveDrawer').addEventListener('click',e=>{if(e.target.id==='saveDrawer')closeSaveDrawer();});el('search').oninput=renderPalette;el('saveName').oninput=updateSaveState;if(el('assistantBuildBtn'))el('assistantBuildBtn').onclick=()=>assistantRequest(false);if(el('assistantMoreBtn'))el('assistantMoreBtn').onclick=()=>assistantRequest(true);if(el('assistantPrompt'))el('assistantPrompt').addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='Enter')assistantRequest(false);});window.addEventListener('resize',drawChart);init();
 </script>
 </body>
 </html>
