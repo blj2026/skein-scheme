@@ -462,6 +462,10 @@ const ADMIN_CODE='123';
 const el=id=>document.getElementById(id);
 const SUPABASE_URL='https://upyxpakxrpudsudsencg.supabase.co';
 const SUPABASE_KEY='sb_publishable_WWCfJ2OsbQVguApac-Rnaw_PnqILcDf';
+const NAME_FUNCTION_URL = `${SUPABASE_URL}/functions/v1/generate-colorway-names`;
+const NAME_CACHE_STORAGE = 'skeinSchemeAINameCacheV1';
+const NAME_BATCH_SIZE = 12;
+let nameRequestInProgress = false;
 let db=null;
 try{db=window.supabase?.createClient(SUPABASE_URL,SUPABASE_KEY)||null;}catch(e){db=null;}
 function hexToRgb(hex){const c=hex.replace('#','');return [0,2,4].map(i=>parseInt(c.slice(i,i+2),16));}
@@ -822,6 +826,97 @@ function rememberName(candidate){
   Object.entries(NAME_HISTORY_LIMITS).forEach(([k,limit])=>{nameHistory[k]=nameHistory[k].slice(-limit);});
   saveNameHistory();
 }
+
+function selectedColorsForName(combo = selections) {
+  return ROLES.map(r => ({
+    role: r.label,
+    yarn_name: combo[r.key].name,
+    yarn_number: combo[r.key].number,
+    hex: combo[r.key].hex
+  }));
+}
+
+function readNameCache() {
+  try {
+    return JSON.parse(localStorage.getItem(NAME_CACHE_STORAGE) || '{}');
+  } catch {
+    return {};
+  }
+}
+
+function writeNameCache(cache) {
+  try {
+    localStorage.setItem(NAME_CACHE_STORAGE, JSON.stringify(cache));
+  } catch {}
+}
+
+function namePaletteKey(colors) {
+  const raw = colors
+    .map(c => `${c.hex}|${c.yarn_number}|${c.yarn_name}`.toLowerCase())
+    .sort()
+    .join('~');
+
+  let hash = 5381;
+  for (let i = 0; i < raw.length; i++) {
+    hash = ((hash << 5) + hash) + raw.charCodeAt(i);
+    hash = hash & hash;
+  }
+
+  return `palette_${Math.abs(hash)}`;
+}
+
+function rememberShownName(list, name, limit = 80) {
+  return [...new Set([...(list || []), name].filter(Boolean))].slice(-limit);
+}
+
+async function getNextAIComboName(combo = selections) {
+  const selectedColors = selectedColorsForName(combo);
+  const key = namePaletteKey(selectedColors);
+  const cache = readNameCache();
+  const state = cache[key] || { queue: [], shown: [] };
+
+  if (state.queue.length) {
+    const name = state.queue.shift();
+    state.shown = rememberShownName(state.shown, name);
+    cache[key] = state;
+    writeNameCache(cache);
+    return name;
+  }
+
+  const response = await fetch(NAME_FUNCTION_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'apikey': SUPABASE_KEY
+    },
+    body: JSON.stringify({
+      selected_colors: selectedColors,
+      previous_names: state.shown,
+      count: NAME_BATCH_SIZE
+    })
+  });
+
+  if (!response.ok) {
+    throw new Error(`Name function failed: ${response.status}`);
+  }
+
+  const payload = await response.json();
+  const names = Array.isArray(payload.names) ? payload.names : [];
+  const freshNames = names.filter(name => name && !state.shown.includes(name));
+
+  if (!freshNames.length) {
+    throw new Error('Name function returned no usable names');
+  }
+
+  const name = freshNames.shift();
+  state.queue = freshNames;
+  state.shown = rememberShownName(state.shown, name);
+  cache[key] = state;
+  writeNameCache(cache);
+
+  return name;
+}
+
 function generateComboName(combo=selections,offset=0){
   loadNameHistory();
   const candidates=[];
@@ -872,10 +967,41 @@ function randomize(){
     });
     if(isReadable(combo))break;
   }
-  selections=combo;currentNameSeed=0;currentComboName=generateComboName();renderAll();
+  selections = combo;
+  currentNameSeed = 0;
+  currentComboName = 'naming…';
+  renderAll();
+  newName();
 }
 function back(){const prev=history.pop();if(!prev)return;selections=cloneSelections(prev.selections);currentComboName=prev.name;currentNameSeed=prev.seed;renderAll();}
-function newName(){currentNameSeed++;currentComboName=generateComboName(selections,currentNameSeed);renderAll();}
+async function newName() {
+  if (nameRequestInProgress) return;
+
+  const btn = el('newNameBtn');
+  nameRequestInProgress = true;
+
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = 'naming…';
+  }
+
+  try {
+    currentComboName = await getNextAIComboName(selections);
+  } catch (error) {
+    console.error('AI name failed; using local fallback.', error);
+    currentNameSeed++;
+    currentComboName = generateComboName(selections, currentNameSeed);
+  } finally {
+    nameRequestInProgress = false;
+
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = 'new name ↺';
+    }
+
+    renderAll();
+  }
+}
 function openSaveDrawer(kind){pendingSaveKind=kind;const title=kind==='made'?'SAVE TO MADE COMBOS':'SAVE TO DIGGED COMBOS';el('drawerTitle').textContent=title;el('confirmSave').textContent=title;el('drawerSub').textContent='';el('saveDrawer').classList.add('open');el('saveDrawer').setAttribute('aria-hidden','false');setTimeout(()=>el('saveName').focus(),40);updateSaveState();}
 function closeSaveDrawer(){el('saveDrawer').classList.remove('open');el('saveDrawer').setAttribute('aria-hidden','true');}
 let saveInProgress=false;
