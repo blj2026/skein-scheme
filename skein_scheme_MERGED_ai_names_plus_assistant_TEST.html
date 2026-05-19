@@ -1,0 +1,1367 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>skein scheme</title>
+  <style>
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap");
+:root{
+  --bg:#e8e2d8;
+  --paper:#fffaf2;
+  --panel:#fffdf8;
+  --ink:#121212;
+  --muted:#6f665b;
+  --line:#bdb4a6;
+  --line-soft:#d9d0c3;
+  --charcoal:#101010;
+  --accent:#0b2e4f;
+  --font:"IBM Plex Mono","Cascadia Mono","SFMono-Regular",Consolas,monospace;
+}
+*{box-sizing:border-box}
+html{font-size:14px;-webkit-text-size-adjust:100%}
+body{margin:0;color:var(--ink);font-family:var(--font);background:
+  linear-gradient(rgba(18,18,18,.04) 1px,transparent 1px),
+  linear-gradient(90deg,rgba(18,18,18,.04) 1px,transparent 1px),
+  var(--bg);background-size:26px 26px,26px 26px,auto;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision;}
+button,input,textarea,summary{font-family:var(--font)}
+.page{width:100%;max-width:720px;margin:0 auto;padding:10px 10px 26px}
+.hero{display:flex;align-items:center;gap:9px;padding:4px 2px 10px;background:transparent;border:0;box-shadow:none;border-radius:0;position:relative;z-index:1}
+.brand{display:flex;align-items:center;gap:9px;min-width:0}.logo{width:38px;height:38px;flex:0 0 auto;transform:rotate(-3deg)}.logo img{width:100%;height:100%;object-fit:contain;display:block}.brand h1{margin:0;font-size:22px;line-height:.95;font-weight:700;letter-spacing:-.065em;text-transform:lowercase}.tagline{margin-top:1px;font-size:9px;line-height:1;font-weight:700;letter-spacing:.06em;color:#8e5c2b;text-transform:lowercase;font-style:normal}
+.app-grid{display:block}.card{background:rgba(255,253,248,.96);border:1px solid var(--line);border-radius:18px;box-shadow:0 10px 22px rgba(18,18,18,.09)}.chart-card{padding:9px;display:flex;flex-direction:column;gap:9px;overflow:hidden}.combo-strip{margin:0;padding:0;background:transparent;color:var(--ink);display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:8px;box-shadow:none;border-radius:0}.combo-left{display:flex;flex-direction:column;align-items:flex-start;gap:5px;min-width:0}#comboName{font-size:19px;font-weight:700;letter-spacing:-.055em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-transform:lowercase}.dots{display:flex;gap:5px;align-items:center}.dot{width:17px;height:17px;border-radius:50%;border:1px solid rgba(18,18,18,.28);box-shadow:0 1px 2px rgba(18,18,18,.08)}.icon-btn{height:30px;border:1px solid var(--line);background:#fffaf2;color:#111;border-radius:10px;font-size:17px;font-weight:700;line-height:1;display:grid;place-items:center;cursor:pointer}.name-new-btn{width:auto;min-width:72px;padding:0 9px;font-size:9px;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}.chart-top{display:none}.toggle{display:flex;align-items:center;gap:5px;font-size:11px;font-weight:700;letter-spacing:-.03em;color:#34302b}.toggle input{width:20px;height:20px;accent-color:#111;margin:0}.chart-scroll{padding:0;margin:0;background:#eee6da;border:1px solid var(--line);border-radius:14px;overflow:auto;-webkit-overflow-scrolling:touch;box-shadow:inset 0 0 0 1px rgba(255,255,255,.5)}#chart{display:grid;width:max-content;transform:scale(.74);transform-origin:top left;margin-bottom:-64px}.cell{width:12px;height:12px;border-left:1px solid transparent;border-top:1px solid transparent}.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0}.btn{border:1px solid var(--line);background:#fffaf2;color:#111;border-radius:13px;min-height:44px;padding:9px 8px;font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;cursor:pointer}.btn.primary{background:#101010;color:#fff;border-color:#101010}.btn:disabled{opacity:1;color:#b3aaa0;background:#f4eee6;border-color:#d7cec2;cursor:not-allowed}.save-action{background:#fffaf2;color:#111}.save-action.active-save{background:#111;color:#fff;border-color:#111}.below{margin-top:10px}details.section{margin-top:8px;border:1px solid var(--line);border-radius:16px;background:rgba(255,253,248,.96);box-shadow:0 6px 15px rgba(18,18,18,.06);overflow:hidden}details.section>summary{list-style:none;cursor:pointer;padding:14px 14px;font-size:13px;font-weight:700;letter-spacing:.02em;text-transform:uppercase;display:flex;align-items:center;justify-content:space-between;gap:10px}details.section>summary::-webkit-details-marker{display:none}details.section>summary:after{content:'⌄';font-size:20px;line-height:1;font-weight:700}details[open].section>summary:after{content:'⌃'}.section-body{padding:0 10px 12px}.roles-row{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}.role-card{position:relative;border:1px solid var(--line-soft);background:#fffaf2;border-radius:13px;padding:7px 4px;text-align:center;min-height:86px;cursor:pointer}.role-card.active{outline:2px solid #111;outline-offset:-2px}.role-card.locked{box-shadow:inset 0 0 0 2px #111}.role-dot{width:30px;height:30px;border-radius:50%;margin:0 auto 5px;border:1px solid rgba(18,18,18,.22)}.role-label{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.02em}.role-num{font-size:9px;font-weight:700;margin-top:4px;letter-spacing:-.03em}.role-name{font-size:7px;color:var(--muted);line-height:1.05;height:16px;overflow:hidden}.lock-wrap{display:flex;align-items:center;justify-content:center;margin-top:5px;font-size:0}.lock-check{width:17px;height:17px;accent-color:#111;margin:0;cursor:pointer}.palette-tools{display:flex;gap:7px;margin-bottom:8px}.search{flex:1;min-width:0;border:1px solid var(--line);border-radius:999px;background:#fffaf2;padding:9px 11px;font-size:12px;font-weight:500}.active-pill{border:1px solid #111;border-radius:999px;background:#111;color:#fff;padding:9px 10px;font-size:10px;font-weight:700;white-space:nowrap;text-transform:uppercase}.filters{display:flex;gap:5px;overflow:auto;margin-bottom:8px;padding-bottom:1px}.filter{border:1px solid var(--line);background:#f8f2e7;border-radius:999px;padding:7px 10px;font-size:10px;font-weight:700;white-space:nowrap;cursor:pointer;text-transform:uppercase}.filter.active{background:#111;color:#fff;border-color:#111}.palette{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;max-height:330px;overflow:auto;padding-right:2px}.color-btn{border:1px solid var(--line-soft);background:#fffaf2;border-radius:12px;padding:5px;min-height:72px;cursor:pointer;position:relative}.color-btn.selected{outline:2px solid #111;outline-offset:-2px}.color-swatch{height:32px;border-radius:9px;margin-bottom:4px;border:1px solid rgba(18,18,18,.16)}.color-num{font-size:10px;font-weight:700;letter-spacing:-.04em}.color-name{font-size:7px;color:#5f574f;line-height:1.05;height:16px;overflow:hidden}.metrics{display:grid;gap:7px}.metric{background:#f8f2e7;border:1px solid var(--line-soft);border-radius:12px;padding:8px}.metric-top{display:flex;justify-content:space-between;gap:10px;font-size:11px;font-weight:700}.bar{height:5px;background:#ded4c8;border-radius:99px;margin-top:6px;overflow:hidden}.fill{height:100%;background:#111;border-radius:99px}.hint{display:none}.saved-grid{display:grid;gap:7px}.saved-empty,.empty{font-size:11px;color:var(--muted);border:1px dashed var(--line);border-radius:10px;padding:9px}.saved-card{position:relative;border:1px solid var(--line-soft);background:#fffaf2;border-radius:12px;padding:8px;margin-bottom:7px}.saved-colors{display:flex;gap:4px;margin-bottom:5px}.delete{position:absolute;top:6px;right:6px;width:24px;height:24px;border:1px solid var(--line);background:#f8f2e7;border-radius:8px}.saved-btn{flex:1;display:flex;gap:4px;align-items:center;border:1px solid var(--line-soft);background:#fffaf2;border-radius:12px;padding:8px;text-align:left;cursor:pointer}.mini{width:16px;height:16px;border-radius:5px;border:1px solid rgba(18,18,18,.14);flex:0 0 auto}.saved-label{font-size:10px;font-weight:600;min-width:0}.saved-title,.saved-meta,.saved-by,.saved-note{display:block;overflow:hidden;text-overflow:ellipsis}.saved-title{font-weight:700;white-space:nowrap}.saved-meta,.saved-by,.saved-note{font-size:8px;color:var(--muted);margin-top:2px}.delete-combo{width:26px;height:26px;border:1px solid var(--line);background:#f8f2e7;border-radius:9px;font-size:14px;cursor:pointer}.drawer-backdrop{position:fixed;inset:0;background:rgba(18,18,18,.28);display:none;align-items:flex-end;z-index:50}.drawer-backdrop.open{display:flex}.save-panel{width:100%;max-width:720px;margin:0 auto;background:#fffdf8;border:1px solid var(--line);border-bottom:0;border-radius:24px 24px 0 0;padding:13px 13px 18px;box-shadow:0 -18px 34px rgba(18,18,18,.18)}.drawer-grab{width:46px;height:5px;border-radius:99px;background:#c4bbb0;margin:0 auto 12px}.drawer-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.drawer-title{font-size:15px;font-weight:700;letter-spacing:.03em;text-transform:uppercase}.drawer-sub{display:none}.drawer-close{border:0;background:transparent;font-size:24px;line-height:1;cursor:pointer}.save-body{display:grid;gap:8px;margin:12px 0}.field-label{display:block;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin-bottom:4px}.save-body input,.save-body textarea{width:100%;border:1px solid var(--line);background:#fffaf2;border-radius:12px;padding:10px 11px;font-size:13px;outline:none}.save-body textarea{min-height:70px;resize:vertical}.drawer-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.field-error{border-color:#111!important;box-shadow:0 0 0 3px rgba(17,17,17,.12)!important}@media (min-width:721px){.page{max-width:1100px;padding:18px}.app-grid{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:14px}.below{margin-top:0}.chart-card{position:sticky;top:16px}#chart{transform:scale(.82);margin-bottom:-50px}.hero{padding-bottom:14px}.brand h1{font-size:34px}.tagline{font-size:11px}.logo{width:54px;height:54px}}@media (max-width:360px){.brand h1{font-size:20px}.logo{width:34px;height:34px}#comboName{font-size:16px}.dot{width:16px;height:16px}.btn{font-size:11px;min-height:41px}details.section>summary{font-size:12px;padding:13px}.chart-card{padding:8px}#chart{transform:scale(.68);margin-bottom:-78px}}
+
+
+
+/* v16 real-branch refinement: preserve real logo/chart/controls; improve hierarchy only */
+@media (max-width:720px){
+  .page{max-width:430px;padding:9px 9px 28px;}
+  .hero{
+    background:rgba(255,253,248,.94);
+    border:1px solid var(--line);
+    border-radius:22px;
+    box-shadow:0 9px 22px rgba(18,18,18,.08);
+    padding:12px 14px;
+    margin:0 0 10px;
+  }
+  .brand{gap:12px;width:100%;}
+  .logo{width:48px;height:48px;}
+  .brand h1{
+    font-size:clamp(27px,7.6vw,32px);
+    line-height:.86;
+    letter-spacing:-.095em;
+    white-space:nowrap;
+    text-transform:lowercase;
+  }
+  .tagline{
+    margin-top:5px;
+    font-size:8px;
+    line-height:1;
+    letter-spacing:.16em;
+    text-transform:lowercase;
+    color:#8b5d33;
+  }
+  .card{border-radius:20px;}
+  .chart-card{
+    padding:10px;
+    gap:10px;
+    border-radius:22px;
+    box-shadow:0 13px 28px rgba(18,18,18,.10);
+  }
+  .combo-strip{
+    padding:10px 10px 10px 12px;
+    background:#101010;
+    color:#fff;
+    border-radius:17px;
+    grid-template-columns:minmax(0,1fr) auto auto;
+    gap:8px;
+    align-items:center;
+  }
+  #comboName{
+    color:#fff;
+    font-size:clamp(18px,5.1vw,21px);
+    letter-spacing:-.065em;
+    max-width:100%;
+  }
+  .dots{gap:6px;}
+  .dot{width:18px;height:18px;border-color:rgba(255,255,255,.32);box-shadow:0 0 0 1px rgba(0,0,0,.10)}
+  .name-new-btn{
+    min-width:82px;
+    height:28px;
+    padding:0 9px;
+    border-radius:999px;
+    background:rgba(255,255,255,.08);
+    color:#fff;
+    border-color:rgba(255,255,255,.25);
+    font-size:9px;
+    letter-spacing:.02em;
+    text-transform:lowercase;
+  }
+  .toggle{color:#fff;font-size:10px;letter-spacing:.02em;text-transform:uppercase;}
+  .toggle input{width:19px;height:19px;accent-color:#fff;}
+  .chart-scroll{
+    border-radius:17px;
+    background:#f1e8dc;
+    border-color:#a99f91;
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.55),0 8px 16px rgba(18,18,18,.06);
+  }
+  .actions{gap:9px;}
+  .btn{
+    min-height:47px;
+    border-radius:14px;
+    font-size:12px;
+    line-height:1.05;
+    letter-spacing:.025em;
+  }
+  .btn.primary{box-shadow:0 6px 12px rgba(18,18,18,.16);}
+  .btn:disabled{color:#b8b0a6;background:#f3ece2;border-color:#d4cabc;}
+  details.section{border-radius:18px;margin-top:9px;}
+  details.section>summary{
+    padding:15px 15px;
+    font-size:13px;
+    letter-spacing:.025em;
+  }
+  .section-body{padding:0 10px 13px;}
+  .role-card{min-height:88px;border-radius:14px;}
+  .role-dot{width:31px;height:31px;}
+  .lock-check{width:18px;height:18px;}
+  .save-panel{border-radius:26px 26px 0 0;padding:14px 14px 20px;}
+  .drawer-title{font-size:15px;letter-spacing:.045em;}
+  .drawer-actions .btn{min-height:46px;}
+}
+@media (max-width:360px){
+  .brand h1{font-size:25px;}
+  .logo{width:43px;height:43px;}
+  #comboName{font-size:17px;}
+  .name-new-btn{min-width:74px;font-size:8px;padding:0 7px;}
+  .toggle{font-size:9px;}
+}
+
+
+
+/* v17 targeted fix: keep combo name clear; place name action beneath Grid */
+.combo-strip{
+  grid-template-columns:minmax(0,1fr) auto !important;
+  grid-template-areas:"combo grid" "combo name" !important;
+  align-items:start !important;
+  column-gap:10px !important;
+  row-gap:6px !important;
+}
+.combo-left{
+  grid-area:combo !important;
+  min-width:0 !important;
+  padding-right:4px !important;
+}
+#comboName{
+  display:block !important;
+  max-width:100% !important;
+}
+.toggle{
+  grid-area:grid !important;
+  justify-self:end !important;
+  align-self:start !important;
+}
+.name-new-btn{
+  grid-area:name !important;
+  justify-self:end !important;
+  align-self:end !important;
+  min-width:0 !important;
+  height:auto !important;
+  padding:2px 0 !important;
+  border:0 !important;
+  background:transparent !important;
+  color:rgba(255,255,255,.78) !important;
+  border-radius:0 !important;
+  font-size:9px !important;
+  line-height:1.1 !important;
+  text-decoration:underline !important;
+  text-underline-offset:3px !important;
+}
+.name-new-btn:active{color:#fff !important;}
+@media (max-width:360px){
+  .combo-strip{column-gap:8px !important;}
+  .name-new-btn{font-size:8px !important;}
+}
+
+
+/* v20: make 5-color lock checkboxes clearer without changing layout */
+.role-lock,
+.lock-check,
+input[type="checkbox"].role-lock,
+.role-card input[type="checkbox"] {
+  width: 24px !important;
+  height: 24px !important;
+  min-width: 24px !important;
+  border: 2px solid #111 !important;
+  border-radius: 7px !important;
+  background: #fffaf2 !important;
+  box-shadow: inset 0 0 0 2px rgba(255,255,255,.65), 0 1px 0 rgba(0,0,0,.12) !important;
+  accent-color: #111 !important;
+}
+
+.role-card.locked .role-lock,
+.role-lock.locked,
+.role-card input[type="checkbox"]:checked {
+  background: #111 !important;
+  border-color: #111 !important;
+  color: #fff !important;
+  box-shadow: 0 0 0 2px rgba(17,17,17,.12) !important;
+}
+
+.role-lock::after {
+  font-weight: 900 !important;
+}
+
+@media (max-width: 720px) {
+  .role-lock,
+  .lock-check,
+  input[type="checkbox"].role-lock,
+  .role-card input[type="checkbox"] {
+    width: 25px !important;
+    height: 25px !important;
+    min-width: 25px !important;
+    border-radius: 7px !important;
+  }
+}
+
+
+/* v25: clean lock checkbox — empty when unlocked, real monochrome SVG lock when checked */
+.role-lock,
+.lock-check,
+.role-card input[type="checkbox"] {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  width: 25px !important;
+  height: 25px !important;
+  min-width: 25px !important;
+  border: 2px solid #222 !important;
+  border-radius: 7px !important;
+  background-color: #fffaf2 !important;
+  background-image: none !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+  background-size: 15px 15px !important;
+  cursor: pointer !important;
+  position: relative !important;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.7), 0 1px 0 rgba(0,0,0,.12) !important;
+}
+
+.role-lock::before,
+.lock-check::before,
+.role-card input[type="checkbox"]::before,
+.role-lock::after,
+.lock-check::after,
+.role-card input[type="checkbox"]::after {
+  content: none !important;
+  display: none !important;
+}
+
+.role-lock:checked,
+.lock-check:checked,
+.role-card input[type="checkbox"]:checked {
+  background-color: #111 !important;
+  border-color: #111 !important;
+  background-image: url("data:image/svg+xml,%3Csvg width='18' height='18' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Crect x='6' y='10' width='12' height='10' rx='2' stroke='white' stroke-width='2.4'/%3E%3Cpath d='M8.5 10V7.8C8.5 5.7 10.1 4 12 4C13.9 4 15.5 5.7 15.5 7.8V10' stroke='white' stroke-width='2.4' stroke-linecap='round'/%3E%3C/svg%3E") !important;
+}
+
+
+/* v27: visible admin-delete x on saved combo cards */
+.saved-card {
+  position: relative !important;
+  padding-right: 34px !important;
+}
+
+.saved-card .delete,
+.delete {
+  display: grid !important;
+  place-items: center !important;
+  position: absolute !important;
+  top: 8px !important;
+  right: 8px !important;
+  width: 22px !important;
+  height: 22px !important;
+  border: 1px solid rgba(17,17,17,.45) !important;
+  border-radius: 8px !important;
+  background: #f8f4ec !important;
+  color: #111 !important;
+  font-family: inherit !important;
+  font-size: 14px !important;
+  font-weight: 900 !important;
+  line-height: 1 !important;
+  cursor: pointer !important;
+  opacity: .78 !important;
+}
+
+.saved-card .delete:hover,
+.delete:hover {
+  opacity: 1 !important;
+  background: #111 !important;
+  color: #fff !important;
+}
+
+
+/* v29: hide grid control only; preserve chart */
+#gridLabel,
+#gridToggle,
+label:has(#gridToggle) {
+  display: none !important;
+}
+
+
+/* v30: Current Stash inventory + skinny source selector */
+.source-row{
+  grid-column:1 / -1;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  margin:-1px 0 0;
+}
+.source-btn{
+  min-height:28px;
+  padding:5px 8px;
+  border:1px solid var(--line);
+  border-radius:999px;
+  background:#fffaf2;
+  color:#111;
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+  cursor:pointer;
+}
+.source-btn.active{
+  background:#111;
+  color:#fff;
+  border-color:#111;
+}
+.source-warning{
+  display:none;
+  grid-column:1 / -1;
+  margin:-1px 0 0;
+  padding:7px 9px;
+  border:1px dashed var(--line);
+  border-radius:12px;
+  background:#f8f2e7;
+  color:var(--muted);
+  font-size:10px;
+  font-weight:700;
+  line-height:1.25;
+}
+.source-warning.show{display:block;}
+.stash-check{
+  position:absolute;
+  top:5px;
+  right:5px;
+  width:14px;
+  height:14px;
+  border:1px solid rgba(17,17,17,.26);
+  border-radius:999px;
+  background:rgba(255,250,242,.62);
+  color:#9b9186;
+  display:grid;
+  place-items:center;
+  font-size:9px;
+  font-weight:900;
+  line-height:1;
+  z-index:2;
+  cursor:pointer;
+  box-shadow:0 1px 2px rgba(18,18,18,.08);
+}
+.color-btn.in-stash .stash-check{
+  background:#111;
+  color:#fff;
+  border-color:#111;
+}
+@media (max-width:720px){
+  .source-row{gap:9px;}
+  .source-btn{min-height:29px;font-size:9px;padding:5px 6px;}
+  .stash-check{width:15px;height:15px;font-size:9px;}
+}
+
+
+/* v7: pattern section header above combo-name strip */
+.pattern-section-title{
+  margin:0 0 -2px 3px;
+  font-size:13px;
+  font-weight:700;
+  letter-spacing:.025em;
+  text-transform:uppercase;
+  color:#111;
+  line-height:1.1;
+}
+@media (max-width:720px){
+  .pattern-section-title{
+    margin:0 0 -2px 5px;
+    font-size:13px;
+    letter-spacing:.025em;
+  }
+  .tagline{
+    font-size:7px !important;
+    letter-spacing:.055em !important;
+    white-space:nowrap !important;
+    text-transform:lowercase !important;
+  }
+}
+@media (max-width:360px){
+  .tagline{font-size:6.2px !important;letter-spacing:.025em !important;text-transform:lowercase !important;}
+}
+
+
+/* v21: real AI-backed Ask Skein Scheme panel — compact, no fake parser */
+.assistant-box{display:grid;gap:10px;}
+.assistant-input{
+  width:100%;
+  border:1px solid var(--line);
+  background:#fffaf2;
+  color:#111;
+  border-radius:13px;
+  padding:11px 12px;
+  font-size:12px;
+  line-height:1.25;
+  min-height:68px;
+  resize:vertical;
+  outline:none;
+}
+.assistant-input:focus{box-shadow:0 0 0 3px rgba(17,17,17,.10);border-color:#111;}
+.assistant-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.assistant-actions .btn{min-height:42px;}
+.assistant-read{
+  display:none;
+  border:1px solid var(--line-soft);
+  background:#f8f2e7;
+  color:#62584e;
+  border-radius:12px;
+  padding:8px 9px;
+  font-size:10px;
+  font-weight:700;
+  line-height:1.25;
+}
+.assistant-read.show{display:block;}
+.assistant-read.error{background:#fff1ec;border-color:#d2a89a;color:#7a2f20;}
+.assistant-read.loading{background:#f8f2e7;color:#62584e;}
+.assistant-results{display:grid;gap:7px;}
+.assistant-suggestion{
+  width:100%;
+  text-align:left;
+  border:1px solid var(--line-soft);
+  background:#fffaf2;
+  border-radius:13px;
+  padding:9px 9px;
+  cursor:pointer;
+  color:#111;
+}
+.assistant-suggestion:hover,.assistant-suggestion.active{outline:2px solid #111;outline-offset:-2px;}
+.assistant-suggestion-title{font-size:11px;font-weight:800;letter-spacing:-.035em;text-transform:lowercase;margin-bottom:6px;}
+.assistant-dots{display:flex;gap:5px;align-items:center;margin-bottom:5px;}
+.assistant-dot{width:17px;height:17px;border-radius:50%;border:1px solid rgba(18,18,18,.25);box-shadow:0 1px 2px rgba(18,18,18,.07);}
+.assistant-note{font-size:9px;color:var(--muted);font-weight:700;line-height:1.2;}
+.assistant-empty{font-size:10px;color:var(--muted);border:1px dashed var(--line);border-radius:10px;padding:9px;}
+@media (max-width:720px){
+  .assistant-actions .btn{min-height:41px;font-size:11px;}
+  .assistant-input{font-size:12px;min-height:64px;}
+  .assistant-suggestion{padding:9px;}
+}
+
+
+</style>
+</head>
+<body>
+  <div class="page">
+    <header class="hero">
+      <div class="brand"><div class="logo"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNzIgMjAwIiByb2xlPSJpbWciIGFyaWEtbGFiZWw9Illhcm4gYmFsbCBzdW5nbGFzc2VzIGxvZ28iPgogIDx0aXRsZT5ZYXJuIGJhbGwgc3VuZ2xhc3NlcyBsb2dvPC90aXRsZT4KICA8ZyBmaWxsPSIjMDAwMDAwIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPgogICAgPHBhdGggZD0iTSAyNjMgMTgwIEwgMjU5IDE3NyBMIDI1NCAxNzYgTCAyNDUgMTc3IEwgMjM1IDE4MSBMIDIyNiAxODEgTCAyMjEgMTc5IEwgMjE5IDE3NyBMIDIyOSAxNzEgTCAyMzYgMTYzIEwgMjM1IDE1NCBMIDIyOCAxNTAgTCAyMTkgMTUxIEwgMjExIDE1NyBMIDIwOSAxNjEgTCAyMDkgMTcyIEwgMjEwIDE3MyBMIDIwOSAxNzUgTCAxOTQgMTc0IEwgMTg4IDE3MSBMIDE4MyAxNjYgTCAxODEgMTU5IEwgMTkzIDE0MiBMIDE5OSAxMjkgTCAyMDIgMTE4IEwgMjAyIDExMyBMIDIwNCAxMDcgTCAyMDQgOTcgTCAyMDMgOTMgTCAyMDEgOTEgTCAyMDAgOTIgTCAyMDAgMTEyIEwgMTk4IDExNiBMIDE5OCAxMjAgTCAxOTIgMTMyIEwgMTkyIDEzNSBMIDE4NSAxNDggTCAxODAgMTUzIEwgMTc5IDE1MiBMIDE4MCAxMzMgTCAxNzggMTMzIEwgMTc2IDEzOSBMIDE3NiAxNTkgTCAxNjQgMTcwIEwgMTUzIDE3OCBMIDEzNSAxODUgTCAxMjUgMTg2IEwgMTI0IDE4NyBMIDExOSAxODcgTCAxMTggMTg2IEwgMTM0IDE3NiBMIDE0NSAxNjUgTCAxNTEgMTU3IEwgMTU4IDE0MyBMIDE1NyAxMzkgTCAxNDYgMTU4IEwgMTMyIDE3MyBMIDEyMyAxNzkgTCAxMDggMTg2IEwgMTAyIDE4NiBMIDEwMSAxODcgTCAxMDAgMTg2IEwgOTUgMTg2IEwgODYgMTgzIEwgODQgMTgwIEwgMTAwIDE3MiBMIDExMyAxNjMgTCAxMzUgMTQxIEwgMTM4IDEzNiBMIDEzNiAxMzQgTCAxMDggMTYyIEwgOTMgMTcxIEwgODkgMTc1IEwgNzkgMTc4IEwgNzMgMTc4IEwgNjggMTc0IEwgNjYgMTcwIEwgNjYgMTY1IEwgNjggMTYzIEwgNzAgMTYzIEwgNzkgMTU4IEwgOTYgMTQ2IEwgMTEwIDEzMiBMIDExNiAxMjIgTCAxMTMgMTIxIEwgMTA2IDEzMSBMIDg4IDE0OCBMIDc2IDE1NiBMIDY3IDE1OSBMIDY2IDE1OCBMIDY3IDE1MSBMIDcyIDE0MCBMIDc0IDEzOCBMIDc0IDEzNiBMIDcxIDEzNiBMIDY4IDE0MCBMIDY0IDE0OSBMIDYzIDE1NSBMIDYxIDE1NyBMIDU2IDE1NSBMIDQxIDE0NiBMIDQyIDE0MiBMIDQ2IDEzOCBMIDQ1IDEzNSBMIDM3IDE0MyBMIDM1IDE0MyBMIDI5IDEzOSBMIDIxIDEzMSBMIDE4IDEyNSBMIDE4IDEwNyBMIDE3IDEwNiBMIDE2IDEwNyBMIDE0IDExNiBMIDEyIDExMyBMIDEzIDEwMyBMIDEwIDEwMiBMIDggMTA4IEwgOSAxMTggTCAxNSAxMjkgTCAxNiAxMzcgTCAyMCAxNDYgTCAzMiAxNTkgTCAzNCAxNzAgTCA0MSAxNzcgTCA1NyAxODMgTCA3NiAxODIgTCA4MyAxODYgTCA5MiAxODkgTCAxMDkgMTg5IEwgMTE4IDE5MSBMIDExOSAxOTAgTCAxMjkgMTkwIEwgMTQ0IDE4NiBMIDE1NSAxODEgTCAxNzAgMTcwIEwgMTc2IDE2NCBMIDE3OCAxNjQgTCAxODIgMTcxIEwgMTg5IDE3NiBMIDIwMiAxNzkgTCAyMTMgMTc4IEwgMjIzIDE4NCBMIDIzOCAxODQgTCAyNDggMTgwIEwgMjU3IDE4MCBMIDI2MSAxODIgWiBNIDM3IDE2MyBMIDM5IDE2MiBMIDQ2IDE2NSBMIDYxIDE2NSBMIDYzIDE2NyBMIDY0IDE3NCBMIDY3IDE3OSBMIDY2IDE4MCBMIDYwIDE4MCBMIDUxIDE3OCBMIDQ2IDE3NSBMIDQyIDE3NSBMIDM3IDE2NyBaIE0gMjI5IDE1NSBMIDIzMiAxNTggTCAyMzIgMTYzIEwgMjI0IDE3MSBMIDIxNiAxNzQgTCAyMTMgMTcwIEwgMjEzIDE2MyBMIDIxNSAxNTkgTCAyMTggMTU2IEwgMjIzIDE1NCBaIE0gMzcgMTUzIEwgMzkgMTUwIEwgNDEgMTUwIEwgNDMgMTUyIEwgNTYgMTU4IEwgNTkgMTYxIEwgNTggMTYyIEwgNDMgMTYxIEwgMzcgMTU3IFogTSAyMiAxMzcgTCAzNSAxNDcgTCAzNCAxNTIgTCAzMiAxNTQgTCAyNCAxNDUgTCAyMSAxMzkgWiBNIDE5NSA4NCBMIDE5MCA4MSBMIDE4MSA4MSBMIDE4MCA4MCBMIDE0NyA4MCBMIDEyNCA4NSBMIDExNCA5MCBMIDk3IDkwIEwgOTIgODcgTCA3NSA4MyBMIDQ0IDgyIEwgNDMgODMgTCAzNSA4MyBMIDM0IDg0IEwgMTcgODYgTCAxNSA4OCBMIDE1IDkzIEwgMjAgOTUgTCAyMyA5OCBMIDIzIDEwMSBMIDI5IDExNCBMIDM2IDEyMyBMIDQ5IDEzMSBMIDY4IDEzMiBMIDgwIDEyOCBMIDg5IDEyMSBMIDk0IDExNCBMIDk5IDEwMSBMIDEwNCA5OCBMIDExMSA5OSBMIDExMyAxMDEgTCAxMjAgMTE2IEwgMTI4IDEyNCBMIDEzNCAxMjggTCAxNDIgMTMxIEwgMTYwIDEzMSBMIDE3MCAxMjcgTCAxODAgMTE4IEwgMTg2IDEwNiBMIDE4OSA5NCBMIDE5NSA4OSBaIE0gMTI2IDkyIEwgMTIxIDk2IEwgMTE4IDk1IEwgMTIxIDkyIEwgMTI0IDkxIFogTSA3MiA5MCBMIDczIDg5IEwgNzYgOTAgTCA3NSA5MSBaIE0gMTgyIDg4IEwgMTg0IDkwIEwgMTgyIDEwMyBMIDE3NyAxMTMgTCAxNzIgMTE4IEwgMTcxIDExNiBMIDE3NiAxMDggTCAxNzkgOTkgTCAxODAgOTAgWiBNIDE3OCA3MiBMIDE3NSA2NyBMIDE2NiA1OCBMIDE1NCA1MSBMIDE0NiA0OSBMIDE0NCA1MSBMIDE1MSA1NSBMIDEzOCA2MCBMIDEyNyA2NyBMIDExNiA3OSBMIDExOSA4MCBMIDEzMSA2OSBMIDE0NSA2MSBMIDE1MiA1OSBMIDE1NCA1NiBMIDE1OSA1NyBMIDE2NyA2MyBMIDE3NSA3NCBMIDE3NyA3NCBaIE0gMTQgNjkgTCAxNCA3NCBMIDE3IDc4IEwgMTggNzcgTCAxOCA3MCBMIDIzIDYyIEwgMjkgNjcgTCAzOSA2NyBMIDQ1IDY1IEwgNTUgNjAgTCA2MCA1NiBMIDcxIDUxIEwgOTEgMzcgTCAxMDMgMzIgTCAxMTMgMjYgTCAxNDEgMTkgTCAxNTAgMjAgTCAxNjAgMjUgTCAxNzAgMzQgTCAxNzIgMzggTCAxNzAgMzkgTCAxNjUgMzcgTCAxNTIgMzYgTCAxNTEgMzcgTCAxNDQgMzcgTCAxMzAgNDAgTCAxMTAgNTAgTCAxMDYgNTAgTCA3NCA2NiBMIDUwIDc0IEwgNDcgNzcgTCA1MiA3OCBMIDEwMyA1NiBMIDEwNCA1NyBMIDg5IDczIEwgODggNzYgTCA5MCA3NyBMIDk5IDY2IEwgMTEwIDU3IEwgMTEwIDUzIEwgMTEzIDUwIEwgMTQ4IDQwIEwgMTYzIDQwIEwgMTc4IDQ2IEwgMTg2IDU2IEwgMTkyIDczIEwgMTk0IDcyIEwgMTk0IDY0IEwgMTkxIDU2IEwgMTc4IDQzIEwgMTc4IDQwIEwgMTczIDMyIEwgMTYwIDIxIEwgMTUwIDE3IEwgMTQwIDE3IEwgMTMxIDEyIEwgMTE3IDggTCA5NSA4IEwgOTAgMTAgTCA3OCAxMiBMIDcyIDE1IEwgNjMgMjMgTCA0OSAyNyBMIDM4IDM0IEwgMzEgNDEgTCAyNiA1MCBMIDI1IDU1IEwgMTggNjEgWiBNIDU1IDMxIEwgNDMgNDQgTCAzNSA0OSBMIDMyIDQ4IEwgMzUgNDIgTCA0MiAzNSBMIDUyIDMwIFogTSAxMzAgMTYgTCAxMjcgMTkgTCAxMTggMjEgTCAxMDYgMjcgTCA5OSAyNyBMIDk1IDI1IEwgODUgMjQgTCA4NCAyMyBMIDc0IDIzIEwgNzEgMjYgTCA4MSAyNiBMIDgyIDI3IEwgOTMgMjggTCA5NiAzMSBMIDkwIDM1IEwgODIgMzggTCA3MiA0NiBMIDU2IDU2IEwgMzMgNjQgTCAzMSA2NCBMIDI4IDYxIEwgMjggNTggTCAzNCA1MiBMIDUwIDQzIEwgNzEgMjEgTCA3NyAxNyBMIDg0IDE0IEwgMTAwIDEyIEwgMTAxIDExIEwgMTE5IDEyIFoiLz4KICA8L2c+Cjwvc3ZnPgo=" alt="" /></div><div><h1>skein scheme</h1><div class="tagline">see the yarn hit the chart before you hit the sticks</div></div></div>
+    </header>
+    <main class="app-grid">
+      <section class="card chart-card" data-panel="chart">
+        <div class="pattern-section-title">KNITTING PATTERN</div>
+        <div class="combo-strip"><div class="combo-left"><strong id="comboName">starter mix</strong><div class="dots" id="comboDots"></div></div><button class="icon-btn name-new-btn" id="newNameBtn" title="Generate a new combo name">new name ↺</button><label class="toggle">Grid <input id="gridToggle" type="checkbox" checked /></label></div>
+        <div class="chart-scroll"><div id="chart"></div></div><p id="chartInfo" style="display:none"></p>
+        <div class="actions" data-panel="actions"><button class="btn primary" id="randomBtn">Randomize</button><button class="btn" id="backBtn" disabled>Back</button><div class="source-row"><button class="source-btn active" id="sourceFullBtn" type="button">Full Palette</button><button class="source-btn" id="sourceStashBtn" type="button">Current Stash</button><div class="source-warning" id="stashWarning">Add at least 5 colors to Current Stash before randomizing from it.</div></div><button class="btn save-action" id="saveBtn">I Dig This!</button><button class="btn save-action" id="madeBtn">I Made This!</button></div>
+        
+      </section>
+      <div class="below">
+        <details class="section" id="rolesSection"><summary>Your 5 Colors</summary><div class="section-body"><div class="roles-row" id="roleCards"></div></div></details>
+        <details class="section" id="paletteSection"><summary>Palette <span style="font-weight:600;color:var(--muted);letter-spacing:0;text-transform:none">(175 colors)</span></summary><div class="section-body"><div class="palette-tools"><input class="search" id="search" placeholder="Search number, name, hex"/><div class="active-pill" id="activeRoleLabel">Main</div></div><div class="filters" id="filters"></div><div class="palette" id="palette"></div></div></details>
+        <details class="section" id="assistantSection"><summary>Ask Skein Scheme</summary><div class="section-body"><div class="assistant-box"><textarea class="assistant-input" id="assistantPrompt" placeholder="Ask for a combo: high contrast purple, red white and blue, purple/gold version of Graphitica..."></textarea><div class="assistant-actions"><button class="btn primary" id="assistantBuildBtn" type="button">Build Options</button><button class="btn" id="assistantMoreBtn" type="button">More Options</button></div><div class="assistant-read" id="assistantRead"></div><div class="assistant-results" id="assistantResults"><div class="assistant-empty">AI suggestions will show here. Click one to preview it in the chart.</div></div></div></div></details>
+        <details class="section" id="readabilitySection"><summary>Readability Check</summary><div class="section-body"><div class="metrics" id="metrics"></div></div></details>
+        <details class="section" id="savedSection"><summary>Saved Combos</summary><div class="section-body"><h3 style="margin:0 0 8px;font-size:11px;letter-spacing:.08em">COMBOS WE DIG</h3><div class="saved-grid" id="digCombos"></div><h3 style="margin:14px 0 8px;font-size:11px;letter-spacing:.08em">COMBOS WE MADE</h3><div class="saved-grid" id="madeCombos"></div></div></details>
+      </div>
+    </main>
+  </div>
+  <div class="drawer-backdrop" id="saveDrawer" aria-hidden="true">
+    <div class="save-panel" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+      <div class="drawer-grab"></div>
+      <div class="drawer-head">
+        <div><div class="drawer-title" id="drawerTitle">Save this combo</div><div class="drawer-sub" id="drawerSub"></div></div>
+        <button class="drawer-close" id="closeSaveDrawer" type="button" aria-label="Close">×</button>
+      </div>
+      <div class="save-body">
+        <label><span class="field-label">Saved by</span><input id="saveName" placeholder="Who are you??" autocomplete="name" maxlength="40" /></label>
+        <label><span class="field-label">Note (optional)</span><textarea id="saveNote" placeholder="" maxlength="120"></textarea></label>
+      </div>
+      <div class="drawer-actions">
+        <button class="btn" id="cancelSave" type="button">Cancel</button>
+        <button class="btn primary drawer-save" id="confirmSave" type="button" disabled>Save</button>
+      </div>
+    </div>
+  </div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const COLORS = [{"hex":"#440C17","number":"2401","name":"Burgundy"},{"hex":"#470E1D","number":"9489","name":"Red Wine Heather"},{"hex":"#660D16","number":"1095","name":"Red Marl"},{"hex":"#7D1417","number":"2413","name":"Red"},{"hex":"#2D0104","number":"9404","name":"Ruby"},{"hex":"#7C0511","number":"8895","name":"Christmas Red"},{"hex":"#811C1C","number":"8414","name":"Bright Red"},{"hex":"#992927","number":"9668","name":"Paprika"},{"hex":"#CF4A34","number":"1048","name":"Camelia"},{"hex":"#FA9079","number":"9682","name":"Desert Flower"},{"hex":"#D7B0A2","number":"1049","name":"Peach Dust"},{"hex":"#BB8A7C","number":"1065","name":"Rose Cloud"},{"hex":"#9E5A4F","number":"9681","name":"Crabapple"},{"hex":"#2D1C17","number":"9656","name":"Burnt Sienna Heather"},{"hex":"#1E161F","number":"4006","name":"Galaxy"},{"hex":"#A97F69","number":"1084","name":"Blush Heather"},{"hex":"#B38E77","number":"1033","name":"Nectarine"},{"hex":"#B54E38","number":"7824","name":"Jack O Lantern"},{"hex":"#AC361B","number":"9465B","name":"Burnt Orange"},{"hex":"#4B1A0A","number":"2414","name":"Ginger"},{"hex":"#9E4E2F","number":"1068","name":"Copper"},{"hex":"#5A180A","number":"2435","name":"Japanese Maple"},{"hex":"#A03226","number":"1097","name":"Pumpkin Marl"},{"hex":"#802A21","number":"2425","name":"Provence"},{"hex":"#C8320F","number":"9605","name":"Tiger Lily"},{"hex":"#E64405","number":"9542","name":"Blaze"},{"hex":"#E7B53D","number":"9463B","name":"Gold"},{"hex":"#FDAD00","number":"9669","name":"Gold Fusion"},{"hex":"#BF8F19","number":"7827","name":"Goldenrod"},{"hex":"#C5BD71","number":"4147","name":"Lemon Yellow"},{"hex":"#BFBA8F","number":"1069","name":"Anise Flower"},{"hex":"#EEE3A7","number":"8687","name":"Butter"},{"hex":"#E3DE09","number":"7828","name":"Neon Yellow"},{"hex":"#C3C13C","number":"1070","name":"Golden Kiwi"},{"hex":"#8FB450","number":"8910","name":"Citron"},{"hex":"#8B933E","number":"1002","name":"Leaf Green"},{"hex":"#355B2A","number":"1035","name":"Fern Heather"},{"hex":"#12642A","number":"2409","name":"Palm"},{"hex":"#192320","number":"8267","name":"Forest Green"},{"hex":"#0E230F","number":"9430","name":"Highland Green"},{"hex":"#445944","number":"9684","name":"Green Tea"},{"hex":"#13281A","number":"2445","name":"Shire"},{"hex":"#2F401F","number":"1093","name":"Shire Marl"},{"hex":"#47592A","number":"2429","name":"Irelande"},{"hex":"#798736","number":"1051","name":"Fern"},{"hex":"#434F1A","number":"1052","name":"Calla Green"},{"hex":"#1B1E10","number":"1036","name":"Chive"},{"hex":"#1C1F1C","number":"1089","name":"Lichen Twist"},{"hex":"#5D602C","number":"2452","name":"Turtle"},{"hex":"#87845E","number":"1082","name":"Savannah Heather"},{"hex":"#9FB68E","number":"1034","name":"Tender Greens"},{"hex":"#7F9580","number":"1090","name":"Fluorite Heather"},{"hex":"#034E39","number":"8894","name":"Christmas Green"},{"hex":"#081C15","number":"9447","name":"Forest Heather"},{"hex":"#132C2C","number":"1087","name":"Rainforest Heather"},{"hex":"#002F2D","number":"8893","name":"Hunter Green"},{"hex":"#224038","number":"1104","name":"Forest Marl"},{"hex":"#2A4A48","number":"9322","name":"Silver Spruce Heather"},{"hex":"#2C605C","number":"9451","name":"Lake Chelan Heather"},{"hex":"#5CB298","number":"1072","name":"Key West"},{"hex":"#009180","number":"7812","name":"Lagoon"},{"hex":"#004D4D","number":"9687","name":"Deep Blue Grass"},{"hex":"#86C6C5","number":"9634","name":"Aqua Haze"},{"hex":"#336172","number":"1054","name":"Mallard Blue"},{"hex":"#222E34","number":"8836","name":"Stonewash"},{"hex":"#507584","number":"9452","name":"Summer Sky Heather"},{"hex":"#7DC2C4","number":"1073","name":"Water Spout"},{"hex":"#4B9297","number":"1004","name":"Bristol Blue"},{"hex":"#0B4858","number":"2433","name":"Pacific"},{"hex":"#023D5A","number":"8891","name":"Cyan Blue"},{"hex":"#010712","number":"8892","name":"Azure"},{"hex":"#01030B","number":"4009","name":"Aporto"},{"hex":"#0B111E","number":"2448","name":"Mallard"},{"hex":"#08080E","number":"9449","name":"Midnight Heather"},{"hex":"#0B0D4F","number":"9484","name":"Stratosphere"},{"hex":"#06113B","number":"9568","name":"Twilight Blue"},{"hex":"#617386","number":"1005","name":"Blue Quartz Heather"},{"hex":"#0E264D","number":"9689","name":"Lapis Heather"},{"hex":"#28282C","number":"1091","name":"Stormy Seas Heather"},{"hex":"#5A6063","number":"1081","name":"Coast Heather"},{"hex":"#0F2244","number":"2404","name":"Atlantic"},{"hex":"#6A9AAF","number":"7815","name":"Summer Sky"},{"hex":"#0E1518","number":"9567","name":"Smoke Blue"},{"hex":"#6B7B87","number":"1037","name":"Faded Denim Heather"},{"hex":"#0D1621","number":"9332","name":"Sapphire"},{"hex":"#222D3E","number":"1100","name":"Sapphire Marl"},{"hex":"#181D28","number":"8393","name":"Navy"},{"hex":"#2F3E5B","number":"9326","name":"Colonial Blue Heather"},{"hex":"#56637B","number":"9325","name":"West Point Blue Heather"},{"hex":"#7F8F98","number":"1006","name":"Sky Blue"},{"hex":"#5982AE","number":"8905","name":"Robin Egg Blue"},{"hex":"#101E4B","number":"7818","name":"Blue Velvet"},{"hex":"#101018","number":"9543","name":"Midnight Blue"},{"hex":"#2C3B6D","number":"9655","name":"Blueberry Heather"},{"hex":"#5D6193","number":"2423","name":"Montmartre"},{"hex":"#3E3D4D","number":"1038","name":"Dusky Violet"},{"hex":"#7F7996","number":"2422","name":"Lavender Heather"},{"hex":"#6B5B7D","number":"1102","name":"Lavender Marl"},{"hex":"#45395D","number":"2450","name":"Mystic Purple"},{"hex":"#110E1C","number":"8886","name":"Italian Plum"},{"hex":"#3D1755","number":"9570","name":"Concord Grape"},{"hex":"#785BC8","number":"8762","name":"Deep Lavender"},{"hex":"#867382","number":"1083","name":"Sweet Pea Heather"},{"hex":"#442FA0","number":"7808","name":"Purple Hyacinth"},{"hex":"#A24297","number":"1056","name":"Orchid"},{"hex":"#831977","number":"7803","name":"Magenta"},{"hex":"#813AA0","number":"2420","name":"Heather"},{"hex":"#281B34","number":"7807","name":"Regal"},{"hex":"#783F6E","number":"1075","name":"Raspberry Coulis"},{"hex":"#280C1A","number":"9572","name":"Cabernet"},{"hex":"#997385","number":"1039","name":"Helleborus Heather"},{"hex":"#2E1929","number":"9642","name":"Crushed Grapes"},{"hex":"#482034","number":"1103","name":"Razzleberry Marl"},{"hex":"#613853","number":"9692","name":"Razzleberry Heather"},{"hex":"#B57D9A","number":"8114","name":"Dusty Rose"},{"hex":"#806971","number":"1007","name":"Lepidolite Heather"},{"hex":"#200B1A","number":"8418","name":"Eggplant"},{"hex":"#84757C","number":"8872","name":"Iridescense"},{"hex":"#AD8698","number":"1076","name":"Antique Lilac"},{"hex":"#963239","number":"1008","name":"Flamingo Heather"},{"hex":"#DE7D88","number":"1057","name":"Peony"},{"hex":"#EEDFE9","number":"4192","name":"Soft Pink"},{"hex":"#D0819B","number":"9477","name":"Tutu"},{"hex":"#CA5A84","number":"9478","name":"Cotton Candy"},{"hex":"#B32F64","number":"9469","name":"Hot Pink"},{"hex":"#942A69","number":"7802","name":"Cerise"},{"hex":"#6C6D6B","number":"1009","name":"Storm Cloud Heather"},{"hex":"#4D617B","number":"1101","name":"Faded Denim Marl"},{"hex":"#7C8091","number":"9559","name":"Indigo Frost Heather"},{"hex":"#E5E5DB","number":"8505","name":"White"},{"hex":"#AEAEB1","number":"1058","name":"Nimbus Cloud"},{"hex":"#868588","number":"1050","name":"Harbor Mist"},{"hex":"#6D6F71","number":"8509","name":"Grey"},{"hex":"#2D3443","number":"9473","name":"Gris"},{"hex":"#101114","number":"8555","name":"Black"},{"hex":"#1E1F21","number":"4002","name":"Jet"},{"hex":"#363939","number":"8400","name":"Charcoal Grey"},{"hex":"#5E5D59","number":"1094","name":"Charcoal Marl"},{"hex":"#5B5C53","number":"8401","name":"Silver Grey"},{"hex":"#ABA597","number":"8011","name":"Aspen Heather"},{"hex":"#52545D","number":"9491","name":"Greystone Heather"},{"hex":"#3C2128","number":"1077","name":"Oxblood Red"},{"hex":"#110E0F","number":"7822","name":"Van Dyke Brown"},{"hex":"#322217","number":"2431","name":"Chocolate Heather"},{"hex":"#846651","number":"9695","name":"Praline"},{"hex":"#794A33","number":"1010","name":"Carob Brown"},{"hex":"#1B110C","number":"8686","name":"Brown"},{"hex":"#623F1F","number":"8622","name":"Camel"},{"hex":"#DFC9AB","number":"8021","name":"Beige"},{"hex":"#EEE9D3","number":"8010","name":"Natural"},{"hex":"#B5A564","number":"8412","name":"Pear"},{"hex":"#653A16","number":"2415","name":"Sunflower"},{"hex":"#A66129","number":"1096","name":"Spice Marl"},{"hex":"#613B2F","number":"2453","name":"Pumpkin Spice"},{"hex":"#806627","number":"4010","name":"Straw"},{"hex":"#A08527","number":"9564","name":"Birch Heather"},{"hex":"#826A02","number":"9566","name":"Olive Oil"},{"hex":"#B98E4A","number":"1088","name":"Wheat Heather"},{"hex":"#71705B","number":"4011","name":"Sparrow"},{"hex":"#1E2316","number":"9448","name":"Olive Heather"},{"hex":"#302E2D","number":"9465","name":"Vashon Island Heather"},{"hex":"#513F31","number":"9748","name":"Mocha Heather"},{"hex":"#806E5B","number":"8013","name":"Walnut Heather"},{"hex":"#6F5D4D","number":"1092","name":"Walnut Marl"},{"hex":"#7E7771","number":"8012","name":"Doeskin Heather"},{"hex":"#9A8F7D","number":"2442","name":"Fog Hatt"},{"hex":"#8E7E6F","number":"2441","name":"River Rock"},{"hex":"#E2D6B7","number":"9600","name":"Antiqued Heather"},{"hex":"#B19772","number":"1099","name":"Antique Marl"},{"hex":"#716252","number":"2440","name":"Vinci"},{"hex":"#B18F74","number":"9499","name":"Sand"},{"hex":"#564C3F","number":"9696","name":"Copper Heather"},{"hex":"#5A6862","number":"9450","name":"Smoke Heather"},{"hex":"#798878","number":"1059","name":"Seagrass"},{"hex":"#07070B","number":"9674","name":"Pine Grove"}];
+const PATTERN = ["LDDDLDLDDLLLLLLLDDLDLDDDLD","LDDLDLDDLLLDDDLLLDDLDLDDLD","LDLDLDDLLLLDDDLLLLDDLDLDLD","LLDLDDLLLLLDDDLLLLLDDLDLLD","MDMDDMMMDDDMMMDDDMMMDDMDMD","MMDDMMMMDDDMMMDDDMMMMDDMMD","MDDMMMMMDDDMMMDDDMMMMMDDMD","STTSSTTTSSSTTTSSSTTTSSTTST","STTSSTTTSSSTTTSSSTTTSSTTST","STTSSTTTSSSTTTSSSTTTSSTTST","MDDMMMMMDDDMMMDDDMMMMMDDMD","MMDDMMMMDDDMMMDDDMMMMDDMMD","MDMDDMMMDDDMMMDDDMMMDDMDMD","LLDLDDLLLLLDDDLLLLLDDLDLLD","LDLDLDDLLLLDDDLLLLDDLDLDLD","LDDLDLDDLLLDDDLLLDDLDLDDLD","LDDDLDLDDLLLLLLLDDLDLDDDLD"];
+const ROLES=[{key:'D',label:'Main',defaultNumber:'9689'},{key:'L',label:'Contrast',defaultNumber:'8011'},{key:'M',label:'Accent',defaultNumber:'9687'},{key:'S',label:'Stripe A',defaultNumber:'8505'},{key:'T',label:'Stripe B',defaultNumber:'2422'}];
+const ROLE_LABELS=Object.fromEntries(ROLES.map(r=>[r.key,r.label]));
+const DEFAULT_SELECTIONS=Object.fromEntries(ROLES.map(r=>[r.key,COLORS.find(c=>c.number===r.defaultNumber)||COLORS[0]]));
+let selections={...DEFAULT_SELECTIONS}, activeRole='D', lockedRoles=Object.fromEntries(ROLES.map(r=>[r.key,false])), history=[], saved=[], pendingSaveKind='dig';
+let currentComboName='starter mix', currentNameSeed=0, filter='Full Palette', randomSource='full', stashInventory={};
+const STORAGE='skeinSchemeSavedCombosLocalBackupV1';
+const STASH_STORAGE='skeinSchemeCurrentStashCacheV1';
+const STASH_TABLE='stash_inventory';
+const ADMIN_CODE='123';
+const el=id=>document.getElementById(id);
+const SUPABASE_URL='https://upyxpakxrpudsudsencg.supabase.co';
+const SUPABASE_KEY='sb_publishable_WWCfJ2OsbQVguApac-Rnaw_PnqILcDf';
+const NAME_FUNCTION_URL = `${SUPABASE_URL}/functions/v1/generate-colorway-names`;
+const NAME_CACHE_STORAGE = 'skeinSchemeAINameCacheV1';
+const NAME_BATCH_SIZE = 12;
+let nameRequestInProgress = false;
+let db=null;
+try{db=window.supabase?.createClient(SUPABASE_URL,SUPABASE_KEY)||null;}catch(e){db=null;}
+function hexToRgb(hex){const c=hex.replace('#','');return [0,2,4].map(i=>parseInt(c.slice(i,i+2),16));}
+function luminance(hex){const [r,g,b]=hexToRgb(hex).map(v=>{const s=v/255;return s<=.03928?s/12.92:Math.pow((s+.055)/1.055,2.4);});return .2126*r+.7152*g+.0722*b;}
+function contrastRatio(a,b){const l1=luminance(a),l2=luminance(b);return (Math.max(l1,l2)+.05)/(Math.min(l1,l2)+.05);}
+function rgbToHsl(hex){const [r,g,b]=hexToRgb(hex).map(v=>v/255),max=Math.max(r,g,b),min=Math.min(r,g,b);let h=0,s=0,l=(max+min)/2;if(max!==min){const d=max-min;s=l>.5?d/(2-max-min):d/(max+min);h=max===r?(g-b)/d+(g<b?6:0):max===g?(b-r)/d+2:(r-g)/d+4;h/=6}return {h:h*360,s,l};}
+function hueFamily(c){const {h,s,l}=rgbToHsl(c.hex);if(s<.14||l<.12||l>.92)return 'Neutral'; if(h<18||h>=345)return 'Warm'; if(h<70)return 'Warm'; if(h<160)return 'Green'; if(h<205)return 'Cool'; if(h<255)return 'Cool'; if(h<320)return 'Purple'; return 'Warm';}
+function cloneSelections(src=selections){return Object.fromEntries(ROLES.map(r=>[r.key,src[r.key]]));}
+function loadCachedStashInventory(){
+  try{stashInventory=JSON.parse(localStorage.getItem(STASH_STORAGE)||'{}')||{};}catch(e){stashInventory={};}
+}
+function cacheStashInventory(){
+  try{localStorage.setItem(STASH_STORAGE,JSON.stringify(stashInventory));}catch(e){}
+}
+async function loadStashInventory(){
+  loadCachedStashInventory();
+  if(!db){
+    console.warn('Supabase unavailable; using cached stash inventory only.');
+    return;
+  }
+
+  const {data,error}=await db.from(STASH_TABLE).select('color_number,in_stash');
+  if(error){
+    console.error('Shared stash load failed; using cached stash inventory.',error);
+    return;
+  }
+
+  stashInventory={};
+  (data||[]).forEach(row=>{
+    if(row.in_stash) stashInventory[String(row.color_number)]=true;
+  });
+  cacheStashInventory();
+}
+function isInStash(color){return !!stashInventory[String(color.number)];}
+function stashColors(){return COLORS.filter(c=>isInStash(c));}
+function askAdminCode(){
+  const code=prompt('Thinking this belongs in current inventory? Contact Bryant Thee Builder.\n\nAdmin code:');
+  if(code===null) return null;
+  if(!code.trim()) return '';
+  return code.trim();
+}
+async function toggleStash(color){
+  const code=askAdminCode();
+  if(code===null) return;
+
+  const colorNumber=String(color.number);
+  const nextValue=!isInStash(color);
+
+  if(!db){
+    alert('Shared stash is unavailable right now. This needs Supabase connected so Bryant\'s Yarn Wall updates for everyone.');
+    return;
+  }
+
+  const {error}=await db.rpc('set_stash_admin',{
+    color_number_input: colorNumber,
+    in_stash_input: nextValue,
+    admin_code: code
+  });
+
+  if(error){
+    console.error('Shared stash update failed',error);
+    alert('Could not update Current Stash. Check admin code or Supabase stash setup.');
+    return;
+  }
+
+  if(nextValue) stashInventory[colorNumber]=true;
+  else delete stashInventory[colorNumber];
+
+  cacheStashInventory();
+  renderPalette();
+  renderSourceButtons();
+}
+function setRandomSource(source){
+  randomSource=source;
+  if(source==='stash') filter='Current Stash';
+  if(source==='full' && filter==='Current Stash') filter='Full Palette';
+  renderSourceButtons();
+  renderFilters();
+  renderPalette();
+}
+function renderSourceButtons(){
+  const full=el('sourceFullBtn'), stash=el('sourceStashBtn'), warn=el('stashWarning');
+  if(full) full.classList.toggle('active',randomSource==='full');
+  if(stash) stash.classList.toggle('active',randomSource==='stash');
+  if(warn) warn.classList.toggle('show',randomSource==='stash' && stashColors().length<ROLES.length);
+}
+function comboHash(combo=selections){return ROLES.reduce((s,r,i)=>s+[...String(combo[r.key].number)].reduce((a,ch)=>a+ch.charCodeAt(0),0)*(i+7),0);}
+const NAME_HISTORY_STORAGE='skeinSchemeNameEngineHistoryV13';
+const NAME_HISTORY_LIMITS={names:180,templates:70,families:55,anchors:90,hooks:90,endings:80,lengths:44,words:180,literalFlags:44};
+
+/*
+  Skein Scheme name engine v13
+  Direction locked from taste review:
+  - Color-world imagery first, fun hook second.
+  - Names must feel tied to the palette, but should not always literally name the yarn color.
+  - Fun/weird is good; boring captions, dad jokes, dry/business words, and direct band-name copies are rejected.
+  - Rotate length/shape so it does not become a 2-word machine.
+*/
+const directBandCopyBlocks=[
+  'widespread','string cheese','leftover salmon','leftover','pigeons playing','dogs in a pile',
+  'disco biscuits','umphrey','mcgee','phish','moe.','goose','big something'
+];
+const bannedNameBits=[
+  'hue','palette','color palette','dream','magic','delight','splash','burst','harmony','symphony',
+  'melody','whimsy','charm','bliss','serenade','radiance','wonder','essence','journey','bright idea',
+  'rainbow','unicorn','fairy','sparkle','vibe','vibes','knit happens','sew cute','teal the deal',
+  'olive it','wine not','plum intended','mustard up','berry good','no prob-llama','prob-llama',
+  'yarntastic','purlfection','soundcheck','encore','setlist','bootleg','vinyl','riff','solo','jam session',
+  'red rocks','gas station went sideways','mailbox at midnight','the late ferry','bowling alley mirage',
+  'basement aquarium','weather basement','snack table emergency','someone took the van','took attendance',
+  'has keys','department','receipt','evidence','clause','tax','agreement','meeting','behavior'
+];
+const mundaneBits=[
+  'gas station','mailbox','late ferry','basement aquarium','bowling alley','break room','snack table',
+  'parking lot puddle','weather basement','took attendance','called first','was open','went sideways',
+  'packed light','switched seats','table two'
+];
+const boringYarnWords=new Set([
+  'heather','marl','twist','fusion','bright','deep','soft','pale','light','dark','christmas','neon',
+  'antique','antiqued','faded','dusty','sweet','new','old','blue','green','red','pink','grey','gray',
+  'black','white','brown','purple','orange','yellow','natural','beige','cloud','flower','wash','cascade',
+  'yarn','wool','no','number','colour','color'
+]);
+const fillerWords=new Set(['the','and','of','in','at','on','with','a','an','to','for','by','from','it','this','that','little']);
+
+const namingWorlds={
+  green:{
+    anchors:['Pickle Jar','Moss Goblin','Lichen Lunch','Bog Monster','Fern Wizard','Swamp Snacks','Mushroom Moon','Pond Slime','Cactus Pajamas','Garden Goblin','Porchlight Lichen','Pineglow','Frog Pond','Jade Jelly','Greenhouse Glow','Mossanova','Kelp Carnival','Cedar Moon','Juniper Jelly','Treehouse Moss','Compost Crown','Mosslight','Fern Frequency','Cabbage Orbit','Olive Haze'],
+    literal:['Moss','Fern','Olive','Lichen','Pickle','Swamp','Pine','Cedar','Juniper','Spruce','Cactus','Kelp','Seagrass','Shire','Jade','Cabbage'],
+    coined:['Mossanova','Pineglow','Boglight','Mosslight','Fernweh','Lichenloop','Oliveglow','Swamplight'],
+    prebuilt:['Pickle Jar Rodeo','Moss Goblin Picnic','Lichen Lunch Club','Bog Monster Brunch','Fern Wizard Field Trip','Swamp Snacks Deluxe','Mushroom Moon Party','Pond Slime Prom','Cactus Pajama Riot','Garden Goblin Jamboree','Porchlight Lichen Club','Pineglow Mischief','Jade Jelly Detour','Kelp Carnival Deluxe','Mossanova Moonwalk','Frog Pond Ruckus','Compost Crown Carnival','Treehouse Moss Rodeo']
+  },
+  blue:{
+    anchors:['Moon Jelly','Fog Goblin','Blueberry','Moonmilk','Night Swim','Stormglass','Frosted Gremlin','Cloud Goblin','Midnight Mood Ring','Foglight','Blue Hour','Cold Front','Rainshadow','Lapis Moon','Twilight Jelly','Storm Slush','Denim UFO','Ink Spill','Lake Glass','Harbor Glow','Pool Shark','Sapphire Static','Cobalt Comet','Mallard Moon','Pacific Frost'],
+    literal:['Teal','Denim','Ink','Storm','Pool','Harbor','Midnight','Cobalt','Lapis','Sapphire','Atlantic','Mallard','Pacific','Sky','Stonewash','Blueberry','Stratosphere','Twilight','Smoke'],
+    coined:['Stormglass','Moonmilk','Rainshadow','Foglight','Nightglow','Lapisland','Bluehour','Frostbite'],
+    prebuilt:['Lavender UFO Club','Fog Goblin Field Trip','Blueberry Space Camp','Moon Jelly Detour','Cloud Goblin Deluxe','Midnight Mood Ring','Moonmilk Mischief','Night Swim Gremlin','Stormglass Goblin Club','Frosted Gremlin Parade','Foglight Revival','Blue Hour Mischief','Cold Front Confetti','Rainshadow Ruckus','Lapis Moon Landing','Storm Slush Rodeo','Denim UFO Club','Twilight Jelly Circus','Ink Spill Carnival','Sapphire Static Zoo','Cobalt Comet Club','Mallard Moon Mischief']
+  },
+  purple:{
+    anchors:['Velvet Goblin','Grape Soda','Plum Moon','Taffy Ghost','Lavender Lava Lamp','Violet Static','Rhubarb Moon','Jam Jar','Amethyst Orbit','Mystic Jelly','Orchid Glow','Cabernet Cloud','Berry Moon','Razzleberry Static','Eggplant Circus','Regal Jelly','Lilac Lightning','Plum Velvet','Grape Ghost','Violet Moonbug'],
+    literal:['Plum','Grape','Violet','Velvet','Amethyst','Eggplant','Cabernet','Razzleberry','Lavender','Orchid','Regal','Concord','Mystic','Rhubarb','Berry','Lilac'],
+    coined:['Plumdrift','Violetvolt','Razzlemoon','Velvetstatic','Orchidrift','Rhubarbara','Grapeghost'],
+    prebuilt:['Velvet Goblin Ball','Grape Soda Séance','Rhubarb Moon Ruckus','Taffy Ghost Party','Plum Goblin Prom','Lavender Lava Lamp','Violet Static Zoo','Raspberry Moon Unit','Velvet Snack Attack','Cherry Static Circus','Jam Jar Jamboree','Mystic Jelly Detour','Amethyst Orbit Club','Orchid Glow Ruckus','Cabernet Cloud Mischief','Razzleberry Static Parade','Eggplant Circus Deluxe','Lilac Lightning Lounge']
+  },
+  red:{
+    anchors:['Jam Jar','Fruit Punch','Cherry Static','Rhubarb Pie','Lipstick Lizard','Cabernet Cloud','Ruby Glow','Tomato Tango','Cranberry Static','Hot Sauce Halo','Garnet Moon','Pepper Jelly','Oxblood Velvet','Birthday Cake','Chili Moon','Burgundy Bug','Maple Ember','Red Wine Ruckus','Crabapple Carnival','Brick Spark'],
+    literal:['Brick','Cherry','Cranberry','Chili','Tomato','Garnet','Rhubarb','Burgundy','Cabernet','Oxblood','Pepper','Hot Sauce','Red Wine','Maple','Ruby'],
+    coined:['Rhubarbara','Rubyglow','Jamstatic','Cranberrymoon','Chilibug','Cabernova'],
+    prebuilt:['Jam Jar Static','Fruit Punch Freakout','Lipstick Lizard Lounge','Rhubarb Moon Ruckus','Cherry Static Circus','Birthday Cake Crimes','Cabernet Confetti','Ruby Glow Rodeo','Cranberry Static Club','Pepper Jelly Riot','Oxblood Velvet Ruckus','Hot Sauce Halo','Garnet Moon Mischief','Tomato Tango Detour','Chili Moon Parade','Burgundy Bug Club']
+  },
+  pink:{
+    anchors:['Bubblegum Ghost','Cotton Candy Static','Flamingo Moon','Taffy Ghost','Peony Glow','Punch Bowl','Raspberry Moon','Pink Motel','Cupcake Thunder','Rose Cloud','Confetti Jelly','Ribbon Riot','Soda Fountain','Petal Static','Tutu Thunder','Peony Pop','Blush Balloon','Candy Cloud','Flamingo Orbit','Lilac Sugar'],
+    literal:['Bubblegum','Peony','Rhubarb','Taffy','Flamingo','Punch','Cotton Candy','Raspberry','Tutu','Rose','Lilac','Cherry Soda'],
+    coined:['Peonyglow','Taffymoon','Flaminglow','Bubbleghost','Raspberrymoon','Roselight'],
+    prebuilt:['Bubblegum Ghost Party','Cotton Candy Goblin Club','Flamingo Moon Ruckus','Taffy Ghost Detour','Peony Glow Mischief','Punch Bowl Panic','Raspberry Moon Unit','Pink Motel Mayhem','Cupcake Thunder Club','Rose Cloud Ruckus','Confetti Jelly Parade','Ribbon Riot Deluxe','Soda Fountain Static','Petal Static Circus','Tutu Thunder Rodeo','Candy Cloud Carnival']
+  },
+  yellow:{
+    anchors:['Candle Wax','Cornbread Cosmos','Goldfish','Hot Sauce','Traffic Cone','Motel Sign','Sunburnt Static','Nacho Moon','Toaster Goblin','Marigold Mischief','Lantern Glow','Honey Static','Dandelion UFO','Citrus Jelly','Butterscotch Orbit','Pollen Cloud','Lemon Lightning','Turmeric Moon','Golden Goblin','Porchlight Panic','Wheat Glow','Pear Parade'],
+    literal:['Mustard','Marigold','Pollen','Candle','Turmeric','Corn','Dandelion','Gold','Lemon','Straw','Honey','Wheat','Pear','Sunflower','Lantern','Butterscotch'],
+    coined:['Goldfishy','Honeyglow','Candlewax','Sunspook','Lemonbug','Pollenova','Butterscotchula'],
+    prebuilt:['Candle Wax Chaos','Hot Sauce UFO','Motel Sign Mayhem','Goldfish Snack Attack','Sunburnt Space Camp','Nacho Moon Landing','Toaster Goblin Parade','Cornbread Moon Rodeo','Marigold Mischief','Traffic Cone Takedown','Citrus Little Freak','Lantern Glow Ruckus','Honey Static Circus','Dandelion UFO Club','Butterscotch Orbit','Pollen Cloud Riot','Lemon Lightning Lounge','Turmeric Moonwalk']
+  },
+  orange:{
+    anchors:['Candle Wax','Campfire Gremlin','Rust Bucket','Paprika Moon','Copper Toad','Cider Static','Pumpkin Orbit','Canyon Glow','Traffic Cone','Motel Sign','Ember Jelly','Tangerine Thunder','Clay Carnival','Blaze Bug','Terracotta UFO','Spice Rack','Jack O Lantern','Copper Comet','Cayenne Circus','Apricot Static','Sienna Sunspot','Orange County Goblin'],
+    literal:['Paprika','Copper','Rust','Clay','Ember','Pumpkin','Tangerine','Canyon','Spice','Camel','Traffic Cone','Cider','Terracotta','Blaze','Cayenne','Apricot','Sienna'],
+    coined:['Paprikarama','Copperpop','Rustrocket','Emberglow','Ciderbug','Pumpkinova','Tangerango'],
+    prebuilt:['Campfire Gremlin Club','Rust Bucket Ruckus','Paprika Moon Mischief','Copper Toad Rodeo','Cider Static Parade','Pumpkin Orbit Deluxe','Canyon Glow Freakout','Traffic Cone Vacation','Motel Sign Meltdown','Ember Jelly Riot','Tangerine Thunder Club','Clay Carnival Detour','Blaze Bug Circus','Terracotta UFO','Spice Rack Ruckus','Candle Wax Carnival','Cayenne Circus Deluxe','Copper Comet Parade']
+  },
+  brown:{
+    anchors:['Toast Goblin','Cocoa Moon','Campfire Coffee','Walnut Static','Cedar Chest','Trail Mix','Mocha Orbit','River Rock','Pancake Weather','Thermos Glow','Chocolate Thunder','Carob Carnival','Molasses Moon','Dusty Road','Praline Static','Coffee Jelly','Bark Carnival','Sienna Smoke','Camel Moon','Toffee Troll','Brownie Orbit','Vinci Velvet'],
+    literal:['Cedar','Walnut','Cocoa','Molasses','Bark','Coffee','Toast','Mocha','Chocolate','Praline','Carob','Sienna','River Rock','Camel','Vinci','Toffee'],
+    coined:['Mocharama','Cocoamoon','Walnutstatic','Toastghost','Barklight','Molassanova','Pralineland'],
+    prebuilt:['Toast Goblin Deluxe','Cocoa Moon Ruckus','Campfire Coffee Club','Walnut Static Parade','Cedar Chest Mischief','Trail Mix Trolls','Mocha Orbit Rodeo','River Rock Riot','Pancake Weather Delay','Thermos Glow-Up','Chocolate Thunder Club','Carob Carnival','Molasses Moon Landing','Dusty Road Breakfast','Praline Static Circus','Coffee Jelly Detour','Bark Carnival Deluxe','Toffee Troll Parade']
+  },
+  gray:{
+    anchors:['Fog Goblin','Smoke Bloom','Concrete Moon','Tin Roof Static','Charcoal Jelly','Nimbus Glow','Blacktop Frost','Storm Cloud','Greystone Gremlin','Mist Machine','Ash Moon','Graphite Orbit','Overcast Disco','Frosted Static','Gravel Glitter','Rainshadow','Silver Static','Harbor Mist','Cloud Cover','Foglight','Smoke Machine','Ashen Moonbug'],
+    literal:['Smoke','Concrete','Ash','Fog','Graphite','Tin','Charcoal','Nimbus','Mist','Gris','Greystone','Blacktop','Harbor Mist','Storm Cloud','Silver','Frost'],
+    coined:['Foglight','Stormglass','Smokebloom','Ashmoon','Graphitica','Rainshadow','Mistmachine'],
+    prebuilt:['Fog Goblin Field Trip','Smoke Bloom Rodeo','Concrete Moon Mischief','Tin Roof Static','Charcoal Jelly Club','Nimbus Glow Ruckus','Blacktop Frost Parade','Storm Cloud Snack Patrol','Greystone Gremlin Weekend','Mist Machine Mayhem','Ash Moon Detour','Graphite Orbit Circus','Overcast Disco Club','Frosted Static Zoo','Gravel Glitter Goblin','Rainshadow Ruckus','Silver Static Parade','Cloud Cover Creature Feature']
+  },
+  dark:{
+    anchors:['Midnight Mood Ring','Blacktop Frost','Raven Moon','Ink Spill','Night Swim','Shadow Jelly','Moonmilk','Deep Space Goblin','Afterhours Static','Darkroom Glow','Eclipse Bug','Night Garden','Crow Feather','Moonshadow','Black Cat Carnival','Midnight Jelly','Cosmic Fog','Low Light Lizard'],
+    literal:['Midnight','Ink','Raven','Blacktop','Night','Shadow','Eclipse','Jet','Black','Darkroom','Cosmic'],
+    coined:['Moonmilk','Nightglow','Inklingo','Ravenstatic','Blacktopia','Shadowmelt','Eclipsebug'],
+    prebuilt:['Midnight Mood Ring','Ink Spill Carnival','Night Swim Gremlin','Moonmilk Mischief','Blacktop Frost Parade','Raven Moon Ruckus','Deep Space Goblin','Afterhours Static Club','Darkroom Glow Rodeo','Eclipse Bug Circus','Night Garden Radio','Moonshadow Mischief','Black Cat Carnival','Cosmic Fog Detour']
+  },
+  light:{
+    anchors:['Moonmilk','Salt Moon','Porcelain Ghost','Chalk Static','Frosting Goblin','Cloud Cover','Sugar Frost','Vanilla Fog','Cream Soda','White Noise Jelly','Snow Globe','Pearl Orbit','Ghost Glow','Milk Glass','Marshmallow Moon'],
+    literal:['Chalk','Salt','Porcelain','Moon','White','Frost','Pearl','Sugar','Vanilla','Milk Glass','Snow','Cream'],
+    coined:['Moonmilk','Saltglow','Ghostlight','Frostbite','Sugarmoon','Pearlorbit'],
+    prebuilt:['Moonmilk Mischief','Salt Moon Rodeo','Porcelain Ghost Party','Chalk Static Club','Frosting Goblin Parade','Cloud Cover Creature Feature','Sugar Frost Circus','Vanilla Fog Ruckus','Cream Soda UFO','White Noise Jelly','Snow Globe Side Quest','Pearl Orbit Deluxe','Ghost Glow Carnival','Milk Glass Moonwalk']
+  },
+  loud:{
+    anchors:['Arcade Carpet','Clown Car','Carnival Leftovers','Side Quest Sweater','Pattern Gremlin','Static Zoo','Color Crime','Chart Gremlin','High Contrast Goblin','Loud Little Freak','Sticker Shock','Neon Moonbug','Chaos Sweater','Stripe Goblin','Confetti Traffic','Glow Worm Parade'],
+    literal:['Neon','High Contrast','Loud','Stripe','Chart','Pattern','Bright','Glow'],
+    coined:['Glowworm','Chartgremlin','Neonova','Contrastico','Patternpanic'],
+    prebuilt:['Arcade Carpet Fever','Clown Car Confidential','Carnival Leftovers','Side Quest Sweater','Pattern Gremlin Deluxe','Static Zoo Afterparty','Chart Gremlin Deluxe','High Contrast Hooligans','Loud Little Freak','Neon Moonbug Parade','Chaos Sweater Club','Stripe Goblin Ruckus','Confetti Traffic Jam','Glow Worm Parade']
+  }
+};
+
+const funHooks=['Rodeo','UFO','Goblin','Gremlin','Snack Attack','Field Trip','Space Camp','Prom','Ruckus','Moonwalk','Circus','Little Freak','Deluxe','Detour','Chaos','Mischief','Parade','Riot','Jamboree','Carnival','Side Quest','Ghost Party','Static Zoo','Portal','Moon Landing','Creature Feature','Mayhem','Takedown','Club','Afterparty','Weekend','Ransom','Lounge','Panic','Freakout','Glow-Up','Snack Patrol','Ball','Brunch','Picnic','Trolls','Mystery','Zoo','Rodeo Club','Goblin Club','Space Parade','Breakfast','Tiny Crisis','Big Number','Odd Jobs','Wrong Turn','Strange Weather'];
+const softAdjectives=['Tiny','Feral','Frosted','Electric','Secret','Cosmic','Velvet','Sunburnt','Moonlit','Spicy','Cloudy','Haunted','Wobbly','Wild','Sleepy','Glowing','Crooked','Sparked','Sneaky','Neon','Midnight','Muddy','Fancy'];
+const pluralCrews=['Goblins','Gremlins','Weirdos','Moonbugs','Little Freaks','Snack Wizards','Porch Ghosts','Space Raccoons','Velvet Toads','Jelly Monsters','Tiny Clowns','Garden Wizards','Static Creatures','Side Questers'];
+const endings=['Club','Deluxe','Mischief','Ruckus','Parade','Carnival','Rodeo','Detour','Freakout','Riot','Moonwalk','Side Quest','Creature Feature','Snack Patrol','Jamboree','UFO','Afterparty','Tiny Crisis'];
+let nameHistory={names:[],templates:[],families:[],anchors:[],hooks:[],endings:[],lengths:[],words:[],literalFlags:[]};
+let nameHistoryLoaded=false;
+function pick(arr){return arr[Math.floor(Math.random()*arr.length)];}
+function titleCase(str){return String(str||'').replace(/\s+/g,' ').trim().split(' ').map(w=>{if(!w)return w;if(['UFO'].includes(w.toUpperCase()))return w.toUpperCase();return w.charAt(0).toUpperCase()+w.slice(1);}).join(' ');}
+function familyFromHex(hex){const {h,s,l}=rgbToHsl(hex);if(l<.13)return 'dark';if(l>.9&&s<.2)return 'light';if(s<.14)return 'gray';if(h>=345||h<12)return 'red';if(h>=12&&h<42){return l<.48?'brown':'orange';}if(h>=42&&h<70){return l<.46?'brown':'yellow';}if(h>=70&&h<165)return 'green';if(h>=165&&h<248)return 'blue';if(h>=248&&h<300)return 'purple';if(h>=300&&h<345)return 'pink';return 'brown';}
+function meaningfulWords(name){return String(name||'').toLowerCase().replace(/[^a-z0-9\s-]/g,' ').split(/\s+/).map(w=>w.replace(/^-+|-+$/g,'')).filter(w=>w&&!fillerWords.has(w));}
+function rootToken(text){const words=meaningfulWords(text);return words[0]||String(text||'').toLowerCase();}
+function endingKey(text){const words=meaningfulWords(text);return words.slice(-2).join(' ')||words[0]||String(text||'').toLowerCase();}
+function wordSetFrom(arr){const out=new Set();arr.forEach(x=>{String(x||'').toLowerCase().split(/[^a-z0-9]+/).filter(Boolean).forEach(w=>{if(!fillerWords.has(w))out.add(w);});});return out;}
+function extractYarnAnchors(combo){
+  const anchors=[];
+  ROLES.forEach(r=>{
+    const c=combo[r.key];
+    if(!c)return;
+    const name=String(c.name||'').replace(/[-_/]/g,' ');
+    const words=name.split(/\s+/).map(w=>w.trim()).filter(Boolean);
+    const clean=words.filter(w=>!boringYarnWords.has(w.toLowerCase())&&w.length>2);
+    if(clean.length){anchors.push(titleCase(clean.slice(0,2).join(' ')));}
+    clean.forEach(w=>anchors.push(titleCase(w)));
+  });
+  return [...new Set(anchors)].slice(0,14);
+}
+function getComboNameWorld(combo=selections){
+  const counts={};
+  const colors=ROLES.map(r=>combo[r.key]).filter(Boolean);
+  colors.forEach(c=>{const fam=familyFromHex(c.hex);counts[fam]=(counts[fam]||0)+1;});
+  const fams=Object.entries(counts).sort((a,b)=>b[1]-a[1]).map(([f])=>f);
+  const lums=colors.map(c=>luminance(c.hex));
+  if(lums.length&&Math.max(...lums)-Math.min(...lums)>.58)fams.push('loud');
+  const uniqueFams=[...new Set(fams.length?fams:['blue'])].filter(f=>namingWorlds[f]);
+  let anchors=[], literal=[], prebuilt=[], coined=[];
+  uniqueFams.forEach(f=>{const w=namingWorlds[f];anchors.push(...w.anchors.map(x=>({text:x,family:f,literal:false})));literal.push(...w.literal.map(x=>({text:x,family:f,literal:true})));prebuilt.push(...w.prebuilt.map(x=>({text:x,family:f,literal:false})));coined.push(...w.coined.map(x=>({text:x,family:f,literal:false})));});
+  extractYarnAnchors(combo).forEach(x=>literal.push({text:x,family:'yarn',literal:true}));
+  anchors=[...new Map(anchors.map(a=>[a.text.toLowerCase(),a])).values()];
+  literal=[...new Map(literal.map(a=>[a.text.toLowerCase(),a])).values()];
+  prebuilt=[...new Map(prebuilt.map(a=>[a.text.toLowerCase(),a])).values()];
+  coined=[...new Map(coined.map(a=>[a.text.toLowerCase(),a])).values()];
+  const signalWords=wordSetFrom([...anchors.map(a=>a.text),...literal.map(a=>a.text),...prebuilt.map(a=>a.text),...coined.map(a=>a.text)]);
+  return {families:uniqueFams,anchors,literal,prebuilt,coined,signalWords};
+}
+function loadNameHistory(){if(nameHistoryLoaded)return;nameHistoryLoaded=true;try{const parsed=JSON.parse(localStorage.getItem(NAME_HISTORY_STORAGE)||'{}');Object.keys(nameHistory).forEach(k=>{if(Array.isArray(parsed[k]))nameHistory[k]=parsed[k];});}catch(e){}}
+function saveNameHistory(){try{localStorage.setItem(NAME_HISTORY_STORAGE,JSON.stringify(nameHistory));}catch(e){}}
+function nameSimilarity(a,b){const aw=new Set(meaningfulWords(a)),bw=new Set(meaningfulWords(b));if(!aw.size||!bw.size)return 0;let inter=0;aw.forEach(w=>{if(bw.has(w))inter++;});return inter/Math.max(aw.size,bw.size);}
+function hasColorSignal(name,info){
+  const lower=String(name||'').toLowerCase();
+  for(const word of info.signalWords){if(word.length>3&&lower.includes(word))return true;}
+  return false;
+}
+function buildName(anchor,hook,template){
+  const a=titleCase(anchor.text||anchor);
+  const h=titleCase(hook||pick(funHooks));
+  const adj=pick(softAdjectives);
+  const crew=pick(pluralCrews);
+  switch(template){
+    case 'anchorHook': return `${a} ${h}`;
+    case 'anchorHookTail': return `${a} ${h} ${pick(['Club','Deluxe','Parade','Weekend','Rodeo','Circus','Ruckus','Afterparty'])}`;
+    case 'adjAnchorHook': return `${adj} ${a} ${h}`;
+    case 'theAnchorHook': return `The ${a} ${h}`;
+    case 'anchorAndCrew': return `${a} and the ${crew}`;
+    case 'anchorAtLarge': return `${a} ${pick(['After Dark','At Large','On Purpose','In the Wild','With Snacks','Gets Loud','Got Weird','Needs Supervision'])}`;
+    case 'hookAnchor': return `${h} ${a}`;
+    default: return `${a} ${h}`;
+  }
+}
+function makeNameCandidate(combo=selections){
+  const info=getComboNameWorld(combo);
+  const roll=Math.random();
+  let template='anchorHook', anchor, hook='', name='', literal=false, family='mixed';
+  if(roll<.24 && info.prebuilt.length){
+    const p=pick(info.prebuilt);name=p.text;template='prebuilt';anchor={text:p.text,family:p.family,literal:false};hook=endingKey(name);family=p.family;
+  }else if(roll<.34 && info.coined.length){
+    const p=pick(info.coined);name=p.text;template='coined';anchor={text:p.text,family:p.family,literal:false};hook=endingKey(name);family=p.family;
+  }else{
+    const useLiteral=Math.random()<.23 && info.literal.length;
+    anchor=useLiteral?pick(info.literal):pick(info.anchors.length?info.anchors:info.literal);
+    literal=!!anchor.literal;family=anchor.family||'mixed';
+    hook=pick(funHooks);
+    const templates=['anchorHook','anchorHook','anchorHookTail','adjAnchorHook','theAnchorHook','anchorAndCrew','anchorAtLarge','hookAnchor'];
+    template=pick(templates);
+    name=buildName(anchor,hook,template);
+  }
+  name=titleCase(name);
+  return {name,template,family,anchor:rootToken(anchor?.text||name),hook:String(hook||endingKey(name)).toLowerCase(),ending:endingKey(name),length:meaningfulWords(name).length,literal,info};
+}
+function isGoodName(name,candidate){
+  const lower=String(name||'').toLowerCase().trim();
+  if(!lower)return false;
+  if(lower.length<7||lower.length>52)return false;
+  if(nameHistory.names.includes(lower))return false;
+  if(bannedNameBits.some(bit=>lower.includes(bit)))return false;
+  if(directBandCopyBlocks.some(bit=>lower.includes(bit)))return false;
+  if(mundaneBits.some(bit=>lower.includes(bit)))return false;
+  if(/\b(undefined|null|nan)\b/i.test(name))return false;
+  const words=meaningfulWords(name);
+  if(words.length<1||words.length>7)return false;
+  if(new Set(words).size!==words.length)return false;
+  if(/(.)\1{4,}/.test(lower))return false;
+  if(/\b(very|really|pretty|super|totally|tax|receipt|evidence|clause|committee|department|agreement|meeting)\b/i.test(name))return false;
+  if(!hasColorSignal(name,candidate.info))return false;
+  return true;
+}
+function scoreName(candidate){
+  let score=70;
+  const name=candidate.name,lower=name.toLowerCase(),words=meaningfulWords(name);
+  const recentNames=nameHistory.names.slice(-80);
+  const recentTemplates=nameHistory.templates.slice(-22);
+  const recentFamilies=nameHistory.families.slice(-20);
+  const recentAnchors=nameHistory.anchors.slice(-42);
+  const recentHooks=nameHistory.hooks.slice(-44);
+  const recentEndings=nameHistory.endings.slice(-42);
+  const recentLengths=nameHistory.lengths.slice(-12);
+  const recentWords=nameHistory.words.slice(-130);
+  const recentLiteral=nameHistory.literalFlags.slice(-12);
+  if(candidate.template==='prebuilt')score+=22;
+  if(candidate.template==='coined')score+=8;
+  if(candidate.template==='anchorHookTail')score+=14;
+  if(candidate.template==='adjAnchorHook')score+=12;
+  if(candidate.template==='anchorAndCrew')score+=10;
+  if(candidate.length===1)score+=5;
+  if(candidate.length===2)score+=3;
+  if(candidate.length===3)score+=17;
+  if(candidate.length===4)score+=16;
+  if(candidate.length===5)score+=8;
+  if(name.length>=13&&name.length<=38)score+=14;
+  if(name.length>44)score-=22;
+  if(/\b(Goblin|Gremlin|UFO|Rodeo|Snack Attack|Field Trip|Space Camp|Prom|Ruckus|Moonwalk|Circus|Little Freak|Deluxe|Detour|Chaos|Mischief|Parade|Riot|Jamboree|Carnival|Side Quest|Ghost Party|Static Zoo|Portal|Moon Landing|Creature Feature|Mayhem|Takedown|Club|Afterparty|Snack Patrol|Freakout|Glow-Up|Ball|Brunch|Picnic|Trolls|Zoo)\b/i.test(name))score+=18;
+  if(hasColorSignal(name,candidate.info))score+=25;
+  if(candidate.literal)score-=3;
+  if(recentLiteral.filter(Boolean).length>=5 && candidate.literal)score-=20;
+  if(recentNames.includes(lower))score-=220;
+  if(recentTemplates.includes(candidate.template))score-=10;
+  if(recentFamilies.includes(candidate.family))score-=6;
+  if(recentAnchors.includes(candidate.anchor))score-=36;
+  if(recentHooks.includes(candidate.hook))score-=34;
+  if(candidate.ending&&recentEndings.includes(candidate.ending))score-=26;
+  if(recentLengths.filter(x=>x===candidate.length).length>=4)score-=18;
+  const dupHits=words.filter(w=>recentWords.includes(w)).length;score-=dupHits*11;
+  recentNames.forEach(old=>{const sim=nameSimilarity(name,old);if(sim>=.67)score-=70;else if(sim>=.45)score-=36;else if(sim>=.34)score-=18;});
+  if(/^the\s+/i.test(name)&&recentNames.slice(-8).some(n=>/^the\s+/.test(n)))score-=14;
+  score+=Math.random()*22;
+  return score;
+}
+function rememberName(candidate){
+  const words=meaningfulWords(candidate.name);
+  nameHistory.names.push(candidate.name.toLowerCase());
+  nameHistory.templates.push(candidate.template);
+  nameHistory.families.push(candidate.family);
+  nameHistory.lengths.push(candidate.length);
+  nameHistory.literalFlags.push(!!candidate.literal);
+  words.forEach(w=>nameHistory.words.push(w));
+  if(candidate.anchor)nameHistory.anchors.push(String(candidate.anchor).toLowerCase());
+  if(candidate.hook)nameHistory.hooks.push(String(candidate.hook).toLowerCase());
+  if(candidate.ending)nameHistory.endings.push(String(candidate.ending).toLowerCase());
+  Object.entries(NAME_HISTORY_LIMITS).forEach(([k,limit])=>{nameHistory[k]=nameHistory[k].slice(-limit);});
+  saveNameHistory();
+}
+
+function selectedColorsForName(combo = selections) {
+  return ROLES.map(r => ({
+    role: r.label,
+    yarn_name: combo[r.key].name,
+    yarn_number: combo[r.key].number,
+    hex: combo[r.key].hex
+  }));
+}
+
+function readNameCache() {
+  try {
+    return JSON.parse(localStorage.getItem(NAME_CACHE_STORAGE) || '{}');
+  } catch {
+    return {};
+  }
+}
+
+function writeNameCache(cache) {
+  try {
+    localStorage.setItem(NAME_CACHE_STORAGE, JSON.stringify(cache));
+  } catch {}
+}
+
+function namePaletteKey(colors) {
+  const raw = colors
+    .map(c => `${c.hex}|${c.yarn_number}|${c.yarn_name}`.toLowerCase())
+    .sort()
+    .join('~');
+
+  let hash = 5381;
+  for (let i = 0; i < raw.length; i++) {
+    hash = ((hash << 5) + hash) + raw.charCodeAt(i);
+    hash = hash & hash;
+  }
+
+  return `palette_${Math.abs(hash)}`;
+}
+
+function rememberShownName(list, name, limit = 80) {
+  return [...new Set([...(list || []), name].filter(Boolean))].slice(-limit);
+}
+
+async function getNextAIComboName(combo = selections) {
+  const selectedColors = selectedColorsForName(combo);
+  const key = namePaletteKey(selectedColors);
+  const cache = readNameCache();
+  const state = cache[key] || { queue: [], shown: [] };
+
+  if (state.queue.length) {
+    const name = state.queue.shift();
+    state.shown = rememberShownName(state.shown, name);
+    cache[key] = state;
+    writeNameCache(cache);
+    return name;
+  }
+
+  const response = await fetch(NAME_FUNCTION_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'apikey': SUPABASE_KEY
+    },
+    body: JSON.stringify({
+      selected_colors: selectedColors,
+      previous_names: state.shown,
+      count: NAME_BATCH_SIZE
+    })
+  });
+
+  if (!response.ok) {
+    throw new Error(`Name function failed: ${response.status}`);
+  }
+
+  const payload = await response.json();
+  const names = Array.isArray(payload.names) ? payload.names : [];
+  const freshNames = names.filter(name => name && !state.shown.includes(name));
+
+  if (!freshNames.length) {
+    throw new Error('Name function returned no usable names');
+  }
+
+  const name = freshNames.shift();
+  state.queue = freshNames;
+  state.shown = rememberShownName(state.shown, name);
+  cache[key] = state;
+  writeNameCache(cache);
+
+  return name;
+}
+
+function generateComboName(combo=selections,offset=0){
+  loadNameHistory();
+  const candidates=[];
+  for(let i=0;i<760;i++){
+    const candidate=makeNameCandidate(combo);
+    if(isGoodName(candidate.name,candidate)){
+      candidate.score=scoreName(candidate);
+      candidates.push(candidate);
+    }
+  }
+  candidates.sort((a,b)=>b.score-a.score);
+  const winner=candidates[0];
+  if(winner){rememberName(winner);return winner.name;}
+  const info=getComboNameWorld(combo);
+  const source=info.prebuilt.length?info.prebuilt.map(x=>x.text):['Moonmilk Mischief','Candle Wax Chaos','Moss Goblin Picnic','Velvet Goblin Ball'];
+  const fallbackName=titleCase(pick(source));
+  const fallback={name:fallbackName,template:'fallback',family:info.families[0]||'fallback',anchor:rootToken(fallbackName),hook:endingKey(fallbackName),ending:endingKey(fallbackName),length:meaningfulWords(fallbackName).length,literal:false};
+  rememberName(fallback);
+  return fallbackName;
+}
+currentComboName=generateComboName();
+function getPattern(){const base=PATTERN.map(r=>r.repeat(3));let width=base[0].length;const sc=document.querySelector('.chart-scroll');if(sc){const inner=sc.clientWidth-14;width=Math.max(width,Math.floor(inner/12));}const body=base.map((row,i)=>row+PATTERN[i].repeat(Math.ceil((width-row.length)/PATTERN[i].length)).slice(0,Math.max(0,width-row.length)));const pad='D'.repeat(body[0].length);return [...Array(4).fill(pad),...body,...Array(4).fill(pad)];}
+function drawChart(){const chart=el('chart'),pat=getPattern(),show=el('gridToggle').checked;chart.innerHTML='';chart.style.gridTemplateColumns=`repeat(${pat[0].length},12px)`;chart.style.borderRight=show?'1px solid #56524d':'1px solid transparent';chart.style.borderBottom=show?'1px solid #56524d':'1px solid transparent';pat.forEach(row=>row.split('').forEach(k=>{const d=document.createElement('div');d.className='cell';d.style.background=(selections[k]||selections.D).hex;d.style.borderLeft=show?'1px solid #56524d':'1px solid transparent';d.style.borderTop=show?'1px solid #56524d':'1px solid transparent';chart.appendChild(d);}));}
+function renderDots(){el('comboDots').innerHTML=ROLES.map(r=>`<span class="dot" style="background:${selections[r.key].hex}"></span>`).join(''); el('comboName').textContent=currentComboName;}
+function renderRoles(){el('activeRoleLabel').textContent=ROLE_LABELS[activeRole];el('roleCards').innerHTML='';ROLES.forEach(r=>{const c=selections[r.key];const card=document.createElement('button');card.className='role-card'+(activeRole===r.key?' active':'')+(lockedRoles[r.key]?' locked':'');card.innerHTML=`<div class="role-dot" style="background:${c.hex}"></div><div class="role-label">${r.label}</div><div class="role-num">${c.number}</div><div class="role-name">${c.name}</div><label class="lock-wrap"><input class="lock-check" type="checkbox" ${lockedRoles[r.key]?'checked':''}> lock</label>`;card.addEventListener('click',()=>{activeRole=r.key;renderAll();});card.querySelector('.lock-check').addEventListener('click',e=>{e.stopPropagation();lockedRoles[r.key]=e.target.checked;renderAll();});el('roleCards').appendChild(card);});}
+function renderFilters(){const items=['Full Palette','Current Stash'];el('filters').innerHTML=items.map(x=>`<button class="filter ${filter===x?'active':''}" data-filter="${x}">${x}</button>`).join('');document.querySelectorAll('.filter').forEach(b=>b.onclick=()=>{filter=b.dataset.filter;randomSource=(filter==='Current Stash')?'stash':'full';renderSourceButtons();renderPalette();renderFilters();});}
+function renderPalette(){const q=el('search').value.trim().toLowerCase();const p=el('palette');p.innerHTML='';COLORS.filter(c=>(filter==='Full Palette'||isInStash(c))&&(!q||c.name.toLowerCase().includes(q)||c.number.toLowerCase().includes(q)||c.hex.toLowerCase().includes(q))).forEach(c=>{const used=ROLES.some(r=>selections[r.key].number===c.number);const inStash=isInStash(c);const b=document.createElement('button');b.className='color-btn'+(used?' selected':'')+(inStash?' in-stash':'');b.innerHTML=`<span class="stash-check" title="Toggle Current Stash" aria-label="Toggle Current Stash">✓</span><div class="color-swatch" style="background:${c.hex}"></div><div class="color-num">${c.number}</div><div class="color-name">${c.name}</div>`;b.onclick=()=>{selections[activeRole]=c;currentComboName='custom mix';currentNameSeed=0;renderAll();};b.querySelector('.stash-check').onclick=e=>{e.stopPropagation();toggleStash(c);};p.appendChild(b);});}
+function metrics(){const pairs=[['Main vs Contrast',selections.D,selections.L,3],['Main vs Accent',selections.D,selections.M,1.6],['Stripe A vs B',selections.S,selections.T,1.6]];el('metrics').innerHTML=pairs.map(([t,a,b,target])=>{const r=contrastRatio(a.hex,b.hex),w=Math.min(100,Math.round(r/7*100));return `<div class="metric"><div class="metric-top"><span>${t}</span><strong>${r.toFixed(1)}:1</strong></div><div class="bar"><div class="fill" style="width:${w}%"></div></div></div>`;}).join('');}
+function isReadable(combo){const nums=ROLES.map(r=>combo[r.key].number);return new Set(nums).size===nums.length&&contrastRatio(combo.D.hex,combo.L.hex)>=3&&contrastRatio(combo.D.hex,combo.M.hex)>=1.6&&contrastRatio(combo.S.hex,combo.T.hex)>=1.6;}
+function randomize(){
+  const pool=randomSource==='stash'?stashColors():COLORS;
+  if(pool.length<ROLES.length){
+    renderSourceButtons();
+    return;
+  }
+  history.push({selections:cloneSelections(),name:currentComboName,seed:currentNameSeed});
+  let combo=cloneSelections();
+  for(let tries=0;tries<1500;tries++){
+    const used=new Set(ROLES.filter(r=>lockedRoles[r.key]).map(r=>combo[r.key].number));
+    ROLES.forEach(r=>{
+      if(!lockedRoles[r.key]){
+        const opts=pool.filter(c=>!used.has(c.number));
+        if(opts.length){
+          combo[r.key]=opts[Math.floor(Math.random()*opts.length)];
+          used.add(combo[r.key].number);
+        }
+      }
+    });
+    if(isReadable(combo))break;
+  }
+  selections = combo;
+  currentNameSeed = 0;
+  currentComboName = 'naming…';
+  renderAll();
+  newName();
+}
+function back(){const prev=history.pop();if(!prev)return;selections=cloneSelections(prev.selections);currentComboName=prev.name;currentNameSeed=prev.seed;renderAll();}
+async function newName() {
+  if (nameRequestInProgress) return;
+
+  const btn = el('newNameBtn');
+  nameRequestInProgress = true;
+
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = 'naming…';
+  }
+
+  try {
+    currentComboName = await getNextAIComboName(selections);
+  } catch (error) {
+    console.error('AI name failed; using local fallback.', error);
+    currentNameSeed++;
+    currentComboName = generateComboName(selections, currentNameSeed);
+  } finally {
+    nameRequestInProgress = false;
+
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = 'new name ↺';
+    }
+
+    renderAll();
+  }
+}
+function openSaveDrawer(kind){pendingSaveKind=kind;const title=kind==='made'?'SAVE TO MADE COMBOS':'SAVE TO DIGGED COMBOS';el('drawerTitle').textContent=title;el('confirmSave').textContent=title;el('drawerSub').textContent='';el('saveDrawer').classList.add('open');el('saveDrawer').setAttribute('aria-hidden','false');setTimeout(()=>el('saveName').focus(),40);updateSaveState();}
+function closeSaveDrawer(){el('saveDrawer').classList.remove('open');el('saveDrawer').setAttribute('aria-hidden','true');}
+let saveInProgress=false;
+async function savePending(){
+  if(saveInProgress) return;
+  const name=el('saveName').value.trim();
+  if(!name){el('saveName').focus();updateSaveState();return;}
+
+  saveInProgress=true;
+  el('confirmSave').disabled=true;
+
+  const item={kind:pendingSaveKind,name,note:el('saveNote').value.trim(),comboName:currentComboName,selections:cloneSelections(),at:new Date().toISOString()};
+
+  try{
+    if(db){
+      const payload={
+        type: item.kind==='dig'?'digged':'made',
+        combo_name:item.comboName,
+        saved_by:item.name,
+        note:item.note||null,
+        colors_json:item.selections
+      };
+      const {error}=await db.from('combos').insert(payload);
+      if(error){
+        console.error('Supabase save failed',error);
+        saved.unshift(item); saved=saved.slice(0,60);
+        try{localStorage.setItem(STORAGE,JSON.stringify(saved.filter(x=>!x.remote)));}catch(e){}
+        renderSaved();
+        alert('Shared save failed. It saved locally on this device only.');
+      }else{
+        await loadSharedCombos();
+      }
+    }else{
+      saved.unshift(item); saved=saved.slice(0,60);
+      try{localStorage.setItem(STORAGE,JSON.stringify(saved.filter(x=>!x.remote)));}catch(e){}
+      renderSaved();
+    }
+
+    closeSaveDrawer();
+    el('saveName').value='';
+    el('saveNote').value='';
+  }finally{
+    saveInProgress=false;
+    updateSaveState();
+  }
+}
+function escapeHTML(s=''){return String(s).replace(/[&<>'"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]));}
+function renderSavedList(id,kind){
+  const list=saved.filter(x=>x.kind===kind),box=el(id);
+  box.innerHTML='';
+  if(!list.length){box.innerHTML='<div class="empty">No saved combos yet.</div>';return;}
+  list.forEach(item=>{
+    const meta=ROLES.map(r=>item.selections?.[r.key]?.number||'').join(' / ');
+    const d=document.createElement('div');
+    d.className='saved-card';
+    const deleteButton=`<button class="delete" aria-label="delete">×</button>`;
+    d.innerHTML=`${deleteButton}<div class="saved-colors">${ROLES.map(r=>`<span class="mini" style="background:${item.selections?.[r.key]?.hex||'#ddd'}"></span>`).join('')}</div><div class="saved-title">${escapeHTML(item.comboName)}</div><div class="saved-meta">${meta} · by ${escapeHTML(item.name)}</div>${item.note?`<div class="saved-note">${escapeHTML(item.note)}</div>`:''}`;
+    d.onclick=e=>{if(e.target.className==='delete')return;selections=cloneSelections(item.selections);currentComboName=item.comboName;renderAll();};
+    const del=d.querySelector('.delete');
+    del.onclick=async(event)=>{
+      event.stopPropagation();
+      await deleteSavedItem(item);
+    };
+    box.appendChild(d);
+  });
+}
+
+async function deleteSavedItem(item){
+  if(!item) return;
+
+  const code=prompt(
+    'Whoops, did you accidentally save an ugly one? Contact Bryant Thee Builder to get it removed.\n\n' +
+    'Admin code:'
+  );
+
+  if(!code) return;
+
+  if(code !== '123'){
+    alert('Nice try.');
+    return;
+  }
+
+  if(item.remote){
+    if(!db){
+      alert('Shared delete is unavailable right now.');
+      return;
+    }
+
+    const {error}=await db.rpc('delete_combo_admin',{combo_id:item.id,admin_code:code});
+    if(error){
+      console.error('Supabase delete failed',error);
+      alert('Delete failed. Check admin code or Supabase delete setup.');
+      return;
+    }
+  }
+
+  saved=saved.filter(x=>x!==item);
+
+  try{
+    localStorage.setItem(STORAGE,JSON.stringify(saved.filter(x=>!x.remote)));
+  }catch(e){}
+
+  renderSaved();
+
+  if(db){
+    await loadSharedCombos();
+  }
+}
+function renderSaved(){renderSavedList('digCombos','dig');renderSavedList('madeCombos','made');}
+function updateSaveState(){const ok=!!el('saveName').value.trim();el('confirmSave').disabled=!ok;el('saveBtn').classList.toggle('active-save',pendingSaveKind==='dig'&&el('saveDrawer').classList.contains('open'));el('madeBtn').classList.toggle('active-save',pendingSaveKind==='made'&&el('saveDrawer').classList.contains('open'));}
+function renderAll(){drawChart();renderDots();renderRoles();renderPalette();metrics();renderSourceButtons();el('backBtn').disabled=!history.length;updateSaveState();}
+async function loadSharedCombos(){
+  let local=[];
+  try{local=JSON.parse(localStorage.getItem(STORAGE)||'[]');}catch(e){local=[];}
+  if(!db){saved=local;renderSaved();return;}
+  const {data,error}=await db.from('combos').select('*').order('created_at',{ascending:false}).limit(100);
+  if(error){console.error('Supabase load failed',error);saved=local;renderSaved();return;}
+  const remote=(data||[]).map(row=>({
+    kind: row.type==='digged'?'dig':'made',
+    name: row.saved_by||'',
+    note: row.note||'',
+    id: row.id,
+    comboName: row.combo_name||'saved combo',
+    selections: row.colors_json,
+    at: row.created_at,
+    remote:true
+  })).filter(x=>x.selections);
+  saved=[...remote,...local.filter(x=>!x.remote)];
+  renderSaved();
+}
+
+/* v21: real AI-backed Ask Skein Scheme. The browser calls a Supabase Edge Function.
+   No OpenAI key belongs in this HTML file. */
+const ASSISTANT_FUNCTION_NAME='skein-assistant';
+let assistantSuggestions=[];
+let assistantSeenKeys=[];
+let assistantSelectedKey='';
+let assistantLoading=false;
+
+function assistantSelectionKey(sel){
+  if(!sel) return '';
+  return ROLES.map(r=>String(sel[r.key]?.number||'')).join('|');
+}
+function assistantCompactCombo(sel=selections){
+  return Object.fromEntries(ROLES.map(r=>{
+    const c=sel[r.key];
+    return [r.key,{role:r.label,number:String(c?.number||''),name:c?.name||'',hex:c?.hex||''}];
+  }));
+}
+function assistantPalettePayload(){
+  return COLORS.map(c=>({
+    number:String(c.number),
+    name:c.name,
+    hex:c.hex,
+    family:hueFamily(c),
+    luminance:+luminance(c.hex).toFixed(4)
+  }));
+}
+function assistantSavedPayload(){
+  return saved.slice(0,100).map(item=>({
+    comboName:item.comboName||'',
+    kind:item.kind||'',
+    selections:assistantCompactCombo(item.selections||{})
+  })).filter(x=>x.comboName && x.selections?.D?.number);
+}
+function assistantSetRead(text,type=''){
+  const box=el('assistantRead');
+  if(!box) return;
+  box.textContent=text||'';
+  box.className='assistant-read'+(text?' show':'')+(type?' '+type:'');
+}
+function assistantColorByNumber(number){
+  const wanted=String(number||'').trim().toLowerCase();
+  return COLORS.find(c=>String(c.number).trim().toLowerCase()===wanted)||null;
+}
+function assistantNormalizeSuggestion(raw){
+  const src=raw?.colors||raw?.selections||raw?.roles||{};
+  const aliases={
+    D:['D','Main','main'],
+    L:['L','Contrast','contrast'],
+    M:['M','Accent','accent'],
+    S:['S','Stripe A','stripeA','stripe_a','stripe a','StripeA'],
+    T:['T','Stripe B','stripeB','stripe_b','stripe b','StripeB']
+  };
+  const sel={};
+  for(const r of ROLES){
+    let value=null;
+    for(const key of aliases[r.key]){
+      if(src[key]!==undefined){value=src[key];break;}
+    }
+    if(value && typeof value==='object') value=value.number;
+    const color=assistantColorByNumber(value);
+    if(!color) return null;
+    sel[r.key]=color;
+  }
+  const nums=ROLES.map(r=>sel[r.key].number);
+  if(new Set(nums.map(String)).size!==nums.length) return null;
+  const name=String(raw?.name||'AI remix').trim().slice(0,40) || 'AI remix';
+  const note=String(raw?.note||'click to preview').trim().slice(0,90) || 'click to preview';
+  return {name,note,selections:sel,key:assistantSelectionKey(sel)};
+}
+function assistantValidateResponse(data){
+  const suggestionsRaw=Array.isArray(data?.suggestions)?data.suggestions:[];
+  const out=[];
+  const used=new Set();
+  for(const raw of suggestionsRaw){
+    const normalized=assistantNormalizeSuggestion(raw);
+    if(!normalized) continue;
+    if(used.has(normalized.key)) continue;
+    used.add(normalized.key);
+    out.push(normalized);
+    if(out.length>=6) break;
+  }
+  return {
+    interpretation:String(data?.interpretation||'chart-ready alternatives').trim().slice(0,130),
+    suggestions:out
+  };
+}
+function assistantRenderSuggestions(interpretation,suggestions){
+  assistantSuggestions=suggestions||[];
+  if(interpretation) assistantSetRead('I read this as: '+interpretation);
+  const box=el('assistantResults');
+  if(!box) return;
+  if(!assistantSuggestions.length){
+    box.innerHTML='<div class="assistant-empty">No valid Cascade 220 combos came back. Try the same ask with one clearer color direction.</div>';
+    return;
+  }
+  box.innerHTML='';
+  assistantSuggestions.forEach((item,idx)=>{
+    const b=document.createElement('button');
+    b.type='button';
+    b.className='assistant-suggestion'+(item.key===assistantSelectedKey?' active':'');
+    b.innerHTML=`<div class="assistant-suggestion-title">${escapeHTML(item.name)}</div><div class="assistant-dots">${ROLES.map(r=>`<span class="assistant-dot" style="background:${item.selections[r.key].hex}"></span>`).join('')}</div><div class="assistant-note">${escapeHTML(item.note||'click to preview')}</div>`;
+    b.onclick=()=>assistantApplySuggestion(idx);
+    box.appendChild(b);
+  });
+}
+function assistantApplySuggestion(index){
+  const item=assistantSuggestions[index];
+  if(!item) return;
+  history.push({selections:cloneSelections(),name:currentComboName,seed:currentNameSeed});
+  selections=cloneSelections(item.selections);
+  currentComboName=item.name;
+  currentNameSeed=0;
+  assistantSelectedKey=item.key;
+  assistantSeenKeys=[...new Set([...assistantSeenKeys,item.key])].slice(-80);
+  renderAll();
+  assistantRenderSuggestions(null,assistantSuggestions);
+}
+async function assistantRequest(more=false){
+  if(assistantLoading) return;
+  const prompt=(el('assistantPrompt')?.value||'').trim();
+  if(!prompt && !more){
+    assistantSetRead('Type what you want first — for example: high contrast purple but keep the main neutral.','error');
+    return;
+  }
+  if(!db || !db.functions || !db.functions.invoke){
+    assistantSetRead('AI backend is not connected yet. Deploy the Supabase Edge Function named skein-assistant, then reopen this file.','error');
+    return;
+  }
+  assistantLoading=true;
+  const buildBtn=el('assistantBuildBtn'), moreBtn=el('assistantMoreBtn');
+  if(buildBtn) buildBtn.disabled=true;
+  if(moreBtn) moreBtn.disabled=true;
+  assistantSetRead(more?'Asking for more chart-ready options...':'Building chart-ready options...','loading');
+  try{
+    const payload={
+      prompt: prompt || 'more options based on the current preview',
+      mode: more?'more':'build',
+      currentComboName,
+      currentCombo:assistantCompactCombo(selections),
+      palette:assistantPalettePayload(),
+      savedCombos:assistantSavedPayload(),
+      previousSuggestionKeys:assistantSeenKeys.slice(-50),
+      previousSuggestions:assistantSuggestions.map(s=>({name:s.name,colors:assistantCompactCombo(s.selections)})).slice(-12),
+      roleGuide:{D:'Main / largest background areas',L:'Contrast / strongest motif and linework',M:'Accent / middle motif areas',S:'Stripe A / stripe details',T:'Stripe B / stripe details'}
+    };
+    const {data,error}=await db.functions.invoke(ASSISTANT_FUNCTION_NAME,{body:payload});
+    if(error) throw error;
+    if(data?.error) throw new Error(data.error);
+    const parsed=assistantValidateResponse(data);
+    parsed.suggestions.forEach(s=>assistantSeenKeys.push(s.key));
+    assistantSeenKeys=[...new Set(assistantSeenKeys)].slice(-80);
+    assistantRenderSuggestions(parsed.interpretation,parsed.suggestions);
+  }catch(err){
+    console.error('Ask Skein Scheme failed',err);
+    assistantSetRead('AI request failed. Check that the skein-assistant Edge Function is deployed and OPENAI_API_KEY is set.','error');
+  }finally{
+    assistantLoading=false;
+    if(buildBtn) buildBtn.disabled=false;
+    if(moreBtn) moreBtn.disabled=false;
+  }
+}
+
+
+async function init(){
+  renderFilters(); renderAll();
+  await loadStashInventory();
+  renderAll();
+  await loadSharedCombos();
+}
+el('gridToggle').onchange=drawChart;el('randomBtn').onclick=randomize;el('backBtn').onclick=back;el('sourceFullBtn').onclick=()=>setRandomSource('full');el('sourceStashBtn').onclick=()=>setRandomSource('stash');el('newNameBtn').onclick=newName;el('saveBtn').onclick=()=>openSaveDrawer('dig');el('madeBtn').onclick=()=>openSaveDrawer('made');el('confirmSave').onclick=savePending;el('cancelSave').onclick=closeSaveDrawer;el('closeSaveDrawer').onclick=closeSaveDrawer;el('saveDrawer').addEventListener('click',e=>{if(e.target.id==='saveDrawer')closeSaveDrawer();});el('search').oninput=renderPalette;el('saveName').oninput=updateSaveState;if(el('assistantBuildBtn'))el('assistantBuildBtn').onclick=()=>assistantRequest(false);if(el('assistantMoreBtn'))el('assistantMoreBtn').onclick=()=>assistantRequest(true);if(el('assistantPrompt'))el('assistantPrompt').addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='Enter')assistantRequest(false);});window.addEventListener('resize',drawChart);init();
+</script>
+</body>
+</html>
