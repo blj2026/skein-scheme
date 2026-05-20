@@ -759,6 +759,34 @@ function familyFromHex(hex){const {h,s,l}=rgbToHsl(hex);if(l<.13)return 'black';
 function meaningfulWords(name){return String(name||'').toLowerCase().replace(/[^a-z0-9\s-]/g,' ').split(/\s+/).filter(Boolean);}
 function loadNameHistory(){if(nameHistoryLoaded)return;nameHistoryLoaded=true;try{nameHistory=JSON.parse(localStorage.getItem(NAME_HISTORY_STORAGE)||'[]')||[];}catch(e){nameHistory=[];}}
 function saveNameHistory(){try{localStorage.setItem(NAME_HISTORY_STORAGE,JSON.stringify(nameHistory.slice(-NAME_HISTORY_LIMIT)));}catch(e){}}
+
+function normalizeNameKey(name){
+  return String(name||'')
+    .toLowerCase()
+    .replace(/&/g,'and')
+    .replace(/[^a-z0-9]+/g,' ')
+    .replace(/\s+/g,' ')
+    .trim();
+}
+function savedComboNameKeys(){
+  const keys=new Set();
+  (saved||[]).forEach(item=>{
+    const key=normalizeNameKey(item?.comboName);
+    if(key) keys.add(key);
+  });
+  return keys;
+}
+function isSavedComboName(name,keys=savedComboNameKeys()){
+  const key=normalizeNameKey(name);
+  return !!key && keys.has(key);
+}
+function maybeRefreshVisibleSavedName(){
+  if(!currentComboName) return;
+  if(!isSavedComboName(currentComboName)) return;
+  currentNameSeed++;
+  currentComboName=generateComboName(selections,currentNameSeed);
+  renderDots();
+}
 function rememberName(name){if(!name)return;nameHistory.push(String(name).toLowerCase());nameHistory=nameHistory.slice(-NAME_HISTORY_LIMIT);saveNameHistory();}
 function comboNameInfo(combo=selections){
   const colors=ROLES.map(r=>combo[r.key]).filter(Boolean);
@@ -849,11 +877,17 @@ function scoreLocalName(name,info){
 function generateComboName(combo=selections,offset=0){
   loadNameHistory();
   const info=comboNameInfo(combo);
-  let candidates=buildCandidateNames(combo).filter(n=>!isBadLocalName(n));
-  if(candidates.length<8)candidates=unique([...candidates,...FALLBACK_DECK]).filter(n=>!isBadLocalName(n));
+  const savedKeys=savedComboNameKeys();
+  const excludeUnavailable=name=>!isSavedComboName(name,savedKeys);
+  let candidates=buildCandidateNames(combo).filter(n=>!isBadLocalName(n)&&excludeUnavailable(n));
+  if(candidates.length<8)candidates=unique([...candidates,...FALLBACK_DECK]).filter(n=>!isBadLocalName(n)&&excludeUnavailable(n));
   candidates.sort((a,b)=>scoreLocalName(b,info)-scoreLocalName(a,info));
   const top=candidates.slice(0,Math.min(10,candidates.length));
-  const chosen=top.length?top[Math.floor(Math.random()*Math.min(4,top.length))]:'Ivory Side Eye';
+  let chosen=top.length?top[Math.floor(Math.random()*Math.min(4,top.length))]:'';
+  if(!chosen){
+    const emergency=unique([...FALLBACK_DECK,'Ivory Side Eye','Cabernet Confetti','Chili Forecast']).filter(excludeUnavailable);
+    chosen=emergency[0]||'Ivory Side Eye';
+  }
   rememberName(chosen);
   return chosen;
 }
@@ -1013,9 +1047,9 @@ function renderAll(){drawChart();renderDots();renderRoles();renderPalette();metr
 async function loadSharedCombos(){
   let local=[];
   try{local=JSON.parse(localStorage.getItem(STORAGE)||'[]');}catch(e){local=[];}
-  if(!db){saved=local;renderSaved();return;}
+  if(!db){saved=local;maybeRefreshVisibleSavedName();renderSaved();return;}
   const {data,error}=await db.from('combos').select('*').order('created_at',{ascending:false}).limit(100);
-  if(error){console.error('Supabase load failed',error);saved=local;renderSaved();return;}
+  if(error){console.error('Supabase load failed',error);saved=local;maybeRefreshVisibleSavedName();renderSaved();return;}
   const remote=(data||[]).map(row=>({
     kind: row.type==='digged'?'dig':'made',
     name: row.saved_by||'',
@@ -1027,6 +1061,7 @@ async function loadSharedCombos(){
     remote:true
   })).filter(x=>x.selections);
   saved=[...remote,...local.filter(x=>!x.remote)];
+  maybeRefreshVisibleSavedName();
   renderSaved();
 }
 
