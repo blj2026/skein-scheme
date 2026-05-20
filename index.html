@@ -486,7 +486,6 @@ label:has(#gridToggle) {
       <div class="below">
         <details class="section" id="rolesSection"><summary>Your 5 Colors</summary><div class="section-body"><div class="roles-row" id="roleCards"></div></div></details>
         <details class="section" id="paletteSection"><summary>Palette <span style="font-weight:600;color:var(--muted);letter-spacing:0;text-transform:none">(175 colors)</span></summary><div class="section-body"><div class="palette-tools"><input class="search" id="search" placeholder="Search number, name, hex"/><div class="active-pill" id="activeRoleLabel">Main</div></div><div class="filters" id="filters"></div><div class="palette" id="palette"></div></div></details>
-        <details class="section" id="assistantSection"><summary>Ask Skein Scheme</summary><div class="section-body"><div class="assistant-box"><textarea class="assistant-input" id="assistantPrompt" placeholder="Have a more specific edit in mind? Shoot your shot!"></textarea><div class="assistant-actions"><button class="btn primary" id="assistantBuildBtn" type="button">Build Options</button><button class="btn" id="assistantMoreBtn" type="button">More Options</button></div><div class="assistant-read" id="assistantRead"></div><div class="assistant-results" id="assistantResults"><div class="assistant-empty">AI suggestions will show here. Click one to preview it in the chart.</div></div></div></div></details>
         <details class="section" id="readabilitySection"><summary>Readability Check</summary><div class="section-body"><div class="metrics" id="metrics"></div></div></details>
         <details class="section" id="savedSection"><summary>Saved Combos</summary><div class="section-body"><h3 style="margin:0 0 8px;font-size:11px;letter-spacing:.08em">COMBOS WE DIG</h3><div class="saved-grid" id="digCombos"></div><h3 style="margin:14px 0 8px;font-size:11px;letter-spacing:.08em">COMBOS WE MADE</h3><div class="saved-grid" id="madeCombos"></div></div></details>
       </div>
@@ -649,389 +648,217 @@ function renderSourceButtons(){
   if(warn) warn.classList.toggle('show',randomSource==='stash' && stashColors().length<ROLES.length);
 }
 function comboHash(combo=selections){return ROLES.reduce((s,r,i)=>s+[...String(combo[r.key].number)].reduce((a,ch)=>a+ch.charCodeAt(0),0)*(i+7),0);}
-const NAME_HISTORY_STORAGE='skeinSchemeNameEngineHistoryV13';
-const NAME_HISTORY_LIMITS={names:180,templates:70,families:55,anchors:90,hooks:90,endings:80,lengths:44,words:180,literalFlags:44};
+const NAME_HISTORY_STORAGE='skeinSchemeInstantNameHistoryV4';
+const NAME_HISTORY_LIMIT=360;
 
 /*
-  Skein Scheme name engine v13
-  Direction locked from taste review:
-  - Color-world imagery first, fun hook second.
-  - Names must feel tied to the palette, but should not always literally name the yarn color.
-  - Fun/weird is good; boring captions, dad jokes, dry/business words, and direct band-name copies are rejected.
-  - Rotate length/shape so it does not become a 2-word machine.
+  Skein Scheme local name engine v4
+  Runtime goal: instant/free names with no OpenAI calls.
+  Main fix from v3: not just stricter bans — much stronger variation control.
+  - bigger curated pools
+  - repeated endings/structures get heavily penalized
+  - resets old local history key so stale bad names do not steer the next run
+  - no Ask Skein Scheme / no live OpenAI calls in the normal name loop
 */
-const directBandCopyBlocks=[
-  'widespread','string cheese','leftover salmon','leftover','pigeons playing','dogs in a pile',
-  'disco biscuits','umphrey','mcgee','phish','moe.','goose','big something'
+const NAME_BAD_BITS=[
+  'whimsy','reverie','palace','lease','archive','postcard','unanswered','laundry','markers','drawers','shirt tag','pawn ticket',
+  'parking lot','snack break','trailhead','gnarly','dude','bro','sesh','fully sent','dialed','took a turn','grass ran hot','blue took a turn','bluegrass got loud',
+  'signal','float','slouch','drift','low battery','low tide','lagoon','static zoo','frosted static zoo','coffee low tide','milkglass lagoon',
+  'zoo','goblin','gremlin','camp mug','halfpipe','rope tow','boardwalk','muse','interlude','scenario','abstract','vibes','wanderlust'
 ];
-const bannedNameBits=[
-  'hue','palette','color palette','dream','magic','delight','splash','burst','harmony','symphony',
-  'melody','whimsy','charm','bliss','serenade','radiance','wonder','essence','journey','bright idea',
-  'rainbow','unicorn','fairy','sparkle','vibe','vibes','knit happens','sew cute','teal the deal',
-  'olive it','wine not','plum intended','mustard up','berry good','no prob-llama','prob-llama',
-  'yarntastic','purlfection','soundcheck','encore','setlist','bootleg','vinyl','riff','solo','jam session',
-  'red rocks','gas station went sideways','mailbox at midnight','the late ferry','bowling alley mirage',
-  'basement aquarium','weather basement','snack table emergency','someone took the van','took attendance',
-  'has keys','department','receipt','evidence','clause','tax','agreement','meeting','behavior'
-];
-const mundaneBits=[
-  'gas station','mailbox','late ferry','basement aquarium','bowling alley','break room','snack table',
-  'parking lot puddle','weather basement','took attendance','called first','was open','went sideways',
-  'packed light','switched seats','table two'
-];
-const boringYarnWords=new Set([
-  'heather','marl','twist','fusion','bright','deep','soft','pale','light','dark','christmas','neon',
-  'antique','antiqued','faded','dusty','sweet','new','old','blue','green','red','pink','grey','gray',
-  'black','white','brown','purple','orange','yellow','natural','beige','cloud','flower','wash','cascade',
-  'yarn','wool','no','number','colour','color'
+const NAME_WEAK_WORDS=new Set(['signal','float','drift','slouch','palace','whimsy','reverie','markers','archive','ticket','return','battery','lagoon','tide','zoo','goblin','gremlin','muse','interlude','scenario','vibes']);
+const CORE_COLORWAY_WORDS=new Set([
+  'confetti','forecast','riot','rendezvous','assembly','backtalk','detour','punchline','alibi','mischief','ruckus','afterimage','side','eye','club',
+  'coin','toss','went','sideways','borrowed','fire','breeze','panic','parade','weather','static','plot','twist','made','trouble','loose','promoted',
+  'witness','orbit','daydream','social','bailout','halo','carnival','bell','left','turn','loophole','afterparty','motion','standoff'
 ]);
-const fillerWords=new Set(['the','and','of','in','at','on','with','a','an','to','for','by','from','it','this','that','little']);
 
-const namingWorlds={
-  green:{
-    anchors:['Pickle Jar','Moss Goblin','Lichen Lunch','Bog Monster','Fern Wizard','Swamp Snacks','Mushroom Moon','Pond Slime','Cactus Pajamas','Garden Goblin','Porchlight Lichen','Pineglow','Frog Pond','Jade Jelly','Greenhouse Glow','Mossanova','Kelp Carnival','Cedar Moon','Juniper Jelly','Treehouse Moss','Compost Crown','Mosslight','Fern Frequency','Cabbage Orbit','Olive Haze'],
-    literal:['Moss','Fern','Olive','Lichen','Pickle','Swamp','Pine','Cedar','Juniper','Spruce','Cactus','Kelp','Seagrass','Shire','Jade','Cabbage'],
-    coined:['Mossanova','Pineglow','Boglight','Mosslight','Fernweh','Lichenloop','Oliveglow','Swamplight'],
-    prebuilt:['Pickle Jar Rodeo','Moss Goblin Picnic','Lichen Lunch Club','Bog Monster Brunch','Fern Wizard Field Trip','Swamp Snacks Deluxe','Mushroom Moon Party','Pond Slime Prom','Cactus Pajama Riot','Garden Goblin Jamboree','Porchlight Lichen Club','Pineglow Mischief','Jade Jelly Detour','Kelp Carnival Deluxe','Mossanova Moonwalk','Frog Pond Ruckus','Compost Crown Carnival','Treehouse Moss Rodeo']
-  },
-  blue:{
-    anchors:['Moon Jelly','Fog Goblin','Blueberry','Moonmilk','Night Swim','Stormglass','Frosted Gremlin','Cloud Goblin','Midnight Mood Ring','Foglight','Blue Hour','Cold Front','Rainshadow','Lapis Moon','Twilight Jelly','Storm Slush','Denim UFO','Ink Spill','Lake Glass','Harbor Glow','Pool Shark','Sapphire Static','Cobalt Comet','Mallard Moon','Pacific Frost'],
-    literal:['Teal','Denim','Ink','Storm','Pool','Harbor','Midnight','Cobalt','Lapis','Sapphire','Atlantic','Mallard','Pacific','Sky','Stonewash','Blueberry','Stratosphere','Twilight','Smoke'],
-    coined:['Stormglass','Moonmilk','Rainshadow','Foglight','Nightglow','Lapisland','Bluehour','Frostbite'],
-    prebuilt:['Lavender UFO Club','Fog Goblin Field Trip','Blueberry Space Camp','Moon Jelly Detour','Cloud Goblin Deluxe','Midnight Mood Ring','Moonmilk Mischief','Night Swim Gremlin','Stormglass Goblin Club','Frosted Gremlin Parade','Foglight Revival','Blue Hour Mischief','Cold Front Confetti','Rainshadow Ruckus','Lapis Moon Landing','Storm Slush Rodeo','Denim UFO Club','Twilight Jelly Circus','Ink Spill Carnival','Sapphire Static Zoo','Cobalt Comet Club','Mallard Moon Mischief']
-  },
-  purple:{
-    anchors:['Velvet Goblin','Grape Soda','Plum Moon','Taffy Ghost','Lavender Lava Lamp','Violet Static','Rhubarb Moon','Jam Jar','Amethyst Orbit','Mystic Jelly','Orchid Glow','Cabernet Cloud','Berry Moon','Razzleberry Static','Eggplant Circus','Regal Jelly','Lilac Lightning','Plum Velvet','Grape Ghost','Violet Moonbug'],
-    literal:['Plum','Grape','Violet','Velvet','Amethyst','Eggplant','Cabernet','Razzleberry','Lavender','Orchid','Regal','Concord','Mystic','Rhubarb','Berry','Lilac'],
-    coined:['Plumdrift','Violetvolt','Razzlemoon','Velvetstatic','Orchidrift','Rhubarbara','Grapeghost'],
-    prebuilt:['Velvet Goblin Ball','Grape Soda Séance','Rhubarb Moon Ruckus','Taffy Ghost Party','Plum Goblin Prom','Lavender Lava Lamp','Violet Static Zoo','Raspberry Moon Unit','Velvet Snack Attack','Cherry Static Circus','Jam Jar Jamboree','Mystic Jelly Detour','Amethyst Orbit Club','Orchid Glow Ruckus','Cabernet Cloud Mischief','Razzleberry Static Parade','Eggplant Circus Deluxe','Lilac Lightning Lounge']
-  },
-  red:{
-    anchors:['Jam Jar','Fruit Punch','Cherry Static','Rhubarb Pie','Lipstick Lizard','Cabernet Cloud','Ruby Glow','Tomato Tango','Cranberry Static','Hot Sauce Halo','Garnet Moon','Pepper Jelly','Oxblood Velvet','Birthday Cake','Chili Moon','Burgundy Bug','Maple Ember','Red Wine Ruckus','Crabapple Carnival','Brick Spark'],
-    literal:['Brick','Cherry','Cranberry','Chili','Tomato','Garnet','Rhubarb','Burgundy','Cabernet','Oxblood','Pepper','Hot Sauce','Red Wine','Maple','Ruby'],
-    coined:['Rhubarbara','Rubyglow','Jamstatic','Cranberrymoon','Chilibug','Cabernova'],
-    prebuilt:['Jam Jar Static','Fruit Punch Freakout','Lipstick Lizard Lounge','Rhubarb Moon Ruckus','Cherry Static Circus','Birthday Cake Crimes','Cabernet Confetti','Ruby Glow Rodeo','Cranberry Static Club','Pepper Jelly Riot','Oxblood Velvet Ruckus','Hot Sauce Halo','Garnet Moon Mischief','Tomato Tango Detour','Chili Moon Parade','Burgundy Bug Club']
-  },
-  pink:{
-    anchors:['Bubblegum Ghost','Cotton Candy Static','Flamingo Moon','Taffy Ghost','Peony Glow','Punch Bowl','Raspberry Moon','Pink Motel','Cupcake Thunder','Rose Cloud','Confetti Jelly','Ribbon Riot','Soda Fountain','Petal Static','Tutu Thunder','Peony Pop','Blush Balloon','Candy Cloud','Flamingo Orbit','Lilac Sugar'],
-    literal:['Bubblegum','Peony','Rhubarb','Taffy','Flamingo','Punch','Cotton Candy','Raspberry','Tutu','Rose','Lilac','Cherry Soda'],
-    coined:['Peonyglow','Taffymoon','Flaminglow','Bubbleghost','Raspberrymoon','Roselight'],
-    prebuilt:['Bubblegum Ghost Party','Cotton Candy Goblin Club','Flamingo Moon Ruckus','Taffy Ghost Detour','Peony Glow Mischief','Punch Bowl Panic','Raspberry Moon Unit','Pink Motel Mayhem','Cupcake Thunder Club','Rose Cloud Ruckus','Confetti Jelly Parade','Ribbon Riot Deluxe','Soda Fountain Static','Petal Static Circus','Tutu Thunder Rodeo','Candy Cloud Carnival']
-  },
-  yellow:{
-    anchors:['Candle Wax','Cornbread Cosmos','Goldfish','Hot Sauce','Traffic Cone','Motel Sign','Sunburnt Static','Nacho Moon','Toaster Goblin','Marigold Mischief','Lantern Glow','Honey Static','Dandelion UFO','Citrus Jelly','Butterscotch Orbit','Pollen Cloud','Lemon Lightning','Turmeric Moon','Golden Goblin','Porchlight Panic','Wheat Glow','Pear Parade'],
-    literal:['Mustard','Marigold','Pollen','Candle','Turmeric','Corn','Dandelion','Gold','Lemon','Straw','Honey','Wheat','Pear','Sunflower','Lantern','Butterscotch'],
-    coined:['Goldfishy','Honeyglow','Candlewax','Sunspook','Lemonbug','Pollenova','Butterscotchula'],
-    prebuilt:['Candle Wax Chaos','Hot Sauce UFO','Motel Sign Mayhem','Goldfish Snack Attack','Sunburnt Space Camp','Nacho Moon Landing','Toaster Goblin Parade','Cornbread Moon Rodeo','Marigold Mischief','Traffic Cone Takedown','Citrus Little Freak','Lantern Glow Ruckus','Honey Static Circus','Dandelion UFO Club','Butterscotch Orbit','Pollen Cloud Riot','Lemon Lightning Lounge','Turmeric Moonwalk']
-  },
-  orange:{
-    anchors:['Candle Wax','Campfire Gremlin','Rust Bucket','Paprika Moon','Copper Toad','Cider Static','Pumpkin Orbit','Canyon Glow','Traffic Cone','Motel Sign','Ember Jelly','Tangerine Thunder','Clay Carnival','Blaze Bug','Terracotta UFO','Spice Rack','Jack O Lantern','Copper Comet','Cayenne Circus','Apricot Static','Sienna Sunspot','Orange County Goblin'],
-    literal:['Paprika','Copper','Rust','Clay','Ember','Pumpkin','Tangerine','Canyon','Spice','Camel','Traffic Cone','Cider','Terracotta','Blaze','Cayenne','Apricot','Sienna'],
-    coined:['Paprikarama','Copperpop','Rustrocket','Emberglow','Ciderbug','Pumpkinova','Tangerango'],
-    prebuilt:['Campfire Gremlin Club','Rust Bucket Ruckus','Paprika Moon Mischief','Copper Toad Rodeo','Cider Static Parade','Pumpkin Orbit Deluxe','Canyon Glow Freakout','Traffic Cone Vacation','Motel Sign Meltdown','Ember Jelly Riot','Tangerine Thunder Club','Clay Carnival Detour','Blaze Bug Circus','Terracotta UFO','Spice Rack Ruckus','Candle Wax Carnival','Cayenne Circus Deluxe','Copper Comet Parade']
-  },
-  brown:{
-    anchors:['Toast Goblin','Cocoa Moon','Campfire Coffee','Walnut Static','Cedar Chest','Trail Mix','Mocha Orbit','River Rock','Pancake Weather','Thermos Glow','Chocolate Thunder','Carob Carnival','Molasses Moon','Dusty Road','Praline Static','Coffee Jelly','Bark Carnival','Sienna Smoke','Camel Moon','Toffee Troll','Brownie Orbit','Vinci Velvet'],
-    literal:['Cedar','Walnut','Cocoa','Molasses','Bark','Coffee','Toast','Mocha','Chocolate','Praline','Carob','Sienna','River Rock','Camel','Vinci','Toffee'],
-    coined:['Mocharama','Cocoamoon','Walnutstatic','Toastghost','Barklight','Molassanova','Pralineland'],
-    prebuilt:['Toast Goblin Deluxe','Cocoa Moon Ruckus','Campfire Coffee Club','Walnut Static Parade','Cedar Chest Mischief','Trail Mix Trolls','Mocha Orbit Rodeo','River Rock Riot','Pancake Weather Delay','Thermos Glow-Up','Chocolate Thunder Club','Carob Carnival','Molasses Moon Landing','Dusty Road Breakfast','Praline Static Circus','Coffee Jelly Detour','Bark Carnival Deluxe','Toffee Troll Parade']
-  },
-  gray:{
-    anchors:['Fog Goblin','Smoke Bloom','Concrete Moon','Tin Roof Static','Charcoal Jelly','Nimbus Glow','Blacktop Frost','Storm Cloud','Greystone Gremlin','Mist Machine','Ash Moon','Graphite Orbit','Overcast Disco','Frosted Static','Gravel Glitter','Rainshadow','Silver Static','Harbor Mist','Cloud Cover','Foglight','Smoke Machine','Ashen Moonbug'],
-    literal:['Smoke','Concrete','Ash','Fog','Graphite','Tin','Charcoal','Nimbus','Mist','Gris','Greystone','Blacktop','Harbor Mist','Storm Cloud','Silver','Frost'],
-    coined:['Foglight','Stormglass','Smokebloom','Ashmoon','Graphitica','Rainshadow','Mistmachine'],
-    prebuilt:['Fog Goblin Field Trip','Smoke Bloom Rodeo','Concrete Moon Mischief','Tin Roof Static','Charcoal Jelly Club','Nimbus Glow Ruckus','Blacktop Frost Parade','Storm Cloud Snack Patrol','Greystone Gremlin Weekend','Mist Machine Mayhem','Ash Moon Detour','Graphite Orbit Circus','Overcast Disco Club','Frosted Static Zoo','Gravel Glitter Goblin','Rainshadow Ruckus','Silver Static Parade','Cloud Cover Creature Feature']
-  },
-  dark:{
-    anchors:['Midnight Mood Ring','Blacktop Frost','Raven Moon','Ink Spill','Night Swim','Shadow Jelly','Moonmilk','Deep Space Goblin','Afterhours Static','Darkroom Glow','Eclipse Bug','Night Garden','Crow Feather','Moonshadow','Black Cat Carnival','Midnight Jelly','Cosmic Fog','Low Light Lizard'],
-    literal:['Midnight','Ink','Raven','Blacktop','Night','Shadow','Eclipse','Jet','Black','Darkroom','Cosmic'],
-    coined:['Moonmilk','Nightglow','Inklingo','Ravenstatic','Blacktopia','Shadowmelt','Eclipsebug'],
-    prebuilt:['Midnight Mood Ring','Ink Spill Carnival','Night Swim Gremlin','Moonmilk Mischief','Blacktop Frost Parade','Raven Moon Ruckus','Deep Space Goblin','Afterhours Static Club','Darkroom Glow Rodeo','Eclipse Bug Circus','Night Garden Radio','Moonshadow Mischief','Black Cat Carnival','Cosmic Fog Detour']
-  },
-  light:{
-    anchors:['Moonmilk','Salt Moon','Porcelain Ghost','Chalk Static','Frosting Goblin','Cloud Cover','Sugar Frost','Vanilla Fog','Cream Soda','White Noise Jelly','Snow Globe','Pearl Orbit','Ghost Glow','Milk Glass','Marshmallow Moon'],
-    literal:['Chalk','Salt','Porcelain','Moon','White','Frost','Pearl','Sugar','Vanilla','Milk Glass','Snow','Cream'],
-    coined:['Moonmilk','Saltglow','Ghostlight','Frostbite','Sugarmoon','Pearlorbit'],
-    prebuilt:['Moonmilk Mischief','Salt Moon Rodeo','Porcelain Ghost Party','Chalk Static Club','Frosting Goblin Parade','Cloud Cover Creature Feature','Sugar Frost Circus','Vanilla Fog Ruckus','Cream Soda UFO','White Noise Jelly','Snow Globe Side Quest','Pearl Orbit Deluxe','Ghost Glow Carnival','Milk Glass Moonwalk']
-  },
-  loud:{
-    anchors:['Arcade Carpet','Clown Car','Carnival Leftovers','Side Quest Sweater','Pattern Gremlin','Static Zoo','Color Crime','Chart Gremlin','High Contrast Goblin','Loud Little Freak','Sticker Shock','Neon Moonbug','Chaos Sweater','Stripe Goblin','Confetti Traffic','Glow Worm Parade'],
-    literal:['Neon','High Contrast','Loud','Stripe','Chart','Pattern','Bright','Glow'],
-    coined:['Glowworm','Chartgremlin','Neonova','Contrastico','Patternpanic'],
-    prebuilt:['Arcade Carpet Fever','Clown Car Confidential','Carnival Leftovers','Side Quest Sweater','Pattern Gremlin Deluxe','Static Zoo Afterparty','Chart Gremlin Deluxe','High Contrast Hooligans','Loud Little Freak','Neon Moonbug Parade','Chaos Sweater Club','Stripe Goblin Ruckus','Confetti Traffic Jam','Glow Worm Parade']
-  }
+const NAME_DECKS={
+  blue:[
+    'Pool Tile Rumor','Sea Glass Alibi','Blue Hour Backtalk','Denim Detour','Deep End Daydream','Lapis Afterimage','Bluebird Bailout','Pacific Punchline','Sapphire Side Eye','Midnight in Motion','Rainy Day Ruckus','Cyan Detour','Mallard Mischief','Atlantic Alibi','Stonewash Side Eye','Blue Velvet Forecast','Robin Egg Ruckus','Stormglass Social','Cobalt Confetti','Ink Spill Carnival','Night Swim Mischief','Lake Glass Left Turn','Harbor Odd Job','Summer Sky Swerve','Aqua Haze Alibi','Twilight Coin Toss','Sapphire Pocket Radio','Blue Quartz Backtalk','Pacific Weather Report','Mallard Moon Mischief'
+  ],
+  purple:[
+    'Grape Soda Alibi','Blackberry Backtalk','Lavender Witness','Plum Lost the Plot','Violet Exit Plan','Mauve Misbehavior','Orchid on Delay','Amethyst Side Eye','Cabernet Confetti','Raspberry Ruckus','Velvet Went Sideways','Concord Coin Toss','Eggplant Afterparty','Lilac Left Turn','Regal Ruckus','Crushed Grape Club','Antique Lilac Alibi','Dusty Rose Detour','Plum Velvet Weather','Violet Backseat Forecast','Blackberry Coin Toss','Raspberry Moon Unit','Mystic Purple Mischief','Orchid Left Turn','Cabernet After Hours','Lavender Took Five','Grape Soda Witness','Razzleberry Riot'
+  ],
+  green:[
+    'Rainforest Rendezvous','Olive Oil Assembly','Pickle Jar Alibi','Sage Side Eye','Mossy Little Plot','Fern Detour','Green Tea Backtalk','Juniper After Hours','Kelp Coin Toss','Palm Reading Party','Lichen Loophole','Moss Backtalk','Avocado Afterparty','Pineglow Mischief','Seagrass Side Eye','Cedar Coincidence','Frog Pond Ruckus','Olive Took Five','Tender Greens Detour','Forest Tea Alibi','Moss in Motion','Juniper Punchline','Sage Lost the Map','Olive Went Sideways','Greenhouse Got Loud','Key West Coin Toss','Fluorite Forecast','Seagrass Social'
+  ],
+  orange:[
+    'Blaze in the Breeze','Chili Forecast','Hot Sauce Almanac','Marmalade Made Trouble','Cider Ran Hot','Nectarine Backtalk','Pumpkin Afterimage','Paprika Got Promoted','Rust Got Loose','Persimmon Punchline','Terracotta Ruckus','Copper Coin Toss','Ember Borrowed Sunshine','Cayenne Coincidence','Apricot Alibi','Sienna Side Eye','Spice Rack Ruckus','Jack O Lantern Detour','Tiger Lily Trouble','Burnt Orange Backtalk','Desert Flower Detour','Pumpkin Coin Toss','Copper Comet Club','Blaze Borrowed Fire','Nectarine Left Turn','Paprika Panic Button','Terracotta Alibi','Cider Weather Report'
+  ],
+  red:[
+    'Burgundy Bug Club','Cabernet Confetti','Secondhand Scarlet','Cranberry Coincidence','Ruby Side Eye','Cherry Alarm Bell','Rhubarb Ruckus','Hot Sauce Halo','Oxblood Velvet Club','Brick Spark Parade','Wine Stain Weather','Crabapple Carnival','Red Button Parade','Garnet Daydream','Pepper Jelly Riot','Tomato Tango Detour','Maple Ember Mischief','Red Wine Ruckus','Cabernet Side Quest','Burgundy Backtalk','Cranberry Coincidence','Brick House Alibi','Rhubarb Moon Ruckus','Cherry Button Panic','Ruby Got Loud','Wine Went Sideways','Crabapple Coin Toss','Scarlet Borrowed Fire'
+  ],
+  pink:[
+    'Flamingo Borrowed Fire','Peony Punchline','Hot Pink Alibi','Cotton Candy Detour','Taffy Took Five','Blush Side Eye','Rose Cloud Ruckus','Fuchsia Field Trip','Raspberry Ruckus','Pink Motel Mischief','Coral Coin Toss','Peony Got Loose','Dusty Rose Detour','Tutu Thunder Club','Cerise Side Eye','Flamingo Got Loud','Papaya Loose Change','Taffy Weather Report','Coral Radio Hour','Peony Alarm Bell','Cotton Candy Backtalk','Hot Pink Punchline','Rosewater Misbehavior','Fuchsia Coin Toss','Blush Borrowed Fire'
+  ],
+  yellow:[
+    'Midnight Marigold','Lemon Button Panic','Mustard in Motion','Honey Took Five','Gold Got Loud','Marigold Mischief','Cornbread Cosmos','Dandelion Alibi','Candle Wax Carnival','Golden Kiwi Detour','Pollen Cloud Riot','Butterscotch Side Eye','Turmeric Moonwalk','Lantern Glow Ruckus','Sunflower Side Door','Wheat Glow Radio','Pear Parade Afterparty','Honey Weather Report','Goldfish Snack Attack','Lemonade Alarm Bell','Mustard Backseat Forecast','Marigold Coin Toss','Dandelion Detour','Sunflower Alibi','Pear Punchline','Straw Side Quest'
+  ],
+  brown:[
+    'Walnut Plot Twist','Cocoa Side Eye','Praline Backroads','Mocha Misfire','Carob Confetti','Campfire Coffee Club','River Rock Riot','Chocolate Thunder Club','Molasses Moon Landing','Cedar Chest Mischief','Toffee Took Five','Brownie Orbit Club','Camel Coin Toss','Sienna Smoke Social','Vinci Velvet Detour','Coffee After Dark','Carob Brown Backtalk','Walnut Went Sideways','River Rock Alibi','Mocha After Hours','Cocoa Cut Loose','Praline Punchline','Chocolate Weather Report','Toffee Coin Toss','Camel Undercover','Walnut Backtalk','Cedar Coincidence','Carob Carnival'
+  ],
+  gray:[
+    'Charcoal Confetti','Graphite in Disguise','Ivory Side Eye','Concrete Coin Toss','Snow Day Alibi','Charcoal Daydream','Smoke Machine Parade','Foglight Revival','Nimbus Ruckus','Tin Roof Alibi','Harbor Mist Mischief','Ash Moon Detour','Overcast Disco Club','Silver Side Eye','Storm Cloud Social','Gris Got Lost','Greystone Side Eye','Aspen After Hours','Graphite Got Fancy','Smoke Show Detour','Charcoal Borrowed Trouble','Silver Side Door','Nimbus Coin Toss','Harbor Mist Alibi','Fog Hatt Alibi','Aspen Blue Hour','Greystone Backtalk','Concrete Left Turn','Ash Moon Alibi'
+  ],
+  white:[
+    'Ivory Side Eye','Cream Soda Alibi','Porcelain Ghost Party','Chalk Clubhouse','Vanilla Fog Ruckus','Snow Globe Side Quest','Pearl Orbit Deluxe','White Button Panic','Salt Moon Rodeo','Sugar Frost Circus','Ghost Glow Carnival','Natural Alibi','Antiqued Alibi','Milk Carton Mischief','White Noise Alibi','Ivory Took Five','Cream Soda Forecast','Porcelain Coin Toss','Snow Day Mischief','Pearl Button Panic','Natural Alibi','Milk Glass Moonwalk','Ivory Undercover','Salt Moon Backtalk'
+  ],
+  black:[
+    'Black Cat Carnival','Ink Spill Carnival','Midnight Mood Ring','Night Swim Mischief','Darkroom Glow Rodeo','Eclipse Bug Circus','Raven Moon Ruckus','Blacktop Sundae','Jet Set Mischief','Low Light Lizard','Cosmic Fog Detour','Onyx After Hours','Charcoal Confetti','Graphite in Disguise','Black Button Panic','Ink Spill Alibi','Midnight Misbehavior','Raven Coin Toss','Jet Set Detour','Onyx Side Door','Darkroom Confetti','Blacktop Backtalk'
+  ],
+  loud:[
+    'Crayon Fire Drill','Arcade Carpet Fever','Comic Book Weather','Sticker Shock Rodeo','Primary Mischief','Confetti Traffic Jam','Color Riot Club','Blue Ribbon Trouble','Red Flag Confetti','Lemonade Alarm Bell','Arcade Fire Drill','Crayon Riot Club','Comic Book Backtalk','Primary Coin Toss','Sticker Shock Alibi','Bright Idea Rejected','Button Panic Parade','Color Got Loud'
+  ]
 };
+const PROFILE_DECKS={
+  cool:['Lapis Afterimage','Sea Glass Alibi','Blue Hour Backtalk','Deep End Daydream','Cobalt Confetti','Stormglass Social','Pool Tile Rumor','Blue Velvet Forecast','Sapphire Side Eye','Lavender Witness','Aspen Blue Hour','Harbor Mist Alibi','Lake Glass Left Turn','Night Swim Mischief','Aqua Haze Alibi'],
+  warm:['Marmalade Made Trouble','Hot Sauce Almanac','Nectarine Backtalk','Pumpkin Afterimage','Cider Ran Hot','Ember Borrowed Sunshine','Persimmon Punchline','Copper Coin Toss','Chili Forecast','Blaze in the Breeze','Paprika Got Promoted','Apricot Alibi','Tiger Lily Trouble','Burnt Orange Backtalk'],
+  earthy:['River Rock Riot','Walnut Plot Twist','Olive Oil Assembly','Cocoa Side Eye','Mossy Little Plot','Praline Backroads','Sage Side Eye','Carob Confetti','Cedar Coincidence','Walnut Went Sideways','Mocha Misfire','Seagrass Social','Forest Tea Alibi','Vinci Velvet Detour'],
+  dusk:['Midnight Marigold','Blackberry Backtalk','Velvet Went Sideways','Grape Soda Alibi','Stormglass Social','Smoke Machine Parade','Lavender Witness','Amethyst Side Eye','Midnight Mood Ring','Violet Exit Plan','Night Swim Mischief','Charcoal Daydream','Plum Lost the Plot','Blue Hour Backtalk'],
+  bright:['Crayon Fire Drill','Papaya Loose Change','Flamingo Borrowed Fire','Lemon Button Panic','Comic Book Weather','Peony Punchline','Red Button Parade','Arcade Carpet Fever','Primary Mischief','Hot Pink Alibi','Sticker Shock Alibi','Confetti Traffic Jam','Color Riot Club'],
+  neutralWarm:['Nectarine Backtalk','Pumpkin Afterimage','River Rock Riot','Sienna Side Eye','Cocoa Side Eye','Praline Backroads','Cider Ran Hot','Dusty Rose Detour','Molasses Moon Landing','Walnut Plot Twist','Toffee Took Five','Carob Confetti','Camel Undercover'],
+  soft:['Ivory Side Eye','Cream Soda Alibi','Porcelain Ghost Party','Vanilla Fog Ruckus','Rose Cloud Ruckus','Lavender Witness','Pearl Orbit Deluxe','Sugar Frost Circus','Antique Lilac Alibi','Milk Carton Mischief','Aspen After Hours','Snow Day Alibi','Peony Punchline']
+};
+const YARN_NAME_LANES={
+  lapis:['Lapis Afterimage','Lapis Left Turn','Lapis in Motion','Lapis Lost Weekend','Lapis Coin Toss','Lapis Undercover'],
+  lavender:['Lavender Witness','Lavender Afterimage','Lavender on Delay','Lavender Left Turn','Lavender Took Five','Lavender Backtalk'],
+  rainforest:['Rainforest Rendezvous','Rainforest Backtalk','Rainforest Coin Toss','Rainforest After Hours'],
+  olive:['Olive Oil Assembly','Olive Oil Alibi','Olive Loophole','Olive Took Five','Olive Went Sideways'],
+  pumpkin:['Pumpkin Afterimage','Pumpkin Weather Report','Pumpkin Coin Toss','Pumpkin Side Door'],
+  nectarine:['Nectarine Backtalk','Nectarine Daydream','Nectarine Coin Toss','Nectarine Left Turn'],
+  cabernet:['Cabernet Confetti','Cabernet Coin Toss','Cabernet Side Quest','Cabernet After Hours'],
+  burgundy:['Burgundy Bug Club','Burgundy Backbeat','Burgundy Coin Toss','Burgundy Backtalk'],
+  cobalt:['Cobalt Confetti','Cobalt Backtalk','Cobalt Daydream','Cobalt Took Five'],
+  ivory:['Ivory Side Eye','Ivory Alibi','Ivory Took Five','Ivory Undercover'],
+  white:['White Button Panic','White Noise Alibi','White Side Door','White Coin Toss'],
+  charcoal:['Charcoal Confetti','Charcoal Daydream','Charcoal Borrowed Trouble','Charcoal Backtalk'],
+  graphite:['Graphite in Disguise','Graphite Daydream','Graphite Got Fancy','Graphite Side Door'],
+  bluegrass:['Bluegrass Afterimage','Bluegrass Backtalk','Bluegrass Coin Toss','Bluegrass Weather Report'],
+  aspen:['Aspen After Hours','Aspen Blue Hour','Aspen Alibi','Aspen Took Five'],
+  gris:['Gris Got Lost','Gris After Hours','Gris Backtalk','Gris Coin Toss'],
+  river:['River Rock Riot','River Rock Alibi','River Rock Backtalk','River Rock Took Five'],
+  razzleberry:['Razzleberry Riot','Razzleberry Backtalk','Razzleberry Coin Toss'],
+  marigold:['Midnight Marigold','Marigold Mischief','Marigold Coin Toss'],
+  chili:['Chili Forecast','Chili Took Five','Chili Coin Toss'],
+  paprika:['Paprika Got Promoted','Paprika Panic Button','Paprika Coin Toss'],
+  saffron:['Saffron Side Eye','Saffron Standoff','Saffron Coin Toss'],
+  coffee:['Campfire Coffee Club','Coffee After Dark','Coffee Cut Loose'],
+  walnut:['Walnut Plot Twist','Walnut Went Sideways','Walnut Backtalk'],
+  peony:['Peony Punchline','Peony Got Loose','Peony Alarm Bell'],
+  flamingo:['Flamingo Borrowed Fire','Flamingo Got Loud','Flamingo Coin Toss']
+};
+const FALLBACK_DECK=['Cabernet Confetti','Chili Forecast','Ivory Side Eye','Rainforest Rendezvous','Olive Oil Assembly','Cobalt Confetti','Marmalade Made Trouble','Walnut Plot Twist','Blackberry Backtalk','Crayon Fire Drill','Pool Tile Rumor','Pumpkin Afterimage','River Rock Riot','Lavender Witness'];
 
-const funHooks=['Rodeo','UFO','Goblin','Gremlin','Snack Attack','Field Trip','Space Camp','Prom','Ruckus','Moonwalk','Circus','Little Freak','Deluxe','Detour','Chaos','Mischief','Parade','Riot','Jamboree','Carnival','Side Quest','Ghost Party','Static Zoo','Portal','Moon Landing','Creature Feature','Mayhem','Takedown','Club','Afterparty','Weekend','Ransom','Lounge','Panic','Freakout','Glow-Up','Snack Patrol','Ball','Brunch','Picnic','Trolls','Mystery','Zoo','Rodeo Club','Goblin Club','Space Parade','Breakfast','Tiny Crisis','Big Number','Odd Jobs','Wrong Turn','Strange Weather'];
-const softAdjectives=['Tiny','Feral','Frosted','Electric','Secret','Cosmic','Velvet','Sunburnt','Moonlit','Spicy','Cloudy','Haunted','Wobbly','Wild','Sleepy','Glowing','Crooked','Sparked','Sneaky','Neon','Midnight','Muddy','Fancy'];
-const pluralCrews=['Goblins','Gremlins','Weirdos','Moonbugs','Little Freaks','Snack Wizards','Porch Ghosts','Space Raccoons','Velvet Toads','Jelly Monsters','Tiny Clowns','Garden Wizards','Static Creatures','Side Questers'];
-const endings=['Club','Deluxe','Mischief','Ruckus','Parade','Carnival','Rodeo','Detour','Freakout','Riot','Moonwalk','Side Quest','Creature Feature','Snack Patrol','Jamboree','UFO','Afterparty','Tiny Crisis'];
-let nameHistory={names:[],templates:[],families:[],anchors:[],hooks:[],endings:[],lengths:[],words:[],literalFlags:[]};
+let nameHistory=[];
 let nameHistoryLoaded=false;
 function pick(arr){return arr[Math.floor(Math.random()*arr.length)];}
-function titleCase(str){return String(str||'').replace(/\s+/g,' ').trim().split(' ').map(w=>{if(!w)return w;if(['UFO'].includes(w.toUpperCase()))return w.toUpperCase();return w.charAt(0).toUpperCase()+w.slice(1);}).join(' ');}
-function familyFromHex(hex){const {h,s,l}=rgbToHsl(hex);if(l<.13)return 'dark';if(l>.9&&s<.2)return 'light';if(s<.14)return 'gray';if(h>=345||h<12)return 'red';if(h>=12&&h<42){return l<.48?'brown':'orange';}if(h>=42&&h<70){return l<.46?'brown':'yellow';}if(h>=70&&h<165)return 'green';if(h>=165&&h<248)return 'blue';if(h>=248&&h<300)return 'purple';if(h>=300&&h<345)return 'pink';return 'brown';}
-function meaningfulWords(name){return String(name||'').toLowerCase().replace(/[^a-z0-9\s-]/g,' ').split(/\s+/).map(w=>w.replace(/^-+|-+$/g,'')).filter(w=>w&&!fillerWords.has(w));}
-function rootToken(text){const words=meaningfulWords(text);return words[0]||String(text||'').toLowerCase();}
-function endingKey(text){const words=meaningfulWords(text);return words.slice(-2).join(' ')||words[0]||String(text||'').toLowerCase();}
-function wordSetFrom(arr){const out=new Set();arr.forEach(x=>{String(x||'').toLowerCase().split(/[^a-z0-9]+/).filter(Boolean).forEach(w=>{if(!fillerWords.has(w))out.add(w);});});return out;}
-function extractYarnAnchors(combo){
-  const anchors=[];
-  ROLES.forEach(r=>{
-    const c=combo[r.key];
-    if(!c)return;
-    const name=String(c.name||'').replace(/[-_/]/g,' ');
-    const words=name.split(/\s+/).map(w=>w.trim()).filter(Boolean);
-    const clean=words.filter(w=>!boringYarnWords.has(w.toLowerCase())&&w.length>2);
-    if(clean.length){anchors.push(titleCase(clean.slice(0,2).join(' ')));}
-    clean.forEach(w=>anchors.push(titleCase(w)));
-  });
-  return [...new Set(anchors)].slice(0,14);
-}
-function getComboNameWorld(combo=selections){
-  const counts={};
+function unique(arr){return [...new Set(arr.filter(Boolean))];}
+function titleCase(str){return String(str||'').replace(/\s+/g,' ').trim().split(' ').map(w=>{if(['UFO'].includes(w.toUpperCase()))return w.toUpperCase();return w.charAt(0).toUpperCase()+w.slice(1);}).join(' ');}
+function familyFromHex(hex){const {h,s,l}=rgbToHsl(hex);if(l<.13)return 'black';if(l>.82&&s<.22)return 'white';if(s<.14)return 'gray';if(h>=345||h<12)return 'red';if(h>=12&&h<42){return l<.48?'brown':'orange';}if(h>=42&&h<70){return l<.46?'brown':'yellow';}if(h>=70&&h<165)return 'green';if(h>=165&&h<248)return 'blue';if(h>=248&&h<300)return 'purple';if(h>=300&&h<345)return 'pink';return 'brown';}
+function meaningfulWords(name){return String(name||'').toLowerCase().replace(/[^a-z0-9\s-]/g,' ').split(/\s+/).filter(Boolean);}
+function loadNameHistory(){if(nameHistoryLoaded)return;nameHistoryLoaded=true;try{nameHistory=JSON.parse(localStorage.getItem(NAME_HISTORY_STORAGE)||'[]')||[];}catch(e){nameHistory=[];}}
+function saveNameHistory(){try{localStorage.setItem(NAME_HISTORY_STORAGE,JSON.stringify(nameHistory.slice(-NAME_HISTORY_LIMIT)));}catch(e){}}
+function rememberName(name){if(!name)return;nameHistory.push(String(name).toLowerCase());nameHistory=nameHistory.slice(-NAME_HISTORY_LIMIT);saveNameHistory();}
+function comboNameInfo(combo=selections){
   const colors=ROLES.map(r=>combo[r.key]).filter(Boolean);
-  colors.forEach(c=>{const fam=familyFromHex(c.hex);counts[fam]=(counts[fam]||0)+1;});
-  const fams=Object.entries(counts).sort((a,b)=>b[1]-a[1]).map(([f])=>f);
+  const families=colors.map(c=>familyFromHex(c.hex));
+  const counts=families.reduce((a,f)=>{a[f]=(a[f]||0)+1;return a;},{});
+  const ordered=Object.entries(counts).sort((a,b)=>b[1]-a[1]).map(([f])=>f);
   const lums=colors.map(c=>luminance(c.hex));
-  if(lums.length&&Math.max(...lums)-Math.min(...lums)>.58)fams.push('loud');
-  const uniqueFams=[...new Set(fams.length?fams:['blue'])].filter(f=>namingWorlds[f]);
-  let anchors=[], literal=[], prebuilt=[], coined=[];
-  uniqueFams.forEach(f=>{const w=namingWorlds[f];anchors.push(...w.anchors.map(x=>({text:x,family:f,literal:false})));literal.push(...w.literal.map(x=>({text:x,family:f,literal:true})));prebuilt.push(...w.prebuilt.map(x=>({text:x,family:f,literal:false})));coined.push(...w.coined.map(x=>({text:x,family:f,literal:false})));});
-  extractYarnAnchors(combo).forEach(x=>literal.push({text:x,family:'yarn',literal:true}));
-  anchors=[...new Map(anchors.map(a=>[a.text.toLowerCase(),a])).values()];
-  literal=[...new Map(literal.map(a=>[a.text.toLowerCase(),a])).values()];
-  prebuilt=[...new Map(prebuilt.map(a=>[a.text.toLowerCase(),a])).values()];
-  coined=[...new Map(coined.map(a=>[a.text.toLowerCase(),a])).values()];
-  const signalWords=wordSetFrom([...anchors.map(a=>a.text),...literal.map(a=>a.text),...prebuilt.map(a=>a.text),...coined.map(a=>a.text)]);
-  return {families:uniqueFams,anchors,literal,prebuilt,coined,signalWords};
+  const contrast=lums.length?Math.max(...lums)-Math.min(...lums):0;
+  const yarnTerms=[];
+  colors.forEach(c=>String(c.name||'').toLowerCase().split(/[^a-z0-9]+/).forEach(w=>{if(w&&w.length>2)yarnTerms.push(w);}));
+  return {colors,families:ordered,allFamilies:families,contrast,yarnTerms:unique(yarnTerms)};
 }
-function loadNameHistory(){if(nameHistoryLoaded)return;nameHistoryLoaded=true;try{const parsed=JSON.parse(localStorage.getItem(NAME_HISTORY_STORAGE)||'{}');Object.keys(nameHistory).forEach(k=>{if(Array.isArray(parsed[k]))nameHistory[k]=parsed[k];});}catch(e){}}
-function saveNameHistory(){try{localStorage.setItem(NAME_HISTORY_STORAGE,JSON.stringify(nameHistory));}catch(e){}}
+function profileKeys(info){
+  const set=new Set(info.allFamilies),keys=[];
+  if((set.has('blue')||set.has('purple'))&&(set.has('gray')||set.has('white')||set.has('black')))keys.push('cool');
+  if(set.has('orange')||set.has('red')||set.has('yellow'))keys.push('warm');
+  if(set.has('brown')||set.has('green')||(set.has('orange')&&set.has('gray')))keys.push('earthy');
+  if((set.has('purple')||set.has('blue'))&&(set.has('black')||set.has('gray')))keys.push('dusk');
+  if(info.contrast>.58 && (set.has('red')||set.has('orange')||set.has('yellow')||set.has('pink')) && set.size>=3)keys.push('bright');
+  if((set.has('orange')||set.has('red')||set.has('brown'))&&set.has('gray'))keys.push('neutralWarm');
+  if(set.has('white')&&info.contrast<.7)keys.push('soft');
+  return unique(keys);
+}
+function addYarnLaneNames(info,candidates){
+  info.yarnTerms.forEach(term=>{if(YARN_NAME_LANES[term])candidates.push(...YARN_NAME_LANES[term]);});
+  const joined=info.colors.map(c=>String(c.name||'').toLowerCase()).join(' | ');
+  if(joined.includes('deep blue grass'))candidates.push(...YARN_NAME_LANES.bluegrass);
+  if(joined.includes('river rock'))candidates.push(...YARN_NAME_LANES.river);
+  if(joined.includes('storm cloud'))candidates.push(...NAME_DECKS.gray.filter(n=>/storm|cloud|overcast|fog|smoke/i.test(n)));
+  if(joined.includes('faded denim'))candidates.push('Denim Detour','Blue Hour Backtalk','Stonewash Side Eye','Blue Velvet Forecast');
+}
+function buildCandidateNames(combo=selections){
+  const info=comboNameInfo(combo);
+  let candidates=[];
+  addYarnLaneNames(info,candidates);
+  profileKeys(info).forEach(k=>candidates.push(...(PROFILE_DECKS[k]||[])));
+  info.families.slice(0,4).forEach(f=>candidates.push(...(NAME_DECKS[f]||[])));
+  if(profileKeys(info).includes('bright'))candidates.push(...NAME_DECKS.loud);
+  if(!candidates.length)candidates=[...FALLBACK_DECK];
+  return unique(candidates.map(titleCase));
+}
 function nameSimilarity(a,b){const aw=new Set(meaningfulWords(a)),bw=new Set(meaningfulWords(b));if(!aw.size||!bw.size)return 0;let inter=0;aw.forEach(w=>{if(bw.has(w))inter++;});return inter/Math.max(aw.size,bw.size);}
-function hasColorSignal(name,info){
+function nameSignature(name){
   const lower=String(name||'').toLowerCase();
-  for(const word of info.signalWords){if(word.length>3&&lower.includes(word))return true;}
+  const phrases=['side eye','coin toss','button panic','plot twist','after hours','after dark','afterimage','went sideways','got promoted','got loud','got loose','made trouble','borrowed fire','in the breeze','lost the plot','weather report','left turn','took five','backtalk','detour','alibi','mischief','ruckus','confetti','forecast','punchline','rendezvous','assembly','carnival','parade','riot','daydream','social'];
+  const found=phrases.find(p=>lower.includes(p));
+  if(found)return found;
+  const words=meaningfulWords(name);
+  return words.slice(-1)[0]||lower;
+}
+function startsWithKey(name){return meaningfulWords(name)[0]||'';}
+function isBadLocalName(name){
+  const lower=String(name||'').toLowerCase();
+  if(!lower||lower.length<7||lower.length>56)return true;
+  if(NAME_BAD_BITS.some(bit=>lower.includes(bit)))return true;
+  const words=meaningfulWords(name);
+  if(words.length<2||words.length>4)return true;
+  if(words.some(w=>NAME_WEAK_WORDS.has(w)))return true;
+  if(/^blue\s/i.test(name)||/^grass\s/i.test(name))return true;
+  if(words.length===4 && lower.startsWith('the '))return true;
+  if(!words.some(w=>CORE_COLORWAY_WORDS.has(w)) && !/\b(lapis|lavender|pumpkin|nectarine|cabernet|burgundy|cobalt|ivory|charcoal|graphite|bluegrass|river|olive|moss|sage|cocoa|walnut|marigold|chili|papaya|flamingo|blackberry|grape|pool|sea|stormglass|razzleberry|saffron|paprika|peony|cider|marmalade|hot|sauce|cranberry|ruby|cherry|honey|mustard|cream|snow|ink|midnight|denim|sapphire|violet|plum|orchid|cotton|candy|copper|rust|terracotta|mocha|praline|aspen|fog|smoke|silver|pearl)\b/i.test(lower))return true;
   return false;
 }
-function buildName(anchor,hook,template){
-  const a=titleCase(anchor.text||anchor);
-  const h=titleCase(hook||pick(funHooks));
-  const adj=pick(softAdjectives);
-  const crew=pick(pluralCrews);
-  switch(template){
-    case 'anchorHook': return `${a} ${h}`;
-    case 'anchorHookTail': return `${a} ${h} ${pick(['Club','Deluxe','Parade','Weekend','Rodeo','Circus','Ruckus','Afterparty'])}`;
-    case 'adjAnchorHook': return `${adj} ${a} ${h}`;
-    case 'theAnchorHook': return `The ${a} ${h}`;
-    case 'anchorAndCrew': return `${a} and the ${crew}`;
-    case 'anchorAtLarge': return `${a} ${pick(['After Dark','At Large','On Purpose','In the Wild','With Snacks','Gets Loud','Got Weird','Needs Supervision'])}`;
-    case 'hookAnchor': return `${h} ${a}`;
-    default: return `${a} ${h}`;
-  }
-}
-function makeNameCandidate(combo=selections){
-  const info=getComboNameWorld(combo);
-  const roll=Math.random();
-  let template='anchorHook', anchor, hook='', name='', literal=false, family='mixed';
-  if(roll<.24 && info.prebuilt.length){
-    const p=pick(info.prebuilt);name=p.text;template='prebuilt';anchor={text:p.text,family:p.family,literal:false};hook=endingKey(name);family=p.family;
-  }else if(roll<.34 && info.coined.length){
-    const p=pick(info.coined);name=p.text;template='coined';anchor={text:p.text,family:p.family,literal:false};hook=endingKey(name);family=p.family;
-  }else{
-    const useLiteral=Math.random()<.23 && info.literal.length;
-    anchor=useLiteral?pick(info.literal):pick(info.anchors.length?info.anchors:info.literal);
-    literal=!!anchor.literal;family=anchor.family||'mixed';
-    hook=pick(funHooks);
-    const templates=['anchorHook','anchorHook','anchorHookTail','adjAnchorHook','theAnchorHook','anchorAndCrew','anchorAtLarge','hookAnchor'];
-    template=pick(templates);
-    name=buildName(anchor,hook,template);
-  }
-  name=titleCase(name);
-  return {name,template,family,anchor:rootToken(anchor?.text||name),hook:String(hook||endingKey(name)).toLowerCase(),ending:endingKey(name),length:meaningfulWords(name).length,literal,info};
-}
-function isGoodName(name,candidate){
-  const lower=String(name||'').toLowerCase().trim();
-  if(!lower)return false;
-  if(lower.length<7||lower.length>52)return false;
-  if(nameHistory.names.includes(lower))return false;
-  if(bannedNameBits.some(bit=>lower.includes(bit)))return false;
-  if(directBandCopyBlocks.some(bit=>lower.includes(bit)))return false;
-  if(mundaneBits.some(bit=>lower.includes(bit)))return false;
-  if(/\b(undefined|null|nan)\b/i.test(name))return false;
+function scoreLocalName(name,info){
+  let score=100;
+  const lower=name.toLowerCase();
+  const recent=nameHistory.slice(-120);
+  const recentShort=nameHistory.slice(-28);
   const words=meaningfulWords(name);
-  if(words.length<1||words.length>7)return false;
-  if(new Set(words).size!==words.length)return false;
-  if(/(.)\1{4,}/.test(lower))return false;
-  if(/\b(very|really|pretty|super|totally|tax|receipt|evidence|clause|committee|department|agreement|meeting)\b/i.test(name))return false;
-  if(!hasColorSignal(name,candidate.info))return false;
-  return true;
-}
-function scoreName(candidate){
-  let score=70;
-  const name=candidate.name,lower=name.toLowerCase(),words=meaningfulWords(name);
-  const recentNames=nameHistory.names.slice(-80);
-  const recentTemplates=nameHistory.templates.slice(-22);
-  const recentFamilies=nameHistory.families.slice(-20);
-  const recentAnchors=nameHistory.anchors.slice(-42);
-  const recentHooks=nameHistory.hooks.slice(-44);
-  const recentEndings=nameHistory.endings.slice(-42);
-  const recentLengths=nameHistory.lengths.slice(-12);
-  const recentWords=nameHistory.words.slice(-130);
-  const recentLiteral=nameHistory.literalFlags.slice(-12);
-  if(candidate.template==='prebuilt')score+=22;
-  if(candidate.template==='coined')score+=8;
-  if(candidate.template==='anchorHookTail')score+=14;
-  if(candidate.template==='adjAnchorHook')score+=12;
-  if(candidate.template==='anchorAndCrew')score+=10;
-  if(candidate.length===1)score+=5;
-  if(candidate.length===2)score+=3;
-  if(candidate.length===3)score+=17;
-  if(candidate.length===4)score+=16;
-  if(candidate.length===5)score+=8;
-  if(name.length>=13&&name.length<=38)score+=14;
-  if(name.length>44)score-=22;
-  if(/\b(Goblin|Gremlin|UFO|Rodeo|Snack Attack|Field Trip|Space Camp|Prom|Ruckus|Moonwalk|Circus|Little Freak|Deluxe|Detour|Chaos|Mischief|Parade|Riot|Jamboree|Carnival|Side Quest|Ghost Party|Static Zoo|Portal|Moon Landing|Creature Feature|Mayhem|Takedown|Club|Afterparty|Snack Patrol|Freakout|Glow-Up|Ball|Brunch|Picnic|Trolls|Zoo)\b/i.test(name))score+=18;
-  if(hasColorSignal(name,candidate.info))score+=25;
-  if(candidate.literal)score-=3;
-  if(recentLiteral.filter(Boolean).length>=5 && candidate.literal)score-=20;
-  if(recentNames.includes(lower))score-=220;
-  if(recentTemplates.includes(candidate.template))score-=10;
-  if(recentFamilies.includes(candidate.family))score-=6;
-  if(recentAnchors.includes(candidate.anchor))score-=36;
-  if(recentHooks.includes(candidate.hook))score-=34;
-  if(candidate.ending&&recentEndings.includes(candidate.ending))score-=26;
-  if(recentLengths.filter(x=>x===candidate.length).length>=4)score-=18;
-  const dupHits=words.filter(w=>recentWords.includes(w)).length;score-=dupHits*11;
-  recentNames.forEach(old=>{const sim=nameSimilarity(name,old);if(sim>=.67)score-=70;else if(sim>=.45)score-=36;else if(sim>=.34)score-=18;});
-  if(/^the\s+/i.test(name)&&recentNames.slice(-8).some(n=>/^the\s+/.test(n)))score-=14;
-  score+=Math.random()*22;
+  const sig=nameSignature(name);
+  const first=startsWithKey(name);
+  if(words.length===2)score+=10;
+  if(words.length===3)score+=22;
+  if(words.length===4)score+=6;
+  if(/\b(confetti|forecast|riot|rendezvous|assembly|backtalk|afterimage|alibi|detour|punchline|mischief|coin toss|went sideways|borrowed fire|in the breeze|got promoted|lost the plot|button panic|made trouble|left turn)\b/i.test(name))score+=30;
+  if(/\b(lapis|lavender|pumpkin|nectarine|cabernet|burgundy|cobalt|ivory|charcoal|graphite|bluegrass|river rock|olive|moss|sage|cocoa|walnut|marigold|chili|papaya|flamingo|blackberry|grape soda|pool tile|sea glass|stormglass|razzleberry|saffron|paprika|peony|denim|sapphire|violet|plum|orchid|cider|marmalade|hot sauce|cranberry|ruby|honey|mustard|cream soda|ink spill|midnight|copper|rust|terracotta|mocha|praline|aspen|foglight|smoke|silver)\b/i.test(name))score+=22;
+  if(recent.includes(lower))score-=320;
+  recent.forEach(old=>{const sim=nameSimilarity(name,old);if(sim>.65)score-=140;else if(sim>.45)score-=80;else if(sim>.34)score-=32;});
+  const recentSigs=recentShort.map(nameSignature);
+  const recentFirsts=recentShort.map(startsWithKey);
+  if(recentSigs.includes(sig))score-=95;
+  if(recentFirsts.includes(first))score-=48;
+  const recentWords=recentShort.flatMap(meaningfulWords);
+  words.forEach(w=>{if(w.length>4&&recentWords.includes(w))score-=28;});
+  score+=Math.random()*18;
   return score;
 }
-function rememberName(candidate){
-  const words=meaningfulWords(candidate.name);
-  nameHistory.names.push(candidate.name.toLowerCase());
-  nameHistory.templates.push(candidate.template);
-  nameHistory.families.push(candidate.family);
-  nameHistory.lengths.push(candidate.length);
-  nameHistory.literalFlags.push(!!candidate.literal);
-  words.forEach(w=>nameHistory.words.push(w));
-  if(candidate.anchor)nameHistory.anchors.push(String(candidate.anchor).toLowerCase());
-  if(candidate.hook)nameHistory.hooks.push(String(candidate.hook).toLowerCase());
-  if(candidate.ending)nameHistory.endings.push(String(candidate.ending).toLowerCase());
-  Object.entries(NAME_HISTORY_LIMITS).forEach(([k,limit])=>{nameHistory[k]=nameHistory[k].slice(-limit);});
-  saveNameHistory();
-}
-
-function selectedColorsForName(combo = selections) {
-  return ROLES.map(r => {
-    const c = combo[r.key] || {};
-    return {
-      role: r.label,
-      slot: r.key,
-      name: c.name || '',
-      colorName: c.name || '',
-      yarnName: c.name || '',
-      number: String(c.number || ''),
-      color_number: String(c.number || ''),
-      yarn_number: String(c.number || ''),
-      hex: c.hex || ''
-    };
-  });
-}
-
-function existingColorwayNamesForAI() {
-  const names = [];
-
-  if (currentComboName && !/^naming/i.test(currentComboName) && currentComboName !== 'starter mix') {
-    names.push(currentComboName);
-  }
-
-  (saved || []).forEach(item => {
-    if (item?.comboName) names.push(item.comboName);
-  });
-
-  try {
-    const localSaved = JSON.parse(localStorage.getItem(STORAGE) || '[]');
-    if (Array.isArray(localSaved)) {
-      localSaved.forEach(item => {
-        if (item?.comboName) names.push(item.comboName);
-      });
-    }
-  } catch {}
-
-  return [...new Set(names.map(name => String(name || '').trim()).filter(Boolean))].slice(-120);
-}
-
-async function getNextAIComboName(combo = selections) {
-  const selectedColors = selectedColorsForName(combo);
-
-  const requestBody = {
-    colors: selectedColors,
-    selectedColors,
-    existingNames: existingColorwayNamesForAI(),
-    candidateCount: 54,
-    count: 1
-  };
-
-  const response = await fetch(NAME_FUNCTION_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'apikey': SUPABASE_KEY,
-      'Authorization': `Bearer ${SUPABASE_KEY}`
-    },
-    body: JSON.stringify(requestBody)
-  });
-
-  const payload = await response.json().catch(() => ({}));
-
-  console.log('AI name response', payload);
-  window.lastAINameResponse = payload;
-
-  if (!response.ok) {
-    throw new Error(payload?.error || `Name function failed: ${response.status}`);
-  }
-
-  if (payload?.error) {
-    throw new Error(payload.error);
-  }
-
-  const bestName =
-    (typeof payload.name === 'string' && payload.name.trim()) ||
-    (Array.isArray(payload.names) && payload.names.find(name => typeof name === 'string' && name.trim())) ||
-    (Array.isArray(payload.suggestions) && payload.suggestions.find(name => typeof name === 'string' && name.trim())) ||
-    '';
-
-  if (!bestName) {
-    throw new Error('Name function returned no usable name');
-  }
-
-  return String(bestName).trim();
-}
-
-
 function generateComboName(combo=selections,offset=0){
   loadNameHistory();
-  const candidates=[];
-  for(let i=0;i<760;i++){
-    const candidate=makeNameCandidate(combo);
-    if(isGoodName(candidate.name,candidate)){
-      candidate.score=scoreName(candidate);
-      candidates.push(candidate);
-    }
-  }
-  candidates.sort((a,b)=>b.score-a.score);
-  const winner=candidates[0];
-  if(winner){rememberName(winner);return winner.name;}
-  const info=getComboNameWorld(combo);
-  const source=info.prebuilt.length?info.prebuilt.map(x=>x.text):['Moonmilk Mischief','Candle Wax Chaos','Moss Goblin Picnic','Velvet Goblin Ball'];
-  const fallbackName=titleCase(pick(source));
-  const fallback={name:fallbackName,template:'fallback',family:info.families[0]||'fallback',anchor:rootToken(fallbackName),hook:endingKey(fallbackName),ending:endingKey(fallbackName),length:meaningfulWords(fallbackName).length,literal:false};
-  rememberName(fallback);
-  return fallbackName;
+  const info=comboNameInfo(combo);
+  let candidates=buildCandidateNames(combo).filter(n=>!isBadLocalName(n));
+  if(candidates.length<8)candidates=unique([...candidates,...FALLBACK_DECK]).filter(n=>!isBadLocalName(n));
+  candidates.sort((a,b)=>scoreLocalName(b,info)-scoreLocalName(a,info));
+  const top=candidates.slice(0,Math.min(10,candidates.length));
+  const chosen=top.length?top[Math.floor(Math.random()*Math.min(4,top.length))]:'Ivory Side Eye';
+  rememberName(chosen);
+  return chosen;
 }
 currentComboName=generateComboName();
+
 function getPattern(){const base=PATTERN.map(r=>r.repeat(3));let width=base[0].length;const sc=document.querySelector('.chart-scroll');if(sc){const inner=sc.clientWidth-14;width=Math.max(width,Math.floor(inner/12));}const body=base.map((row,i)=>row+PATTERN[i].repeat(Math.ceil((width-row.length)/PATTERN[i].length)).slice(0,Math.max(0,width-row.length)));const pad='D'.repeat(body[0].length);return [...Array(4).fill(pad),...body,...Array(4).fill(pad)];}
 function drawChart(){const chart=el('chart'),pat=getPattern(),show=el('gridToggle').checked;chart.innerHTML='';chart.style.gridTemplateColumns=`repeat(${pat[0].length},12px)`;chart.style.borderRight=show?'1px solid #56524d':'1px solid transparent';chart.style.borderBottom=show?'1px solid #56524d':'1px solid transparent';pat.forEach(row=>row.split('').forEach(k=>{const d=document.createElement('div');d.className='cell';d.style.background=(selections[k]||selections.D).hex;d.style.borderLeft=show?'1px solid #56524d':'1px solid transparent';d.style.borderTop=show?'1px solid #56524d':'1px solid transparent';chart.appendChild(d);}));}
 function renderDots(){el('comboDots').innerHTML=ROLES.map(r=>`<span class="dot" style="background:${selections[r.key].hex}"></span>`).join(''); el('comboName').textContent=currentComboName;}
@@ -1063,38 +890,14 @@ function randomize(){
   }
   selections = combo;
   currentNameSeed = 0;
-  currentComboName = 'naming…';
+  currentComboName = generateComboName(selections, currentNameSeed);
   renderAll();
-  newName();
 }
 function back(){const prev=history.pop();if(!prev)return;selections=cloneSelections(prev.selections);currentComboName=prev.name;currentNameSeed=prev.seed;renderAll();}
-async function newName() {
-  if (nameRequestInProgress) return;
-
-  const btn = el('newNameBtn');
-  nameRequestInProgress = true;
-
-  if (btn) {
-    btn.disabled = true;
-    btn.textContent = 'naming…';
-  }
-
-  try {
-    currentComboName = await getNextAIComboName(selections);
-  } catch (error) {
-    console.error('AI name failed; using local fallback.', error);
-    currentNameSeed++;
-    currentComboName = generateComboName(selections, currentNameSeed);
-  } finally {
-    nameRequestInProgress = false;
-
-    if (btn) {
-      btn.disabled = false;
-      btn.textContent = 'new name ↺';
-    }
-
-    renderAll();
-  }
+function newName() {
+  currentNameSeed++;
+  currentComboName = generateComboName(selections, currentNameSeed);
+  renderAll();
 }
 function openSaveDrawer(kind){pendingSaveKind=kind;const title=kind==='made'?'SAVE TO MADE COMBOS':'SAVE TO DIGGED COMBOS';el('drawerTitle').textContent=title;el('confirmSave').textContent=title;el('drawerSub').textContent='';el('saveDrawer').classList.add('open');el('saveDrawer').setAttribute('aria-hidden','false');setTimeout(()=>el('saveName').focus(),40);updateSaveState();}
 function closeSaveDrawer(){el('saveDrawer').classList.remove('open');el('saveDrawer').setAttribute('aria-hidden','true');}
@@ -1227,172 +1030,6 @@ async function loadSharedCombos(){
   renderSaved();
 }
 
-/* v21: real AI-backed Ask Skein Scheme. The browser calls a Supabase Edge Function.
-   No OpenAI key belongs in this HTML file. */
-const ASSISTANT_FUNCTION_NAME='skein-assistant';
-let assistantSuggestions=[];
-let assistantSeenKeys=[];
-let assistantSelectedKey='';
-let assistantLoading=false;
-
-function assistantSelectionKey(sel){
-  if(!sel) return '';
-  return ROLES.map(r=>String(sel[r.key]?.number||'')).join('|');
-}
-function assistantCompactCombo(sel=selections){
-  return Object.fromEntries(ROLES.map(r=>{
-    const c=sel[r.key];
-    return [r.key,{role:r.label,number:String(c?.number||''),name:c?.name||'',hex:c?.hex||''}];
-  }));
-}
-function assistantPalettePayload(){
-  return COLORS.map(c=>({
-    number:String(c.number),
-    name:c.name,
-    hex:c.hex,
-    family:hueFamily(c),
-    luminance:+luminance(c.hex).toFixed(4)
-  }));
-}
-function assistantSavedPayload(){
-  return saved.slice(0,100).map(item=>({
-    comboName:item.comboName||'',
-    kind:item.kind||'',
-    selections:assistantCompactCombo(item.selections||{})
-  })).filter(x=>x.comboName && x.selections?.D?.number);
-}
-function assistantSetRead(text,type=''){
-  const box=el('assistantRead');
-  if(!box) return;
-  box.textContent=text||'';
-  box.className='assistant-read'+(text?' show':'')+(type?' '+type:'');
-}
-function assistantColorByNumber(number){
-  const wanted=String(number||'').trim().toLowerCase();
-  return COLORS.find(c=>String(c.number).trim().toLowerCase()===wanted)||null;
-}
-function assistantNormalizeSuggestion(raw){
-  const src=raw?.colors||raw?.selections||raw?.roles||{};
-  const aliases={
-    D:['D','Main','main'],
-    L:['L','Contrast','contrast'],
-    M:['M','Accent','accent'],
-    S:['S','Stripe A','stripeA','stripe_a','stripe a','StripeA'],
-    T:['T','Stripe B','stripeB','stripe_b','stripe b','StripeB']
-  };
-  const sel={};
-  for(const r of ROLES){
-    let value=null;
-    for(const key of aliases[r.key]){
-      if(src[key]!==undefined){value=src[key];break;}
-    }
-    if(value && typeof value==='object') value=value.number;
-    const color=assistantColorByNumber(value);
-    if(!color) return null;
-    sel[r.key]=color;
-  }
-  const nums=ROLES.map(r=>sel[r.key].number);
-  if(new Set(nums.map(String)).size!==nums.length) return null;
-  if(!isReadable(sel)) return null;
-  const name=String(raw?.name||'AI remix').trim().slice(0,40) || 'AI remix';
-  const note=String(raw?.note||'click to preview').trim().slice(0,90) || 'click to preview';
-  return {name,note,selections:sel,key:assistantSelectionKey(sel)};
-}
-function assistantValidateResponse(data){
-  const suggestionsRaw=Array.isArray(data?.suggestions)?data.suggestions:[];
-  const out=[];
-  const used=new Set();
-  for(const raw of suggestionsRaw){
-    const normalized=assistantNormalizeSuggestion(raw);
-    if(!normalized) continue;
-    if(used.has(normalized.key)) continue;
-    used.add(normalized.key);
-    out.push(normalized);
-    if(out.length>=6) break;
-  }
-  return {
-    interpretation:String(data?.interpretation||'chart-ready alternatives').trim().slice(0,130),
-    suggestions:out
-  };
-}
-function assistantRenderSuggestions(interpretation,suggestions){
-  assistantSuggestions=suggestions||[];
-  if(interpretation) assistantSetRead('I read this as: '+interpretation);
-  const box=el('assistantResults');
-  if(!box) return;
-  if(!assistantSuggestions.length){
-    box.innerHTML='<div class="assistant-empty">The AI came back with combos that failed the chart-readability checks. Try one clear color direction plus contrast.</div>';
-    return;
-  }
-  box.innerHTML='';
-  assistantSuggestions.forEach((item,idx)=>{
-    const b=document.createElement('button');
-    b.type='button';
-    b.className='assistant-suggestion'+(item.key===assistantSelectedKey?' active':'');
-    b.innerHTML=`<div class="assistant-suggestion-title">${escapeHTML(item.name)}</div><div class="assistant-dots">${ROLES.map(r=>`<span class="assistant-dot" style="background:${item.selections[r.key].hex}"></span>`).join('')}</div><div class="assistant-note">${escapeHTML(item.note||'click to preview')}</div>`;
-    b.onclick=()=>assistantApplySuggestion(idx);
-    box.appendChild(b);
-  });
-}
-function assistantApplySuggestion(index){
-  const item=assistantSuggestions[index];
-  if(!item) return;
-  history.push({selections:cloneSelections(),name:currentComboName,seed:currentNameSeed});
-  selections=cloneSelections(item.selections);
-  currentComboName=item.name;
-  currentNameSeed=0;
-  assistantSelectedKey=item.key;
-  assistantSeenKeys=[...new Set([...assistantSeenKeys,item.key])].slice(-80);
-  renderAll();
-  assistantRenderSuggestions(null,assistantSuggestions);
-}
-async function assistantRequest(more=false){
-  if(assistantLoading) return;
-  const prompt=(el('assistantPrompt')?.value||'').trim();
-  if(!prompt && !more){
-    assistantSetRead('Type what you want first — for example: high contrast purple but keep the main neutral.','error');
-    return;
-  }
-  if(!db) await loadSupabaseClient();
-  if(!db || !db.functions || !db.functions.invoke){
-    assistantSetRead('AI backend is not connected yet. Supabase did not load, or the skein-assistant function is not available. Refresh and try again.','error');
-    return;
-  }
-  assistantLoading=true;
-  const buildBtn=el('assistantBuildBtn'), moreBtn=el('assistantMoreBtn');
-  if(buildBtn) buildBtn.disabled=true;
-  if(moreBtn) moreBtn.disabled=true;
-  assistantSetRead(more?'Finding more options…':'Building options…','loading');
-  try{
-    const payload={
-      prompt: prompt || 'more options based on the current preview',
-      mode: more?'more':'build',
-      currentComboName,
-      currentCombo:assistantCompactCombo(selections),
-      palette:assistantPalettePayload(),
-      savedCombos:assistantSavedPayload(),
-      previousSuggestionKeys:assistantSeenKeys.slice(-50),
-      previousSuggestions:assistantSuggestions.map(s=>({name:s.name,colors:assistantCompactCombo(s.selections)})).slice(-12),
-      roleGuide:{D:'Main / largest background areas',L:'Contrast / strongest motif and linework',M:'Accent / middle motif areas',S:'Stripe A / stripe details',T:'Stripe B / stripe details'}
-    };
-    const {data,error}=await db.functions.invoke(ASSISTANT_FUNCTION_NAME,{body:payload});
-    if(error) throw error;
-    if(data?.error) throw new Error(data.error);
-    const parsed=assistantValidateResponse(data);
-    parsed.suggestions.forEach(s=>assistantSeenKeys.push(s.key));
-    assistantSeenKeys=[...new Set(assistantSeenKeys)].slice(-80);
-    assistantRenderSuggestions(parsed.interpretation,parsed.suggestions);
-  }catch(err){
-    console.error('Ask Skein Scheme failed',err);
-    assistantSetRead(assistantSuggestions.length ? 'That request hit a snag, so I kept the current suggestions. Try again or tweak the ask.' : 'AI request failed. Try again with a clearer color direction plus contrast.','error');
-  }finally{
-    assistantLoading=false;
-    if(buildBtn) buildBtn.disabled=false;
-    if(moreBtn) moreBtn.disabled=false;
-  }
-}
-
-
 async function init(){
   // Render the chart immediately. Do not let a slow CDN/Supabase load leave the page half-built.
   renderFilters();
@@ -1402,7 +1039,7 @@ async function init(){
   renderAll();
   await loadSharedCombos();
 }
-el('gridToggle').onchange=drawChart;el('randomBtn').onclick=randomize;el('backBtn').onclick=back;el('sourceFullBtn').onclick=()=>setRandomSource('full');el('sourceStashBtn').onclick=()=>setRandomSource('stash');el('newNameBtn').onclick=newName;el('saveBtn').onclick=()=>openSaveDrawer('dig');el('madeBtn').onclick=()=>openSaveDrawer('made');el('confirmSave').onclick=savePending;el('cancelSave').onclick=closeSaveDrawer;el('closeSaveDrawer').onclick=closeSaveDrawer;el('saveDrawer').addEventListener('click',e=>{if(e.target.id==='saveDrawer')closeSaveDrawer();});el('search').oninput=renderPalette;el('saveName').oninput=updateSaveState;if(el('assistantBuildBtn'))el('assistantBuildBtn').onclick=()=>assistantRequest(false);if(el('assistantMoreBtn'))el('assistantMoreBtn').onclick=()=>assistantRequest(true);if(el('assistantPrompt'))el('assistantPrompt').addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='Enter')assistantRequest(false);});window.addEventListener('resize',drawChart);init();
+el('gridToggle').onchange=drawChart;el('randomBtn').onclick=randomize;el('backBtn').onclick=back;el('sourceFullBtn').onclick=()=>setRandomSource('full');el('sourceStashBtn').onclick=()=>setRandomSource('stash');el('newNameBtn').onclick=newName;el('saveBtn').onclick=()=>openSaveDrawer('dig');el('madeBtn').onclick=()=>openSaveDrawer('made');el('confirmSave').onclick=savePending;el('cancelSave').onclick=closeSaveDrawer;el('closeSaveDrawer').onclick=closeSaveDrawer;el('saveDrawer').addEventListener('click',e=>{if(e.target.id==='saveDrawer')closeSaveDrawer();});el('search').oninput=renderPalette;el('saveName').oninput=updateSaveState;window.addEventListener('resize',drawChart);init();
 </script>
 </body>
 </html>
