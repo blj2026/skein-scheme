@@ -924,94 +924,92 @@ function rememberName(candidate){
 }
 
 function selectedColorsForName(combo = selections) {
-  return ROLES.map(r => ({
-    role: r.label,
-    yarn_name: combo[r.key].name,
-    yarn_number: combo[r.key].number,
-    hex: combo[r.key].hex
-  }));
+  return ROLES.map(r => {
+    const c = combo[r.key] || {};
+    return {
+      role: r.label,
+      slot: r.key,
+      name: c.name || '',
+      colorName: c.name || '',
+      yarnName: c.name || '',
+      number: String(c.number || ''),
+      color_number: String(c.number || ''),
+      yarn_number: String(c.number || ''),
+      hex: c.hex || ''
+    };
+  });
 }
 
-function readNameCache() {
-  try {
-    return JSON.parse(localStorage.getItem(NAME_CACHE_STORAGE) || '{}');
-  } catch {
-    return {};
+function existingColorwayNamesForAI() {
+  const names = [];
+
+  if (currentComboName && !/^naming/i.test(currentComboName) && currentComboName !== 'starter mix') {
+    names.push(currentComboName);
   }
-}
 
-function writeNameCache(cache) {
+  (saved || []).forEach(item => {
+    if (item?.comboName) names.push(item.comboName);
+  });
+
   try {
-    localStorage.setItem(NAME_CACHE_STORAGE, JSON.stringify(cache));
+    const localSaved = JSON.parse(localStorage.getItem(STORAGE) || '[]');
+    if (Array.isArray(localSaved)) {
+      localSaved.forEach(item => {
+        if (item?.comboName) names.push(item.comboName);
+      });
+    }
   } catch {}
-}
 
-function namePaletteKey(colors) {
-  const raw = colors
-    .map(c => `${c.hex}|${c.yarn_number}|${c.yarn_name}`.toLowerCase())
-    .sort()
-    .join('~');
-
-  let hash = 5381;
-  for (let i = 0; i < raw.length; i++) {
-    hash = ((hash << 5) + hash) + raw.charCodeAt(i);
-    hash = hash & hash;
-  }
-
-  return `palette_${Math.abs(hash)}`;
-}
-
-function rememberShownName(list, name, limit = 80) {
-  return [...new Set([...(list || []), name].filter(Boolean))].slice(-limit);
+  return [...new Set(names.map(name => String(name || '').trim()).filter(Boolean))].slice(-120);
 }
 
 async function getNextAIComboName(combo = selections) {
   const selectedColors = selectedColorsForName(combo);
-  const key = namePaletteKey(selectedColors);
-  const cache = readNameCache();
-  const state = cache[key] || { queue: [], shown: [] };
 
-  if (state.queue.length) {
-    const name = state.queue.shift();
-    state.shown = rememberShownName(state.shown, name);
-    cache[key] = state;
-    writeNameCache(cache);
-    return name;
-  }
+  const requestBody = {
+    colors: selectedColors,
+    selectedColors,
+    existingNames: existingColorwayNamesForAI(),
+    candidateCount: 54,
+    count: 1
+  };
 
   const response = await fetch(NAME_FUNCTION_URL, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'apikey': SUPABASE_KEY
+      'apikey': SUPABASE_KEY,
+      'Authorization': `Bearer ${SUPABASE_KEY}`
     },
-    body: JSON.stringify({
-      selected_colors: selectedColors,
-      previous_names: state.shown,
-      count: NAME_BATCH_SIZE
-    })
+    body: JSON.stringify(requestBody)
   });
 
+  const payload = await response.json().catch(() => ({}));
+
+  console.log('AI name response', payload);
+  window.lastAINameResponse = payload;
+
   if (!response.ok) {
-    throw new Error(`Name function failed: ${response.status}`);
+    throw new Error(payload?.error || `Name function failed: ${response.status}`);
   }
 
-  const payload = await response.json();
-  const names = Array.isArray(payload.names) ? payload.names : [];
-  const freshNames = names.filter(name => name && !state.shown.includes(name));
-
-  if (!freshNames.length) {
-    throw new Error('Name function returned no usable names');
+  if (payload?.error) {
+    throw new Error(payload.error);
   }
 
-  const name = freshNames.shift();
-  state.queue = freshNames;
-  state.shown = rememberShownName(state.shown, name);
-  cache[key] = state;
-  writeNameCache(cache);
+  const bestName =
+    (typeof payload.name === 'string' && payload.name.trim()) ||
+    (Array.isArray(payload.names) && payload.names.find(name => typeof name === 'string' && name.trim())) ||
+    (Array.isArray(payload.suggestions) && payload.suggestions.find(name => typeof name === 'string' && name.trim())) ||
+    '';
 
-  return name;
+  if (!bestName) {
+    throw new Error('Name function returned no usable name');
+  }
+
+  return String(bestName).trim();
 }
+
 
 function generateComboName(combo=selections,offset=0){
   loadNameHistory();
