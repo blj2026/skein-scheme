@@ -464,6 +464,85 @@ label:has(#gridToggle) {
 
 
 
+/* v35: separate Saved vs Made combos into tabbed top-level views */
+.my-combos-head{
+  display:grid;
+  gap:2px;
+  margin:0 0 9px;
+}
+.my-combos-title{
+  font-size:12px;
+  font-weight:900;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+.my-combos-copy{
+  color:var(--muted);
+  font-size:10px;
+  font-weight:700;
+  line-height:1.25;
+}
+.combo-tabs{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:7px;
+  margin:0 0 10px;
+}
+.combo-tab{
+  border:1px solid var(--line);
+  background:#f8f2e7;
+  color:#111;
+  border-radius:999px;
+  min-height:34px;
+  padding:8px 9px;
+  font-size:11px;
+  font-weight:900;
+  letter-spacing:.055em;
+  text-transform:uppercase;
+  cursor:pointer;
+}
+.combo-tab span{
+  display:inline-grid;
+  place-items:center;
+  min-width:20px;
+  height:20px;
+  margin-left:4px;
+  padding:0 5px;
+  border-radius:999px;
+  background:rgba(17,17,17,.08);
+  font-size:10px;
+  letter-spacing:0;
+}
+.combo-tab.active{
+  background:#111;
+  color:#fff;
+  border-color:#111;
+}
+.combo-tab.active span{
+  background:rgba(255,255,255,.16);
+  color:#fff;
+}
+.combo-panel{display:none;}
+.combo-panel.active{display:block;}
+#savedSection .saved-grid{gap:8px;}
+#savedSection .saved-card{
+  margin-bottom:0;
+  border-radius:14px;
+  padding:9px 36px 9px 9px;
+}
+#savedSection .saved-colors{gap:5px;margin-bottom:6px;}
+#savedSection .mini{width:17px;height:17px;border-radius:5px;}
+#savedSection .saved-title{font-size:13px;line-height:1.1;letter-spacing:-.035em;}
+#savedSection .saved-meta{font-size:8px;}
+@media (min-width:721px){
+  #savedSection .saved-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
+}
+@media (max-width:720px){
+  .combo-tab{min-height:35px;font-size:10px;}
+  .my-combos-copy{font-size:9px;}
+}
+
+
 /* v34 safety: chart area should never collapse if a network script is slow */
 .chart-scroll{min-height:230px;}
 @media (max-width:720px){.chart-scroll{min-height:190px;}}
@@ -487,7 +566,7 @@ label:has(#gridToggle) {
         <details class="section" id="rolesSection"><summary>Your 5 Colors</summary><div class="section-body"><div class="roles-row" id="roleCards"></div></div></details>
         <details class="section" id="paletteSection"><summary>Palette <span style="font-weight:600;color:var(--muted);letter-spacing:0;text-transform:none">(175 colors)</span></summary><div class="section-body"><div class="palette-tools"><input class="search" id="search" placeholder="Search number, name, hex"/><div class="active-pill" id="activeRoleLabel">Main</div></div><div class="filters" id="filters"></div><div class="palette" id="palette"></div></div></details>
         <details class="section" id="readabilitySection"><summary>Readability Check</summary><div class="section-body"><div class="metrics" id="metrics"></div></div></details>
-        <details class="section" id="savedSection"><summary>Saved Combos</summary><div class="section-body"><h3 style="margin:0 0 8px;font-size:11px;letter-spacing:.08em">COMBOS WE DIG</h3><div class="saved-grid" id="digCombos"></div><h3 style="margin:14px 0 8px;font-size:11px;letter-spacing:.08em">COMBOS WE MADE</h3><div class="saved-grid" id="madeCombos"></div></div></details>
+        <details class="section" id="savedSection"><summary>My Combos</summary><div class="section-body"><div class="my-combos-head"><div class="my-combos-title" id="savedTabTitle">Saved Combos</div><div class="my-combos-copy" id="savedTabCopy">Palettes you’re still considering.</div></div><div class="combo-tabs" role="tablist" aria-label="Saved and made combos"><button class="combo-tab active" id="digTab" type="button" role="tab" aria-selected="true" aria-controls="digPanel" data-tab="dig">Saved <span id="digCount">0</span></button><button class="combo-tab" id="madeTab" type="button" role="tab" aria-selected="false" aria-controls="madePanel" data-tab="made">Made <span id="madeCount">0</span></button></div><div class="combo-panel active" id="digPanel" role="tabpanel" aria-labelledby="digTab"><div class="saved-grid" id="digCombos"></div></div><div class="combo-panel" id="madePanel" role="tabpanel" aria-labelledby="madeTab"><div class="saved-grid" id="madeCombos"></div></div></div></details>
       </div>
     </main>
   </div>
@@ -515,7 +594,7 @@ const PATTERN = ["LDDDLDLDDLLLLLLLDDLDLDDDLD","LDDLDLDDLLLDDDLLLDDLDLDDLD","LDLD
 const ROLES=[{key:'D',label:'Main',defaultNumber:'9689'},{key:'L',label:'Contrast',defaultNumber:'8011'},{key:'M',label:'Accent',defaultNumber:'9687'},{key:'S',label:'Stripe A',defaultNumber:'8505'},{key:'T',label:'Stripe B',defaultNumber:'2422'}];
 const ROLE_LABELS=Object.fromEntries(ROLES.map(r=>[r.key,r.label]));
 const DEFAULT_SELECTIONS=Object.fromEntries(ROLES.map(r=>[r.key,COLORS.find(c=>c.number===r.defaultNumber)||COLORS[0]]));
-let selections={...DEFAULT_SELECTIONS}, activeRole='D', lockedRoles=Object.fromEntries(ROLES.map(r=>[r.key,false])), history=[], saved=[], pendingSaveKind='dig';
+let selections={...DEFAULT_SELECTIONS}, activeRole='D', lockedRoles=Object.fromEntries(ROLES.map(r=>[r.key,false])), history=[], saved=[], pendingSaveKind='dig', activeSavedTab='dig';
 let currentComboName='starter mix', currentNameSeed=0, filter='Full Palette', randomSource='full', stashInventory={};
 const STORAGE='skeinSchemeSavedCombosLocalBackupV1';
 const STASH_STORAGE='skeinSchemeCurrentStashCacheV1';
@@ -982,15 +1061,22 @@ async function savePending(){
 function escapeHTML(s=''){return String(s).replace(/[&<>'"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]));}
 function renderSavedList(id,kind){
   const list=saved.filter(x=>x.kind===kind),box=el(id);
+  if(!box) return 0;
   box.innerHTML='';
-  if(!list.length){box.innerHTML='<div class="empty">No saved combos yet.</div>';return;}
+  if(!list.length){
+    const msg=kind==='dig'
+      ? 'Nothing saved yet. Randomize something worth keeping.'
+      : 'No finished combos logged yet. Make one official when it hits the sticks.';
+    box.innerHTML=`<div class="empty">${msg}</div>`;
+    return 0;
+  }
   list.forEach(item=>{
     const meta=ROLES.map(r=>item.selections?.[r.key]?.number||'').join(' / ');
     const d=document.createElement('div');
     d.className='saved-card';
     const deleteButton=`<button class="delete" aria-label="delete">×</button>`;
     d.innerHTML=`${deleteButton}<div class="saved-colors">${ROLES.map(r=>`<span class="mini" style="background:${item.selections?.[r.key]?.hex||'#ddd'}"></span>`).join('')}</div><div class="saved-title">${escapeHTML(item.comboName)}</div><div class="saved-meta">${meta} · by ${escapeHTML(item.name)}</div>${item.note?`<div class="saved-note">${escapeHTML(item.note)}</div>`:''}`;
-    d.onclick=e=>{if(e.target.className==='delete')return;selections=cloneSelections(item.selections);currentComboName=item.comboName;renderAll();};
+    d.onclick=e=>{if(e.target.classList.contains('delete'))return;selections=cloneSelections(item.selections);currentComboName=item.comboName;renderAll();};
     const del=d.querySelector('.delete');
     del.onclick=async(event)=>{
       event.stopPropagation();
@@ -998,6 +1084,32 @@ function renderSavedList(id,kind){
     };
     box.appendChild(d);
   });
+  return list.length;
+}
+
+function setSavedTab(kind){
+  activeSavedTab=kind==='made'?'made':'dig';
+  updateSavedTabs();
+}
+
+function updateSavedTabs(){
+  const digTotal=saved.filter(x=>x.kind==='dig').length;
+  const madeTotal=saved.filter(x=>x.kind==='made').length;
+  const config={
+    dig:{title:'Saved Combos',copy:'Palettes you’re still considering.'},
+    made:{title:'Made Combos',copy:'Finished palettes you’ve actually used.'}
+  };
+  ['dig','made'].forEach(kind=>{
+    const active=activeSavedTab===kind;
+    const tab=el(kind==='dig'?'digTab':'madeTab');
+    const panel=el(kind==='dig'?'digPanel':'madePanel');
+    if(tab){tab.classList.toggle('active',active);tab.setAttribute('aria-selected',active?'true':'false');}
+    if(panel){panel.classList.toggle('active',active);}
+  });
+  if(el('digCount')) el('digCount').textContent=digTotal;
+  if(el('madeCount')) el('madeCount').textContent=madeTotal;
+  if(el('savedTabTitle')) el('savedTabTitle').textContent=config[activeSavedTab].title;
+  if(el('savedTabCopy')) el('savedTabCopy').textContent=config[activeSavedTab].copy;
 }
 
 async function deleteSavedItem(item){
@@ -1041,7 +1153,7 @@ async function deleteSavedItem(item){
     await loadSharedCombos();
   }
 }
-function renderSaved(){renderSavedList('digCombos','dig');renderSavedList('madeCombos','made');}
+function renderSaved(){renderSavedList('digCombos','dig');renderSavedList('madeCombos','made');updateSavedTabs();}
 function updateSaveState(){const ok=!!el('saveName').value.trim();el('confirmSave').disabled=!ok;el('saveBtn').classList.toggle('active-save',pendingSaveKind==='dig'&&el('saveDrawer').classList.contains('open'));el('madeBtn').classList.toggle('active-save',pendingSaveKind==='made'&&el('saveDrawer').classList.contains('open'));}
 function renderAll(){drawChart();renderDots();renderRoles();renderPalette();metrics();renderSourceButtons();el('backBtn').disabled=!history.length;updateSaveState();}
 async function loadSharedCombos(){
@@ -1074,7 +1186,7 @@ async function init(){
   renderAll();
   await loadSharedCombos();
 }
-el('gridToggle').onchange=drawChart;el('randomBtn').onclick=randomize;el('backBtn').onclick=back;el('sourceFullBtn').onclick=()=>setRandomSource('full');el('sourceStashBtn').onclick=()=>setRandomSource('stash');el('newNameBtn').onclick=newName;el('saveBtn').onclick=()=>openSaveDrawer('dig');el('madeBtn').onclick=()=>openSaveDrawer('made');el('confirmSave').onclick=savePending;el('cancelSave').onclick=closeSaveDrawer;el('closeSaveDrawer').onclick=closeSaveDrawer;el('saveDrawer').addEventListener('click',e=>{if(e.target.id==='saveDrawer')closeSaveDrawer();});el('search').oninput=renderPalette;el('saveName').oninput=updateSaveState;window.addEventListener('resize',drawChart);init();
+el('gridToggle').onchange=drawChart;el('randomBtn').onclick=randomize;el('backBtn').onclick=back;el('sourceFullBtn').onclick=()=>setRandomSource('full');el('sourceStashBtn').onclick=()=>setRandomSource('stash');el('newNameBtn').onclick=newName;el('saveBtn').onclick=()=>openSaveDrawer('dig');el('madeBtn').onclick=()=>openSaveDrawer('made');if(el('digTab')) el('digTab').onclick=()=>setSavedTab('dig');if(el('madeTab')) el('madeTab').onclick=()=>setSavedTab('made');el('confirmSave').onclick=savePending;el('cancelSave').onclick=closeSaveDrawer;el('closeSaveDrawer').onclick=closeSaveDrawer;el('saveDrawer').addEventListener('click',e=>{if(e.target.id==='saveDrawer')closeSaveDrawer();});el('search').oninput=renderPalette;el('saveName').oninput=updateSaveState;window.addEventListener('resize',drawChart);init();
 </script>
 </body>
 </html>
