@@ -579,6 +579,89 @@ label:has(#gridToggle) {
 .saved-card.made-card{padding-right:64px!important;}
 
 
+
+/* v40: Good Stuff chart preview pin — chart-only sticky preview for mobile browsing */
+.my-combos-head{
+  grid-template-columns:minmax(0,1fr) auto;
+  align-items:start;
+  column-gap:10px;
+}
+.my-combos-text{min-width:0;}
+.chart-preview-toggle{
+  appearance:none;
+  -webkit-appearance:none;
+  display:grid;
+  justify-items:center;
+  gap:2px;
+  min-width:54px;
+  margin-top:-3px;
+  padding:0;
+  border:0;
+  background:transparent;
+  color:#111;
+  cursor:pointer;
+}
+.preview-eye{
+  display:grid;
+  place-items:center;
+  width:34px;
+  height:30px;
+  border:1px solid var(--line);
+  border-radius:11px;
+  background:#fffaf2;
+  box-shadow:0 1px 2px rgba(18,18,18,.06);
+}
+.preview-eye svg{width:18px;height:18px;display:block;stroke:currentColor;}
+.preview-label{
+  display:block;
+  color:var(--muted);
+  font-size:7px;
+  font-weight:900;
+  line-height:1;
+  letter-spacing:.01em;
+  text-transform:lowercase;
+  white-space:nowrap;
+}
+.chart-preview-toggle.active .preview-eye{
+  background:#111;
+  color:#fff;
+  border-color:#111;
+}
+.chart-preview-toggle.active .preview-label{color:#111;}
+.chart-preview-toggle:active .preview-eye{transform:translateY(1px);}
+
+@media (max-width:720px){
+  body.chart-preview-on .chart-card{
+    position:sticky;
+    top:0;
+    z-index:35;
+    margin-top:0;
+    border-radius:0 0 22px 22px;
+    box-shadow:0 12px 24px rgba(18,18,18,.16);
+  }
+  body.chart-preview-on .pattern-section-title,
+  body.chart-preview-on .chart-card .actions{
+    display:none !important;
+  }
+  body.chart-preview-on #rolesSection,
+  body.chart-preview-on #paletteSection,
+  body.chart-preview-on #readabilitySection{
+    display:none !important;
+  }
+  body.chart-preview-on .below{margin-top:9px;}
+  body.chart-preview-on #savedSection{margin-top:9px;}
+  body.chart-preview-on .chart-scroll{
+    min-height:190px;
+    max-height:42vh;
+  }
+}
+@media (max-width:360px){
+  .chart-preview-toggle{min-width:50px;}
+  .preview-eye{width:32px;height:28px;border-radius:10px;}
+  .preview-label{font-size:6.5px;}
+}
+
+
 /* v34 safety: chart area should never collapse if a network script is slow */
 .chart-scroll{min-height:230px;}
 @media (max-width:720px){.chart-scroll{min-height:190px;}}
@@ -602,7 +685,7 @@ label:has(#gridToggle) {
         <details class="section" id="rolesSection"><summary>Your 5 Colors</summary><div class="section-body"><div class="roles-row" id="roleCards"></div></div></details>
         <details class="section" id="paletteSection"><summary>Palette <span style="font-weight:600;color:var(--muted);letter-spacing:0;text-transform:none">(175 colors)</span></summary><div class="section-body"><div class="palette-tools"><input class="search" id="search" placeholder="Search number, name, hex"/><div class="active-pill" id="activeRoleLabel">Main</div></div><div class="filters" id="filters"></div><div class="palette" id="palette"></div></div></details>
         <details class="section" id="readabilitySection"><summary>Readability Check</summary><div class="section-body"><div class="metrics" id="metrics"></div></div></details>
-        <details class="section" id="savedSection" open><summary>The Good Stuff</summary><div class="section-body"><div class="combo-tabs" role="tablist" aria-label="Saved and made combos"><button class="combo-tab" id="digTab" type="button" role="tab" aria-selected="false" aria-controls="digPanel" data-tab="dig">Saved <span id="digCount">0</span></button><button class="combo-tab" id="madeTab" type="button" role="tab" aria-selected="false" aria-controls="madePanel" data-tab="made">Made <span id="madeCount">0</span></button></div><div class="my-combos-head is-hidden" id="savedTabHead"><div class="my-combos-title" id="savedTabTitle"></div><div class="my-combos-copy" id="savedTabCopy"></div></div><div class="combo-panel" id="digPanel" role="tabpanel" aria-labelledby="digTab"><div class="saved-grid" id="digCombos"></div></div><div class="combo-panel" id="madePanel" role="tabpanel" aria-labelledby="madeTab"><div class="saved-grid" id="madeCombos"></div></div></div></details>
+        <details class="section" id="savedSection" open><summary>The Good Stuff</summary><div class="section-body"><div class="combo-tabs" role="tablist" aria-label="Saved and made combos"><button class="combo-tab" id="digTab" type="button" role="tab" aria-selected="false" aria-controls="digPanel" data-tab="dig">Saved <span id="digCount">0</span></button><button class="combo-tab" id="madeTab" type="button" role="tab" aria-selected="false" aria-controls="madePanel" data-tab="made">Made <span id="madeCount">0</span></button></div><div class="my-combos-head is-hidden" id="savedTabHead"><div class="my-combos-text"><div class="my-combos-title" id="savedTabTitle"></div><div class="my-combos-copy" id="savedTabCopy"></div></div><button class="chart-preview-toggle" id="chartPreviewToggle" type="button" aria-pressed="false" title="Chart preview"><span class="preview-eye" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2.75 12s3.25-5.5 9.25-5.5S21.25 12 21.25 12 18 17.5 12 17.5 2.75 12 2.75 12Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="2.75" stroke-width="2"/></svg></span><span class="preview-label">chart preview</span></button></div><div class="combo-panel" id="digPanel" role="tabpanel" aria-labelledby="digTab"><div class="saved-grid" id="digCombos"></div></div><div class="combo-panel" id="madePanel" role="tabpanel" aria-labelledby="madeTab"><div class="saved-grid" id="madeCombos"></div></div></div></details>
       </div>
     </main>
   </div>
@@ -634,6 +717,7 @@ let selections={...DEFAULT_SELECTIONS}, activeRole='D', lockedRoles=Object.fromE
 let currentComboName='starter mix', currentNameSeed=0, filter='Full Palette', randomSource='full', stashInventory={};
 const STORAGE='skeinSchemeSavedCombosLocalBackupV1';
 const STASH_STORAGE='skeinSchemeCurrentStashCacheV1';
+const CHART_PREVIEW_STORAGE='skeinSchemeChartPreviewPinnedV1';
 const STASH_TABLE='stash_inventory';
 const ADMIN_CODE='123';
 const el=id=>document.getElementById(id);
@@ -643,6 +727,7 @@ const NAME_FUNCTION_URL = `${SUPABASE_URL}/functions/v1/generate-colorway-names`
 const NAME_CACHE_STORAGE = 'skeinSchemeAINameCacheV1';
 const NAME_BATCH_SIZE = 12;
 let nameRequestInProgress = false;
+let chartPreviewPinned=false;
 let db=null;
 let supabaseClientPromise=null;
 function initSupabaseClient(){
@@ -1095,6 +1180,39 @@ async function savePending(){
   }
 }
 function escapeHTML(s=''){return String(s).replace(/[&<>'"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]));}
+
+function loadChartPreviewPreference(){
+  try{chartPreviewPinned=localStorage.getItem(CHART_PREVIEW_STORAGE)==='1';}catch(e){chartPreviewPinned=false;}
+  document.body.classList.toggle('chart-preview-on',chartPreviewPinned);
+}
+function updateChartPreviewToggle(){
+  const btn=el('chartPreviewToggle');
+  if(!btn) return;
+  btn.classList.toggle('active',chartPreviewPinned);
+  btn.setAttribute('aria-pressed',chartPreviewPinned?'true':'false');
+  btn.title=chartPreviewPinned?'Turn off chart preview':'Chart preview';
+}
+function scrollGoodStuffForPinnedPreview(){
+  if(!chartPreviewPinned || !activeSavedTab) return;
+  const savedSection=el('savedSection');
+  const chartCard=document.querySelector('.chart-card');
+  if(!savedSection || !chartCard) return;
+  window.requestAnimationFrame(()=>{
+    const chartHeight=chartCard.getBoundingClientRect().height||0;
+    const sectionTop=savedSection.getBoundingClientRect().top+window.scrollY;
+    const target=Math.max(0,sectionTop-chartHeight-8);
+    window.scrollTo({top:target,behavior:'smooth'});
+  });
+}
+function setChartPreviewPinned(next,{scroll=true}={}){
+  chartPreviewPinned=!!next;
+  try{localStorage.setItem(CHART_PREVIEW_STORAGE,chartPreviewPinned?'1':'0');}catch(e){}
+  document.body.classList.toggle('chart-preview-on',chartPreviewPinned);
+  updateChartPreviewToggle();
+  drawChart();
+  if(chartPreviewPinned && scroll) scrollGoodStuffForPinnedPreview();
+}
+
 function renderSavedList(id,kind){
   const list=saved.filter(x=>x.kind===kind),box=el(id);
   if(!box) return 0;
@@ -1170,6 +1288,8 @@ function updateSavedTabs(){
     if(el('savedTabTitle')) el('savedTabTitle').textContent='';
     if(el('savedTabCopy')) el('savedTabCopy').textContent='';
   }
+  updateChartPreviewToggle();
+  if(chartPreviewPinned && activeSavedTab) scrollGoodStuffForPinnedPreview();
 }
 
 async function editMadeNote(item){
@@ -1265,7 +1385,7 @@ async function deleteSavedItem(item){
 }
 function renderSaved(){renderSavedList('digCombos','dig');renderSavedList('madeCombos','made');updateSavedTabs();}
 function updateSaveState(){const ok=!!el('saveName').value.trim();el('confirmSave').disabled=!ok;el('saveBtn').classList.toggle('active-save',pendingSaveKind==='dig'&&el('saveDrawer').classList.contains('open'));el('madeBtn').classList.toggle('active-save',pendingSaveKind==='made'&&el('saveDrawer').classList.contains('open'));}
-function renderAll(){drawChart();renderDots();renderRoles();renderPalette();metrics();renderSourceButtons();el('backBtn').disabled=!history.length;updateSaveState();}
+function renderAll(){drawChart();renderDots();renderRoles();renderPalette();metrics();renderSourceButtons();el('backBtn').disabled=!history.length;updateSaveState();updateChartPreviewToggle();}
 async function loadSharedCombos(){
   let local=[];
   try{local=JSON.parse(localStorage.getItem(STORAGE)||'[]');}catch(e){local=[];}
@@ -1288,6 +1408,8 @@ async function loadSharedCombos(){
 }
 
 async function init(){
+  loadChartPreviewPreference();
+  updateChartPreviewToggle();
   // Render the chart immediately. Do not let a slow CDN/Supabase load leave the page half-built.
   renderFilters();
   renderAll();
@@ -1296,7 +1418,7 @@ async function init(){
   renderAll();
   await loadSharedCombos();
 }
-el('gridToggle').onchange=drawChart;el('randomBtn').onclick=randomize;el('backBtn').onclick=back;el('sourceFullBtn').onclick=()=>setRandomSource('full');el('sourceStashBtn').onclick=()=>setRandomSource('stash');el('newNameBtn').onclick=newName;el('saveBtn').onclick=()=>openSaveDrawer('dig');el('madeBtn').onclick=()=>openSaveDrawer('made');if(el('digTab')) el('digTab').onclick=()=>setSavedTab('dig');if(el('madeTab')) el('madeTab').onclick=()=>setSavedTab('made');el('confirmSave').onclick=savePending;el('cancelSave').onclick=closeSaveDrawer;el('closeSaveDrawer').onclick=closeSaveDrawer;el('saveDrawer').addEventListener('click',e=>{if(e.target.id==='saveDrawer')closeSaveDrawer();});el('search').oninput=renderPalette;el('saveName').oninput=updateSaveState;window.addEventListener('resize',drawChart);init();
+el('gridToggle').onchange=drawChart;el('randomBtn').onclick=randomize;el('backBtn').onclick=back;el('sourceFullBtn').onclick=()=>setRandomSource('full');el('sourceStashBtn').onclick=()=>setRandomSource('stash');el('newNameBtn').onclick=newName;el('saveBtn').onclick=()=>openSaveDrawer('dig');el('madeBtn').onclick=()=>openSaveDrawer('made');if(el('digTab')) el('digTab').onclick=()=>setSavedTab('dig');if(el('madeTab')) el('madeTab').onclick=()=>setSavedTab('made');if(el('chartPreviewToggle')) el('chartPreviewToggle').onclick=()=>setChartPreviewPinned(!chartPreviewPinned,{scroll:true});el('confirmSave').onclick=savePending;el('cancelSave').onclick=closeSaveDrawer;el('closeSaveDrawer').onclick=closeSaveDrawer;el('saveDrawer').addEventListener('click',e=>{if(e.target.id==='saveDrawer')closeSaveDrawer();});el('search').oninput=renderPalette;el('saveName').oninput=updateSaveState;window.addEventListener('resize',drawChart);init();
 </script>
 
 <script>
