@@ -666,6 +666,42 @@ label:has(#gridToggle) {
 .chart-scroll{min-height:230px;}
 @media (max-width:720px){.chart-scroll{min-height:190px;}}
 
+
+/* v41: skinny chart action buttons so more sections fit on mobile */
+.chart-card .actions{
+  gap:6px !important;
+}
+.chart-card .actions .btn{
+  min-height:29px !important;
+  padding:5px 8px !important;
+  border-radius:999px !important;
+  font-size:10px !important;
+  line-height:1 !important;
+  letter-spacing:.055em !important;
+}
+.chart-card .actions .btn.primary{
+  box-shadow:none !important;
+}
+.chart-card .actions .source-row{
+  gap:6px !important;
+  margin:-1px 0 0 !important;
+}
+@media (max-width:720px){
+  .chart-card{gap:8px !important;}
+  .chart-card .actions{
+    gap:6px !important;
+  }
+  .chart-card .actions .btn{
+    min-height:29px !important;
+    padding:5px 6px !important;
+    font-size:9px !important;
+    border-radius:999px !important;
+  }
+  .chart-card .actions .source-btn{
+    min-height:29px !important;
+  }
+}
+
 </style>
 </head>
 <body>

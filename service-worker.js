@@ -1,4 +1,4 @@
-const CACHE_NAME = 'skein-scheme-pwa-v4-chart-preview';
+const CACHE_NAME = 'skein-scheme-pwa-v5-skinny-buttons';
 const CORE_ASSETS = [
   './',
   './index.html',
