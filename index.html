@@ -553,6 +553,31 @@ label:has(#gridToggle) {
   .my-combos-copy{font-size:9px;}
 }
 
+.my-combos-head.is-hidden{display:none;}
+#savedSection[open] > summary{border-bottom:1px solid var(--line-soft);}
+#savedSection .combo-tabs{margin-top:2px;}
+.saved-note-edit{
+  display:grid;
+  place-items:center;
+  position:absolute;
+  top:8px;
+  right:36px;
+  width:22px;
+  height:22px;
+  border:1px solid rgba(17,17,17,.45);
+  background:#f8f4ec;
+  color:#111;
+  border-radius:8px;
+  padding:0;
+  font-size:13px;
+  font-weight:900;
+  line-height:1;
+  cursor:pointer;
+  opacity:.78;
+}
+.saved-note-edit:hover{opacity:1;background:#111;color:#fff;border-color:#111;}
+.saved-card.made-card{padding-right:64px!important;}
+
 
 /* v34 safety: chart area should never collapse if a network script is slow */
 .chart-scroll{min-height:230px;}
@@ -577,7 +602,7 @@ label:has(#gridToggle) {
         <details class="section" id="rolesSection"><summary>Your 5 Colors</summary><div class="section-body"><div class="roles-row" id="roleCards"></div></div></details>
         <details class="section" id="paletteSection"><summary>Palette <span style="font-weight:600;color:var(--muted);letter-spacing:0;text-transform:none">(175 colors)</span></summary><div class="section-body"><div class="palette-tools"><input class="search" id="search" placeholder="Search number, name, hex"/><div class="active-pill" id="activeRoleLabel">Main</div></div><div class="filters" id="filters"></div><div class="palette" id="palette"></div></div></details>
         <details class="section" id="readabilitySection"><summary>Readability Check</summary><div class="section-body"><div class="metrics" id="metrics"></div></div></details>
-        <details class="section" id="savedSection"><summary>My Combos</summary><div class="section-body"><div class="my-combos-head"><div class="my-combos-title" id="savedTabTitle">Saved Combos</div><div class="my-combos-copy" id="savedTabCopy">Palettes you’re still considering.</div></div><div class="combo-tabs" role="tablist" aria-label="Saved and made combos"><button class="combo-tab active" id="digTab" type="button" role="tab" aria-selected="true" aria-controls="digPanel" data-tab="dig">Saved <span id="digCount">0</span></button><button class="combo-tab" id="madeTab" type="button" role="tab" aria-selected="false" aria-controls="madePanel" data-tab="made">Made <span id="madeCount">0</span></button></div><div class="combo-panel active" id="digPanel" role="tabpanel" aria-labelledby="digTab"><div class="saved-grid" id="digCombos"></div></div><div class="combo-panel" id="madePanel" role="tabpanel" aria-labelledby="madeTab"><div class="saved-grid" id="madeCombos"></div></div></div></details>
+        <details class="section" id="savedSection" open><summary>The Good Stuff</summary><div class="section-body"><div class="combo-tabs" role="tablist" aria-label="Saved and made combos"><button class="combo-tab" id="digTab" type="button" role="tab" aria-selected="false" aria-controls="digPanel" data-tab="dig">Saved <span id="digCount">0</span></button><button class="combo-tab" id="madeTab" type="button" role="tab" aria-selected="false" aria-controls="madePanel" data-tab="made">Made <span id="madeCount">0</span></button></div><div class="my-combos-head is-hidden" id="savedTabHead"><div class="my-combos-title" id="savedTabTitle"></div><div class="my-combos-copy" id="savedTabCopy"></div></div><div class="combo-panel" id="digPanel" role="tabpanel" aria-labelledby="digTab"><div class="saved-grid" id="digCombos"></div></div><div class="combo-panel" id="madePanel" role="tabpanel" aria-labelledby="madeTab"><div class="saved-grid" id="madeCombos"></div></div></div></details>
       </div>
     </main>
   </div>
@@ -605,7 +630,7 @@ const PATTERN = ["LDDDLDLDDLLLLLLLDDLDLDDDLD","LDDLDLDDLLLDDDLLLDDLDLDDLD","LDLD
 const ROLES=[{key:'D',label:'Main',defaultNumber:'9689'},{key:'L',label:'Contrast',defaultNumber:'8011'},{key:'M',label:'Accent',defaultNumber:'9687'},{key:'S',label:'Stripe A',defaultNumber:'8505'},{key:'T',label:'Stripe B',defaultNumber:'2422'}];
 const ROLE_LABELS=Object.fromEntries(ROLES.map(r=>[r.key,r.label]));
 const DEFAULT_SELECTIONS=Object.fromEntries(ROLES.map(r=>[r.key,COLORS.find(c=>c.number===r.defaultNumber)||COLORS[0]]));
-let selections={...DEFAULT_SELECTIONS}, activeRole='D', lockedRoles=Object.fromEntries(ROLES.map(r=>[r.key,false])), history=[], saved=[], pendingSaveKind='dig', activeSavedTab='dig';
+let selections={...DEFAULT_SELECTIONS}, activeRole='D', lockedRoles=Object.fromEntries(ROLES.map(r=>[r.key,false])), history=[], saved=[], pendingSaveKind='dig', activeSavedTab=null;
 let currentComboName='starter mix', currentNameSeed=0, filter='Full Palette', randomSource='full', stashInventory={};
 const STORAGE='skeinSchemeSavedCombosLocalBackupV1';
 const STASH_STORAGE='skeinSchemeCurrentStashCacheV1';
@@ -1084,22 +1109,39 @@ function renderSavedList(id,kind){
   list.forEach(item=>{
     const meta=ROLES.map(r=>item.selections?.[r.key]?.number||'').join(' / ');
     const d=document.createElement('div');
-    d.className='saved-card';
+    d.className='saved-card'+(kind==='made'?' made-card':'');
     const deleteButton=`<button class="delete" aria-label="delete">×</button>`;
-    d.innerHTML=`${deleteButton}<div class="saved-colors">${ROLES.map(r=>`<span class="mini" style="background:${item.selections?.[r.key]?.hex||'#ddd'}"></span>`).join('')}</div><div class="saved-title">${escapeHTML(item.comboName)}</div><div class="saved-meta">${meta} · by ${escapeHTML(item.name)}</div>${item.note?`<div class="saved-note">${escapeHTML(item.note)}</div>`:''}`;
-    d.onclick=e=>{if(e.target.classList.contains('delete'))return;selections=cloneSelections(item.selections);currentComboName=item.comboName;renderAll();};
+    const editNoteLabel=item.note?'Edit note':'Add note';
+    const editNoteButton=kind==='made'
+      ? `<button class="saved-note-edit" type="button" aria-label="${editNoteLabel}" title="${editNoteLabel}">✎</button>`
+      : '';
+    d.innerHTML=`${deleteButton}<div class="saved-colors">${ROLES.map(r=>`<span class="mini" style="background:${item.selections?.[r.key]?.hex||'#ddd'}"></span>`).join('')}</div><div class="saved-title">${escapeHTML(item.comboName)}</div><div class="saved-meta">${meta} · by ${escapeHTML(item.name)}</div>${item.note?`<div class="saved-note">${escapeHTML(item.note)}</div>`:''}${editNoteButton}`;
+    d.onclick=e=>{
+      if(e.target.classList.contains('delete')||e.target.classList.contains('saved-note-edit'))return;
+      selections=cloneSelections(item.selections);
+      currentComboName=item.comboName;
+      renderAll();
+    };
     const del=d.querySelector('.delete');
     del.onclick=async(event)=>{
       event.stopPropagation();
       await deleteSavedItem(item);
     };
+    const edit=d.querySelector('.saved-note-edit');
+    if(edit){
+      edit.onclick=async(event)=>{
+        event.stopPropagation();
+        await editMadeNote(item);
+      };
+    }
     box.appendChild(d);
   });
   return list.length;
 }
 
 function setSavedTab(kind){
-  activeSavedTab=kind==='made'?'made':'dig';
+  const next=kind==='made'?'made':'dig';
+  activeSavedTab=activeSavedTab===next?null:next;
   updateSavedTabs();
 }
 
@@ -1107,8 +1149,8 @@ function updateSavedTabs(){
   const digTotal=saved.filter(x=>x.kind==='dig').length;
   const madeTotal=saved.filter(x=>x.kind==='made').length;
   const config={
-    dig:{title:'Saved Combos',copy:'Palettes you’re still considering.'},
-    made:{title:'Made Combos',copy:'Finished palettes you’ve actually used.'}
+    dig:{title:'Saved Combos',copy:"What we’re digging!"},
+    made:{title:'Made Combos',copy:'What we made!'}
   };
   ['dig','made'].forEach(kind=>{
     const active=activeSavedTab===kind;
@@ -1119,8 +1161,65 @@ function updateSavedTabs(){
   });
   if(el('digCount')) el('digCount').textContent=digTotal;
   if(el('madeCount')) el('madeCount').textContent=madeTotal;
-  if(el('savedTabTitle')) el('savedTabTitle').textContent=config[activeSavedTab].title;
-  if(el('savedTabCopy')) el('savedTabCopy').textContent=config[activeSavedTab].copy;
+  const head=el('savedTabHead');
+  if(head) head.classList.toggle('is-hidden',!activeSavedTab);
+  if(activeSavedTab && config[activeSavedTab]){
+    if(el('savedTabTitle')) el('savedTabTitle').textContent=config[activeSavedTab].title;
+    if(el('savedTabCopy')) el('savedTabCopy').textContent=config[activeSavedTab].copy;
+  }else{
+    if(el('savedTabTitle')) el('savedTabTitle').textContent='';
+    if(el('savedTabCopy')) el('savedTabCopy').textContent='';
+  }
+}
+
+async function editMadeNote(item){
+  if(!item || item.kind!=='made') return;
+
+  const code=prompt('Admin code to edit this Made note:');
+  if(!code) return;
+
+  if(code !== ADMIN_CODE){
+    alert('Nice try.');
+    return;
+  }
+
+  const next=prompt('Update note:', item.note||'');
+  if(next===null) return;
+  const clean=next.trim().slice(0,120);
+
+  if(item.remote){
+    if(!db){
+      alert('Shared edit is unavailable right now.');
+      return;
+    }
+
+    let savedRemote=false;
+    const rpcResult=await db.rpc('update_combo_note_admin',{combo_id:item.id,new_note:clean||null,admin_code:code});
+    if(!rpcResult.error){
+      savedRemote=true;
+    }else{
+      console.warn('Supabase note-edit RPC unavailable or failed; trying direct update.',rpcResult.error);
+      const directResult=await db.from('combos').update({note:clean||null}).eq('id',item.id);
+      if(!directResult.error){
+        savedRemote=true;
+      }else{
+        console.error('Supabase note edit failed',directResult.error);
+        alert('Edit failed. Supabase needs the note-edit admin function or an update policy for combo notes.');
+        return;
+      }
+    }
+
+    if(savedRemote){
+      item.note=clean;
+      renderSaved();
+      await loadSharedCombos();
+    }
+    return;
+  }
+
+  item.note=clean;
+  try{localStorage.setItem(STORAGE,JSON.stringify(saved.filter(x=>!x.remote)));}catch(e){}
+  renderSaved();
 }
 
 async function deleteSavedItem(item){
