@@ -865,6 +865,17 @@ body.saved-context-mode .combo-strip{
   .stripe-swap-icon{top:27px;width:22px;height:22px;font-size:13px;}
 }
 
+
+/* v44: prevent iOS save drawer input zoom + blur fields on close */
+@media (max-width:720px){
+  .save-body input,
+  .save-body textarea{
+    font-size:16px !important;
+    line-height:1.25 !important;
+  }
+  .save-body input{min-height:43px !important;}
+}
+
 </style>
 </head>
 <body>
@@ -1344,9 +1355,16 @@ function backName(){
   renderAll();
 }
 function openSaveDrawer(kind){pendingSaveKind=kind;const title=kind==='made'?'SAVE TO MADE COMBOS':'SAVE TO DIGGED COMBOS';el('drawerTitle').textContent=title;el('confirmSave').textContent=title;el('drawerSub').textContent='';el('saveDrawer').classList.add('open');el('saveDrawer').setAttribute('aria-hidden','false');setTimeout(()=>el('saveName').focus(),40);updateSaveState();}
-function closeSaveDrawer(){el('saveDrawer').classList.remove('open');el('saveDrawer').setAttribute('aria-hidden','true');}
+function blurActiveSaveField(){
+  try{
+    const active=document.activeElement;
+    if(active && typeof active.blur==='function') active.blur();
+  }catch(e){}
+}
+function closeSaveDrawer(){blurActiveSaveField();el('saveDrawer').classList.remove('open');el('saveDrawer').setAttribute('aria-hidden','true');}
 let saveInProgress=false;
 async function savePending(){
+  blurActiveSaveField();
   if(saveInProgress) return;
   const name=el('saveName').value.trim();
   if(!name){el('saveName').focus();updateSaveState();return;}

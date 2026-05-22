@@ -1,4 +1,4 @@
-const CACHE_NAME = 'skein-scheme-pwa-v8-swap-stripes-icon';
+const CACHE_NAME = 'skein-scheme-pwa-v9-save-zoom-fix';
 const CORE_ASSETS = [
   './',
   './index.html',
