@@ -1472,6 +1472,172 @@ function generateComboName(combo=selections,offset=0,options={}){
   rememberName(chosen);
   return chosen;
 }
+
+
+/* v47: DevTools-only name diagnostics. Nothing visible is added to the site. */
+const SKEIN_NAME_DEBUG_V47=true;
+function buildNameDecision(combo=selections,options={}){
+  loadNameHistory();
+  const info=comboNameInfo(combo);
+  const savedKeys=savedComboNameKeys();
+  const rawCandidates=buildCandidateNames(combo);
+  let fallbackAdded=false;
+
+  const candidateRows=unique(rawCandidates.map(titleCase)).map(name=>{
+    const bad=isBadLocalName(name);
+    const savedDupe=isSavedComboName(name,savedKeys);
+    return {
+      name,
+      bad,
+      savedDupe,
+      familyHits:unique(nameFamilyHits(name)).join(', '),
+      colorFit:colorFitScore(name,info,options),
+      signature:nameSignature(name),
+      first:startsWithKey(name),
+      score:bad||savedDupe?null:scoreLocalName(name,info,options)
+    };
+  });
+
+  let candidates=candidateRows
+    .filter(row=>!row.bad&&!row.savedDupe)
+    .map(row=>row.name);
+
+  if(candidates.length<8){
+    fallbackAdded=true;
+    candidates=unique([...candidates,...FALLBACK_DECK])
+      .filter(n=>!isBadLocalName(n)&&!isSavedComboName(n,savedKeys));
+  }
+
+  const ranked=candidates
+    .map(name=>({
+      name,
+      score:scoreLocalName(name,info,options),
+      colorFit:colorFitScore(name,info,options),
+      familyHits:unique(nameFamilyHits(name)).join(', '),
+      signature:nameSignature(name),
+      first:startsWithKey(name)
+    }))
+    .sort((a,b)=>b.score-a.score);
+
+  const diversePool=buildDiverseNamePool(ranked,18);
+  const chosen=weightedNamePick(diversePool);
+
+  return {
+    options,
+    info,
+    rawCandidateCount:rawCandidates.length,
+    validCandidateCount:candidates.length,
+    fallbackAdded,
+    candidateRows,
+    ranked,
+    diversePool,
+    chosen
+  };
+}
+function skeinNameSnapshot(options={strictColorFit:true}){
+  const decision=buildNameDecision(selections,options);
+  const roleSummary=ROLES.map(r=>({
+    role:r.label,
+    number:selections[r.key]?.number,
+    yarn:selections[r.key]?.name,
+    family:selections[r.key]?familyFromHex(selections[r.key].hex):''
+  }));
+  const top=decision.ranked.slice(0,30).map((row,index)=>({
+    rank:index+1,
+    name:row.name,
+    score:row.score,
+    colorFit:row.colorFit,
+    familyHits:row.familyHits,
+    signature:row.signature,
+    first:row.first
+  }));
+  console.groupCollapsed('Skein Scheme Name Snapshot v47');
+  console.log('Target families:', decision.info.primaryFamilies.join(', '));
+  console.log('All families:', decision.info.allFamilies.join(', '));
+  console.log('Candidate counts:', {
+    raw:decision.rawCandidateCount,
+    valid:decision.validCandidateCount,
+    finalists:decision.diversePool.length,
+    fallbackAdded:decision.fallbackAdded
+  });
+  console.table(roleSummary);
+  console.table(top);
+  console.groupEnd();
+  return {decision,roles:roleSummary,top};
+}
+function simulateNamePicks(count=50,options={strictColorFit:true}){
+  loadNameHistory();
+  const originalHistory=[...nameHistory];
+  const storedHistory=localStorage.getItem(NAME_HISTORY_STORAGE);
+  const rows=[];
+  const total=Math.max(1,Math.min(Number(count)||50,250));
+
+  for(let i=0;i<total;i++){
+    const decision=buildNameDecision(selections,options);
+    const picked=decision.diversePool.find(row=>row.name===decision.chosen)||decision.ranked.find(row=>row.name===decision.chosen)||{};
+    rows.push({
+      run:i+1,
+      chosen:decision.chosen,
+      score:picked.score??'',
+      colorFit:picked.colorFit??'',
+      familyHits:picked.familyHits??'',
+      targetFamilies:decision.info.primaryFamilies.join(', '),
+      signature:picked.signature||nameSignature(decision.chosen),
+      first:picked.first||startsWithKey(decision.chosen),
+      rawCandidates:decision.rawCandidateCount,
+      validCandidates:decision.validCandidateCount,
+      finalists:decision.diversePool.length,
+      fallbackAdded:decision.fallbackAdded
+    });
+    if(decision.chosen) nameHistory.push(String(decision.chosen).toLowerCase());
+  }
+
+  nameHistory=originalHistory;
+  if(storedHistory===null)localStorage.removeItem(NAME_HISTORY_STORAGE);
+  else localStorage.setItem(NAME_HISTORY_STORAGE,storedHistory);
+  return rows;
+}
+window.skeinNameDebug=function(count=50,options={strictColorFit:true}){
+  const rows=simulateNamePicks(count,options);
+  console.groupCollapsed(`Skein Scheme Name Debug v47 — ${rows.length} simulated names`);
+  console.table(rows);
+  console.groupEnd();
+  return rows;
+};
+window.skeinNameStats=function(count=100,options={strictColorFit:true}){
+  const rows=simulateNamePicks(count,options);
+  const wordCounts={};
+  const sigCounts={};
+  const familyMisses=[];
+
+  rows.forEach(row=>{
+    meaningfulWords(row.chosen).forEach(word=>{
+      if(word.length>2)wordCounts[word]=(wordCounts[word]||0)+1;
+    });
+    sigCounts[row.signature]=(sigCounts[row.signature]||0)+1;
+    if(Number(row.colorFit)<0)familyMisses.push(row);
+  });
+
+  const words=Object.entries(wordCounts).sort((a,b)=>b[1]-a[1]).slice(0,25).map(([word,count])=>({word,count}));
+  const signatures=Object.entries(sigCounts).sort((a,b)=>b[1]-a[1]).slice(0,25).map(([signature,count])=>({signature,count}));
+
+  console.groupCollapsed(`Skein Scheme Name Stats v47 — ${rows.length} simulated names`);
+  console.log('Run skeinNameSnapshot() to inspect the current candidate pool.');
+  console.log('Off-color / negative colorFit picks:', familyMisses.length);
+  console.log('Simulated names:');
+  console.table(rows);
+  console.log('Most repeated words:');
+  console.table(words);
+  console.log('Most repeated signatures:');
+  console.table(signatures);
+  if(familyMisses.length){
+    console.log('Negative colorFit picks:');
+    console.table(familyMisses.slice(0,25));
+  }
+  console.groupEnd();
+  return {rows,words,signatures,familyMisses};
+};
+window.skeinNameSnapshot=skeinNameSnapshot;
 currentComboName=generateComboName();
 
 function getPattern(){const base=PATTERN.map(r=>r.repeat(3));let width=base[0].length;const sc=document.querySelector('.chart-scroll');if(sc){const inner=sc.clientWidth-14;width=Math.max(width,Math.floor(inner/12));}const body=base.map((row,i)=>row+PATTERN[i].repeat(Math.ceil((width-row.length)/PATTERN[i].length)).slice(0,Math.max(0,width-row.length)));const pad='D'.repeat(body[0].length);return [...Array(4).fill(pad),...body,...Array(4).fill(pad)];}
