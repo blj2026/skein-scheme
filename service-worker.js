@@ -1,4 +1,4 @@
-const CACHE_NAME = 'skein-scheme-pwa-v5-skinny-buttons';
+const CACHE_NAME = 'skein-scheme-pwa-v6-batch-cleanup';
 const CORE_ASSETS = [
   './',
   './index.html',
