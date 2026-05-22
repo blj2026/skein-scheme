@@ -1077,9 +1077,9 @@ const NAME_HISTORY_STORAGE='skeinSchemeInstantNameHistoryV4';
 const NAME_HISTORY_LIMIT=360;
 
 /*
-  Skein Scheme local name engine v4
+  Skein Scheme local name engine v46
   Runtime goal: instant/free names with no OpenAI calls.
-  Main fix from v3: not just stricter bans — much stronger variation control.
+  Main fix from v45: stronger Main/Contrast color fit + small refresh pack.
   - bigger curated pools
   - repeated endings/structures get heavily penalized
   - resets old local history key so stale bad names do not steer the next run
@@ -1175,6 +1175,69 @@ const YARN_NAME_LANES={
 };
 const FALLBACK_DECK=['Cabernet Confetti','Chili Forecast','Ivory Side Eye','Rainforest Rendezvous','Olive Oil Assembly','Cobalt Confetti','Marmalade Made Trouble','Walnut Plot Twist','Blackberry Backtalk','Crayon Fire Drill','Pool Tile Rumor','Pumpkin Afterimage','River Rock Riot','Lavender Witness'];
 
+/* v46 refresh pack: small new pool, source-inspired but app-owned. Keeps fresh words available without letting them dominate. */
+const REFRESH_NAME_DECKS={
+  blue:['Harbor Glass Alibi','Blue Canoe Backtalk','Deep Cove Detour','Rain Jacket Ruckus','Denim After Hours','Tidepool Side Eye'],
+  purple:['Black Plum Alibi','Mulberry After Hours','Berry Night Shift','Orchid Odd Job','Plum Relay Club','Grape Velvet Detour'],
+  green:['Boreal Backtalk','Lichen After Hours','Olive Branch Alibi','Forest Walk Mischief','Clover Trouble','Fern Side Quest'],
+  orange:['Amber Ale Alibi','Firewood Forecast','Bright Penny Ruckus','Glazed Carrot Detour','Citrus Backtalk','Copper Daybreak'],
+  red:['Black Raspberry Riot','Red Truck Detour','Crushed Berry Alibi','Sangria Side Eye','Cassis Afterparty','Cherry Roadside'],
+  pink:['Rosehip Ruckus','Pink Clay Alibi','Coral After Hours','Peach Dust Detour','Strawberry Tea Trouble','Peony Daybreak'],
+  yellow:['Honey Gold Alibi','Winter Wheat Ruckus','Edison Bulb After Hours','Candlewick Forecast','Golden Hour Detour','Lemon Pop Backtalk'],
+  brown:['Cast Iron Coffee','Hickory Smoke Alibi','Pecan Hull Ruckus','Rye Bourbon Detour','Tumbled Stone Trouble','Firewood After Hours'],
+  gray:['London Fog Alibi','Foggy Dew Detour','Cast Iron Weather','Stormy Night Social','Tumbled Stone Ruckus','Moonlight Mischief'],
+  white:['Farmhouse White Alibi','Old Letters Club','Paper Moon Mischief','Snowfall Detour','Natural Side Eye','Antler After Hours'],
+  black:['Black Truffle Alibi','Cauldron Confetti','Nightcall Ruckus','Black Plum After Hours','Jet Pocket Radio','Pine Grove Mischief']
+};
+
+const NAME_FAMILY_WORDS={
+  blue:['blue','denim','lapis','cobalt','sapphire','pool','sea','pacific','harbor','stormglass','cyan','mallard','atlantic','stonewash','aqua','twilight','sky','lake','canoe','cove','tidepool'],
+  purple:['purple','plum','violet','lavender','amethyst','concord','grape','eggplant','lilac','regal','cabernet','blackberry','razzleberry','orchid','mulberry'],
+  green:['green','olive','moss','sage','fern','juniper','kelp','palm','lichen','pine','seagrass','cedar','forest','rainforest','clover','boreal'],
+  orange:['orange','chili','marmalade','cider','nectarine','pumpkin','paprika','rust','persimmon','terracotta','copper','ember','cayenne','apricot','sienna','spice','carrot','citrus'],
+  red:['red','burgundy','cranberry','ruby','cherry','rhubarb','oxblood','brick','wine','crabapple','garnet','pepper','tomato','scarlet','sangria','cassis'],
+  pink:['pink','flamingo','peony','cotton candy','taffy','blush','rose','fuchsia','raspberry','coral','cerise','papaya','rosehip','strawberry'],
+  yellow:['yellow','lemon','mustard','honey','gold','marigold','cornbread','dandelion','candle','kiwi','pollen','butterscotch','turmeric','lantern','sunflower','wheat','pear','straw'],
+  brown:['brown','walnut','cocoa','praline','mocha','carob','coffee','river rock','chocolate','molasses','cedar','toffee','camel','sienna','vinci','hickory','pecan','rye','bourbon','firewood'],
+  gray:['gray','grey','charcoal','graphite','concrete','smoke','fog','foglight','nimbus','tin','harbor mist','ash','overcast','silver','storm cloud','gris','greystone','aspen','cast iron','tumbled stone'],
+  white:['white','ivory','cream','porcelain','chalk','vanilla','snow','pearl','salt','sugar','ghost','natural','antiqued','milk','paper','antler'],
+  black:['black','ink','midnight','night','darkroom','eclipse','raven','blacktop','jet','low light','onyx','cauldron','truffle','pine grove']
+};
+function sameFamilyGroup(a,b){
+  if(a===b)return true;
+  return [
+    ['red','pink','purple'],
+    ['orange','yellow','brown','red'],
+    ['green','blue','gray'],
+    ['gray','white','black','blue'],
+    ['brown','gray','green','orange']
+  ].some(group=>group.includes(a)&&group.includes(b));
+}
+function nameFamilyHits(name){
+  const lower=String(name||'').toLowerCase();
+  return Object.entries(NAME_FAMILY_WORDS)
+    .filter(([family,words])=>words.some(word=>lower.includes(word)))
+    .map(([family])=>family);
+}
+function colorFitScore(name,info,options={}){
+  const strict=!!options.strictColorFit;
+  const target=info.primaryFamilies||info.families.slice(0,2);
+  const all=unique([...(info.allFamilies||[]),...target]);
+  const hits=unique(nameFamilyHits(name));
+  if(!hits.length)return strict?-12:0;
+  let score=0;
+  hits.forEach(hit=>{
+    const targetIndex=target.indexOf(hit);
+    if(targetIndex===0)score+=52;
+    else if(targetIndex===1)score+=36;
+    else if(all.includes(hit))score+=18;
+    else if(target.some(tf=>sameFamilyGroup(tf,hit)))score+=4;
+    else score-=strict?64:30;
+  });
+  if(strict && hits.every(hit=>!target.includes(hit) && !target.some(tf=>sameFamilyGroup(tf,hit))))score-=45;
+  return score;
+}
+
 let nameHistory=[];
 let nameHistoryLoaded=false;
 function pick(arr){return arr[Math.floor(Math.random()*arr.length)];}
@@ -1214,16 +1277,31 @@ function maybeRefreshVisibleSavedName(){
 }
 function rememberName(name){if(!name)return;nameHistory.push(String(name).toLowerCase());nameHistory=nameHistory.slice(-NAME_HISTORY_LIMIT);saveNameHistory();}
 function comboNameInfo(combo=selections){
-  const colors=ROLES.map(r=>combo[r.key]).filter(Boolean);
-  const families=colors.map(c=>familyFromHex(c.hex));
-  const counts=families.reduce((a,f)=>{a[f]=(a[f]||0)+1;return a;},{});
-  const ordered=Object.entries(counts).sort((a,b)=>b[1]-a[1]).map(([f])=>f);
+  const roleWeights={D:4,L:2.6,M:1.7,S:.55,T:.55};
+  const roleColors=ROLES.map(r=>({role:r.key,color:combo[r.key]})).filter(x=>x.color);
+  const colors=roleColors.map(x=>x.color);
+  const allFamilies=roleColors.map(x=>familyFromHex(x.color.hex));
+  const weightedCounts={};
+  roleColors.forEach(({role,color})=>{
+    const family=familyFromHex(color.hex);
+    weightedCounts[family]=(weightedCounts[family]||0)+(roleWeights[role]||1);
+  });
+  const ordered=Object.entries(weightedCounts).sort((a,b)=>b[1]-a[1]).map(([f])=>f);
   const lums=colors.map(c=>luminance(c.hex));
   const contrast=lums.length?Math.max(...lums)-Math.min(...lums):0;
   const yarnTerms=[];
-  colors.forEach(c=>String(c.name||'').toLowerCase().split(/[^a-z0-9]+/).forEach(w=>{if(w&&w.length>2)yarnTerms.push(w);}));
-  return {colors,families:ordered,allFamilies:families,contrast,yarnTerms:unique(yarnTerms)};
+  const primaryYarnTerms=[];
+  roleColors.forEach(({role,color})=>{
+    String(color.name||'').toLowerCase().split(/[^a-z0-9]+/).forEach(w=>{
+      if(w&&w.length>2){
+        yarnTerms.push(w);
+        if(['D','L','M'].includes(role))primaryYarnTerms.push(w);
+      }
+    });
+  });
+  return {colors,families:ordered,primaryFamilies:ordered.slice(0,2),allFamilies,contrast,yarnTerms:unique(yarnTerms),primaryYarnTerms:unique(primaryYarnTerms),weightedCounts};
 }
+
 function profileKeys(info){
   const set=new Set(info.allFamilies),keys=[];
   if((set.has('blue')||set.has('purple'))&&(set.has('gray')||set.has('white')||set.has('black')))keys.push('cool');
@@ -1247,12 +1325,17 @@ function buildCandidateNames(combo=selections){
   const info=comboNameInfo(combo);
   let candidates=[];
   addYarnLaneNames(info,candidates);
-  profileKeys(info).forEach(k=>candidates.push(...(PROFILE_DECKS[k]||[])));
-  info.families.slice(0,4).forEach(f=>candidates.push(...(NAME_DECKS[f]||[])));
-  if(profileKeys(info).includes('bright'))candidates.push(...NAME_DECKS.loud);
+  const profiles=profileKeys(info);
+  profiles.forEach(k=>candidates.push(...(PROFILE_DECKS[k]||[])));
+  info.families.slice(0,3).forEach(f=>{
+    candidates.push(...(NAME_DECKS[f]||[]));
+    candidates.push(...(REFRESH_NAME_DECKS[f]||[]));
+  });
+  if(profiles.includes('bright'))candidates.push(...NAME_DECKS.loud);
   if(!candidates.length)candidates=[...FALLBACK_DECK];
   return unique(candidates.map(titleCase));
 }
+
 function nameSimilarity(a,b){const aw=new Set(meaningfulWords(a)),bw=new Set(meaningfulWords(b));if(!aw.size||!bw.size)return 0;let inter=0;aw.forEach(w=>{if(bw.has(w))inter++;});return inter/Math.max(aw.size,bw.size);}
 function nameSignature(name){
   const lower=String(name||'').toLowerCase();
@@ -1275,7 +1358,7 @@ function isBadLocalName(name){
   if(!words.some(w=>CORE_COLORWAY_WORDS.has(w)) && !/\b(lapis|lavender|pumpkin|nectarine|cabernet|burgundy|cobalt|ivory|charcoal|graphite|bluegrass|river|olive|moss|sage|cocoa|walnut|marigold|chili|papaya|flamingo|blackberry|grape|pool|sea|stormglass|razzleberry|saffron|paprika|peony|cider|marmalade|hot|sauce|cranberry|ruby|cherry|honey|mustard|cream|snow|ink|midnight|denim|sapphire|violet|plum|orchid|cotton|candy|copper|rust|terracotta|mocha|praline|aspen|fog|smoke|silver|pearl)\b/i.test(lower))return true;
   return false;
 }
-function scoreLocalName(name,info){
+function scoreLocalName(name,info,options={}){
   let score=100;
   const lower=name.toLowerCase();
   const recent=nameHistory.slice(-160);
@@ -1290,6 +1373,8 @@ function scoreLocalName(name,info){
 
   if(/\b(confetti|forecast|riot|rendezvous|assembly|backtalk|afterimage|alibi|detour|punchline|mischief|coin toss|went sideways|borrowed fire|in the breeze|got promoted|lost the plot|button panic|made trouble|left turn)\b/i.test(name))score+=14;
   if(/\b(lapis|lavender|pumpkin|nectarine|cabernet|burgundy|cobalt|ivory|charcoal|graphite|bluegrass|river rock|olive|moss|sage|cocoa|walnut|marigold|chili|papaya|flamingo|blackberry|grape soda|pool tile|sea glass|stormglass|razzleberry|saffron|paprika|peony|denim|sapphire|violet|plum|orchid|cider|marmalade|hot sauce|cranberry|ruby|honey|mustard|cream soda|ink spill|midnight|copper|rust|terracotta|mocha|praline|aspen|foglight|smoke|silver)\b/i.test(name))score+=22;
+
+  score+=colorFitScore(name,info,options);
 
   if(recent.includes(lower))score-=360;
 
@@ -1359,7 +1444,7 @@ function buildDiverseNamePool(ranked,limit=18){
 
   return pool;
 }
-function generateComboName(combo=selections,offset=0){
+function generateComboName(combo=selections,offset=0,options={}){
   loadNameHistory();
   const info=comboNameInfo(combo);
   const savedKeys=savedComboNameKeys();
@@ -1370,7 +1455,7 @@ function generateComboName(combo=selections,offset=0){
   const ranked=candidates
     .map(name=>({
       name,
-      score:scoreLocalName(name,info),
+      score:scoreLocalName(name,info,options),
       signature:nameSignature(name),
       first:startsWithKey(name)
     }))
@@ -1431,7 +1516,7 @@ function newName() {
   nameHistoryStack.push(currentComboName);
   nameHistoryStack=nameHistoryStack.slice(-40);
   currentNameSeed++;
-  currentComboName = generateComboName(selections, currentNameSeed);
+  currentComboName = generateComboName(selections, currentNameSeed, {strictColorFit:true});
   renderAll();
 }
 function backName(){
