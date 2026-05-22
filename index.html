@@ -823,6 +823,38 @@ body.saved-context-mode .combo-strip{
   .role-card{min-height:72px !important;}
 }
 
+
+/* v7.1: stripe A/B quick swap control */
+.stripe-swap-row{
+  display:flex;
+  justify-content:flex-end;
+  margin:0 0 7px;
+}
+.swap-stripes-btn{
+  min-height:28px;
+  padding:5px 10px;
+  border:1px solid var(--line);
+  border-radius:999px;
+  background:#f8f2e7;
+  color:#111;
+  font-size:10px;
+  font-weight:900;
+  letter-spacing:.045em;
+  text-transform:uppercase;
+  cursor:pointer;
+}
+.swap-stripes-btn:active{
+  transform:translateY(1px);
+}
+.swap-stripes-btn .swap-glyph{
+  font-size:12px;
+  letter-spacing:0;
+}
+@media (max-width:720px){
+  .stripe-swap-row{margin:0 0 6px;}
+  .swap-stripes-btn{min-height:27px;font-size:9px;padding:5px 9px;}
+}
+
 </style>
 </head>
 <body>
@@ -839,7 +871,7 @@ body.saved-context-mode .combo-strip{
         
       </section>
       <div class="below">
-        <details class="section" id="rolesSection"><summary>Chart Colors</summary><div class="section-body"><div class="roles-row" id="roleCards"></div></div></details>
+        <details class="section" id="rolesSection"><summary>Chart Colors</summary><div class="section-body"><div class="stripe-swap-row"><button class="swap-stripes-btn" id="swapStripesBtn" type="button" title="Swap Stripe A and Stripe B">Swap Stripe A <span class="swap-glyph">↔</span> B</button></div><div class="roles-row" id="roleCards"></div></div></details>
         <details class="section" id="paletteSection"><summary>Palette <span style="font-weight:600;color:var(--muted);letter-spacing:0;text-transform:none">Cascade 220 wool yarn · 175 colors</span></summary><div class="section-body"><div class="palette-tools"><input class="search" id="search" placeholder="Search number, name, hex"/><div class="active-pill" id="activeRoleLabel">Main</div><button class="chart-preview-toggle palette-preview-toggle" id="paletteChartPreviewToggle" type="button" aria-pressed="false" title="Chart preview"><span class="preview-eye" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2.75 12s3.25-5.5 9.25-5.5S21.25 12 21.25 12 18 17.5 12 17.5 2.75 12 2.75 12Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="2.75" stroke-width="2"/></svg></span><span class="preview-label">chart preview</span></button></div><div class="filters" id="filters"></div><div class="palette" id="palette"></div></div></details>
         <details class="section" id="readabilitySection"><summary>Readability Check</summary><div class="section-body"><div class="metrics" id="metrics"></div></div></details>
         <details class="section" id="savedSection" open><summary>The Good Stuff</summary><div class="section-body"><div class="combo-tabs" role="tablist" aria-label="Saved and made combos"><button class="combo-tab" id="digTab" type="button" role="tab" aria-selected="false" aria-controls="digPanel" data-tab="dig">Saved <span id="digCount">0</span></button><button class="combo-tab" id="madeTab" type="button" role="tab" aria-selected="false" aria-controls="madePanel" data-tab="made">Made <span id="madeCount">0</span></button></div><div class="my-combos-head is-hidden" id="savedTabHead"><div class="my-combos-text"><div class="my-combos-title" id="savedTabTitle"></div><div class="my-combos-copy" id="savedTabCopy"></div></div><button class="chart-preview-toggle" id="chartPreviewToggle" type="button" aria-pressed="false" title="Chart preview"><span class="preview-eye" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2.75 12s3.25-5.5 9.25-5.5S21.25 12 21.25 12 18 17.5 12 17.5 2.75 12 2.75 12Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="2.75" stroke-width="2"/></svg></span><span class="preview-label">chart preview</span></button></div><div class="combo-panel" id="digPanel" role="tabpanel" aria-labelledby="digTab"><div class="saved-grid" id="digCombos"></div></div><div class="combo-panel" id="madePanel" role="tabpanel" aria-labelledby="madeTab"><div class="saved-grid" id="madeCombos"></div></div></div></details>
@@ -1584,6 +1616,13 @@ async function deleteSavedItem(item){
 }
 function renderSaved(){renderSavedList('digCombos','dig');renderSavedList('madeCombos','made');updateSavedTabs();}
 function updateSaveState(){const ok=!!el('saveName').value.trim();el('confirmSave').disabled=!ok;el('saveBtn').classList.toggle('active-save',pendingSaveKind==='dig'&&el('saveDrawer').classList.contains('open'));el('madeBtn').classList.toggle('active-save',pendingSaveKind==='made'&&el('saveDrawer').classList.contains('open'));}
+function swapStripeColors(){
+  const a=selections.S;
+  selections.S=selections.T;
+  selections.T=a;
+  leaveSavedContext();
+  renderAll();
+}
 function renderAll(){drawChart();renderDots();renderRoles();renderPalette();metrics();renderSourceButtons();el('backBtn').disabled=!history.length;updateSaveState();updateChartPreviewToggle();updateNameControls();}
 async function loadSharedCombos(){
   let local=[];
@@ -1616,7 +1655,7 @@ async function init(){
   renderAll();
   await loadSharedCombos();
 }
-el('gridToggle').onchange=drawChart;el('randomBtn').onclick=randomize;el('backBtn').onclick=back;el('sourceFullBtn').onclick=()=>setRandomSource('full');el('sourceStashBtn').onclick=()=>setRandomSource('stash');el('newNameBtn').onclick=newName;if(el('nameBackBtn')) el('nameBackBtn').onclick=backName;el('saveBtn').onclick=()=>openSaveDrawer('dig');el('madeBtn').onclick=()=>openSaveDrawer('made');if(el('digTab')) el('digTab').onclick=()=>setSavedTab('dig');if(el('madeTab')) el('madeTab').onclick=()=>setSavedTab('made');if(el('chartPreviewToggle')) el('chartPreviewToggle').onclick=()=>setChartPreviewPinned(!(chartPreviewPinned&&chartPreviewMode==='good'),{scroll:true,mode:'good'});if(el('paletteChartPreviewToggle')) el('paletteChartPreviewToggle').onclick=()=>setChartPreviewPinned(!(chartPreviewPinned&&chartPreviewMode==='palette'),{scroll:true,mode:'palette'});if(el('rolesSection')) el('rolesSection').addEventListener('toggle',()=>{if(el('rolesSection').open) leaveSavedContext();});if(el('paletteSection')) el('paletteSection').addEventListener('toggle',()=>{if(el('paletteSection').open) leaveSavedContext();});el('confirmSave').onclick=savePending;el('cancelSave').onclick=closeSaveDrawer;el('closeSaveDrawer').onclick=closeSaveDrawer;el('saveDrawer').addEventListener('click',e=>{if(e.target.id==='saveDrawer')closeSaveDrawer();});el('search').oninput=renderPalette;el('saveName').oninput=updateSaveState;window.addEventListener('resize',drawChart);init();
+el('gridToggle').onchange=drawChart;el('randomBtn').onclick=randomize;el('backBtn').onclick=back;el('sourceFullBtn').onclick=()=>setRandomSource('full');el('sourceStashBtn').onclick=()=>setRandomSource('stash');el('newNameBtn').onclick=newName;if(el('nameBackBtn')) el('nameBackBtn').onclick=backName;el('saveBtn').onclick=()=>openSaveDrawer('dig');el('madeBtn').onclick=()=>openSaveDrawer('made');if(el('digTab')) el('digTab').onclick=()=>setSavedTab('dig');if(el('madeTab')) el('madeTab').onclick=()=>setSavedTab('made');if(el('chartPreviewToggle')) el('chartPreviewToggle').onclick=()=>setChartPreviewPinned(!(chartPreviewPinned&&chartPreviewMode==='good'),{scroll:true,mode:'good'});if(el('paletteChartPreviewToggle')) el('paletteChartPreviewToggle').onclick=()=>setChartPreviewPinned(!(chartPreviewPinned&&chartPreviewMode==='palette'),{scroll:true,mode:'palette'});if(el('swapStripesBtn')) el('swapStripesBtn').onclick=swapStripeColors;if(el('rolesSection')) el('rolesSection').addEventListener('toggle',()=>{if(el('rolesSection').open) leaveSavedContext();});if(el('paletteSection')) el('paletteSection').addEventListener('toggle',()=>{if(el('paletteSection').open) leaveSavedContext();});el('confirmSave').onclick=savePending;el('cancelSave').onclick=closeSaveDrawer;el('closeSaveDrawer').onclick=closeSaveDrawer;el('saveDrawer').addEventListener('click',e=>{if(e.target.id==='saveDrawer')closeSaveDrawer();});el('search').oninput=renderPalette;el('saveName').oninput=updateSaveState;window.addEventListener('resize',drawChart);init();
 </script>
 
 <script>

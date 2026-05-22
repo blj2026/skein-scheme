@@ -1,4 +1,4 @@
-const CACHE_NAME = 'skein-scheme-pwa-v6-batch-cleanup';
+const CACHE_NAME = 'skein-scheme-pwa-v7-swap-stripes';
 const CORE_ASSETS = [
   './',
   './index.html',
