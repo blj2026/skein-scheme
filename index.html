@@ -876,6 +876,21 @@ body.saved-context-mode .combo-strip{
   .save-body input{min-height:43px !important;}
 }
 
+
+
+/* v9.1: keep Palette header clean; move yarn source caption inside panel */
+.palette-source-note{
+  margin:-2px 2px 8px;
+  color:var(--muted);
+  font-size:9px;
+  font-weight:500;
+  letter-spacing:.015em;
+  line-height:1.1;
+}
+@media (max-width:720px){
+  .palette-source-note{font-size:8px;margin:-3px 2px 8px;}
+}
+
 </style>
 </head>
 <body>
@@ -893,7 +908,7 @@ body.saved-context-mode .combo-strip{
       </section>
       <div class="below">
         <details class="section" id="rolesSection"><summary>Chart Colors</summary><div class="section-body"><div class="roles-row" id="roleCards"></div><button class="stripe-swap-icon" id="swapStripesBtn" type="button" title="Swap Stripe A and Stripe B" aria-label="Swap Stripe A and Stripe B">↔</button></div></details>
-        <details class="section" id="paletteSection"><summary>Palette <span style="font-weight:600;color:var(--muted);letter-spacing:0;text-transform:none">Cascade 220 wool yarn · 175 colors</span></summary><div class="section-body"><div class="palette-tools"><input class="search" id="search" placeholder="Search number, name, hex"/><div class="active-pill" id="activeRoleLabel">Main</div><button class="chart-preview-toggle palette-preview-toggle" id="paletteChartPreviewToggle" type="button" aria-pressed="false" title="Chart preview"><span class="preview-eye" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2.75 12s3.25-5.5 9.25-5.5S21.25 12 21.25 12 18 17.5 12 17.5 2.75 12 2.75 12Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="2.75" stroke-width="2"/></svg></span><span class="preview-label">chart preview</span></button></div><div class="filters" id="filters"></div><div class="palette" id="palette"></div></div></details>
+        <details class="section" id="paletteSection"><summary>Palette</summary><div class="section-body"><div class="palette-tools"><input class="search" id="search" placeholder="Search number, name, hex"/><div class="active-pill" id="activeRoleLabel">Main</div><button class="chart-preview-toggle palette-preview-toggle" id="paletteChartPreviewToggle" type="button" aria-pressed="false" title="Chart preview"><span class="preview-eye" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2.75 12s3.25-5.5 9.25-5.5S21.25 12 21.25 12 18 17.5 12 17.5 2.75 12 2.75 12Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="2.75" stroke-width="2"/></svg></span><span class="preview-label">chart preview</span></button></div><div class="palette-source-note">Cascade 220® wool yarn · 175 colors</div><div class="filters" id="filters"></div><div class="palette" id="palette"></div></div></details>
         <details class="section" id="readabilitySection"><summary>Readability Check</summary><div class="section-body"><div class="metrics" id="metrics"></div></div></details>
         <details class="section" id="savedSection" open><summary>The Good Stuff</summary><div class="section-body"><div class="combo-tabs" role="tablist" aria-label="Saved and made combos"><button class="combo-tab" id="digTab" type="button" role="tab" aria-selected="false" aria-controls="digPanel" data-tab="dig">Saved <span id="digCount">0</span></button><button class="combo-tab" id="madeTab" type="button" role="tab" aria-selected="false" aria-controls="madePanel" data-tab="made">Made <span id="madeCount">0</span></button></div><div class="my-combos-head is-hidden" id="savedTabHead"><div class="my-combos-text"><div class="my-combos-title" id="savedTabTitle"></div><div class="my-combos-copy" id="savedTabCopy"></div></div><button class="chart-preview-toggle" id="chartPreviewToggle" type="button" aria-pressed="false" title="Chart preview"><span class="preview-eye" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2.75 12s3.25-5.5 9.25-5.5S21.25 12 21.25 12 18 17.5 12 17.5 2.75 12 2.75 12Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="2.75" stroke-width="2"/></svg></span><span class="preview-label">chart preview</span></button></div><div class="combo-panel" id="digPanel" role="tabpanel" aria-labelledby="digTab"><div class="saved-grid" id="digCombos"></div></div><div class="combo-panel" id="madePanel" role="tabpanel" aria-labelledby="madeTab"><div class="saved-grid" id="madeCombos"></div></div></div></details>
       </div>

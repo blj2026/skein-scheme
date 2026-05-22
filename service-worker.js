@@ -1,4 +1,4 @@
-const CACHE_NAME = 'skein-scheme-pwa-v9-save-zoom-fix';
+const CACHE_NAME = 'skein-scheme-pwa-v10-palette-caption';
 const CORE_ASSETS = [
   './',
   './index.html',
