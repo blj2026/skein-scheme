@@ -1278,26 +1278,86 @@ function isBadLocalName(name){
 function scoreLocalName(name,info){
   let score=100;
   const lower=name.toLowerCase();
-  const recent=nameHistory.slice(-120);
-  const recentShort=nameHistory.slice(-28);
+  const recent=nameHistory.slice(-160);
+  const recentShort=nameHistory.slice(-34);
   const words=meaningfulWords(name);
   const sig=nameSignature(name);
   const first=startsWithKey(name);
-  if(words.length===2)score+=10;
-  if(words.length===3)score+=22;
-  if(words.length===4)score+=6;
-  if(/\b(confetti|forecast|riot|rendezvous|assembly|backtalk|afterimage|alibi|detour|punchline|mischief|coin toss|went sideways|borrowed fire|in the breeze|got promoted|lost the plot|button panic|made trouble|left turn)\b/i.test(name))score+=30;
+
+  if(words.length===2)score+=16;
+  if(words.length===3)score+=24;
+  if(words.length===4)score+=4;
+
+  if(/\b(confetti|forecast|riot|rendezvous|assembly|backtalk|afterimage|alibi|detour|punchline|mischief|coin toss|went sideways|borrowed fire|in the breeze|got promoted|lost the plot|button panic|made trouble|left turn)\b/i.test(name))score+=14;
   if(/\b(lapis|lavender|pumpkin|nectarine|cabernet|burgundy|cobalt|ivory|charcoal|graphite|bluegrass|river rock|olive|moss|sage|cocoa|walnut|marigold|chili|papaya|flamingo|blackberry|grape soda|pool tile|sea glass|stormglass|razzleberry|saffron|paprika|peony|denim|sapphire|violet|plum|orchid|cider|marmalade|hot sauce|cranberry|ruby|honey|mustard|cream soda|ink spill|midnight|copper|rust|terracotta|mocha|praline|aspen|foglight|smoke|silver)\b/i.test(name))score+=22;
-  if(recent.includes(lower))score-=320;
-  recent.forEach(old=>{const sim=nameSimilarity(name,old);if(sim>.65)score-=140;else if(sim>.45)score-=80;else if(sim>.34)score-=32;});
+
+  if(recent.includes(lower))score-=360;
+
+  recent.forEach(old=>{
+    const sim=nameSimilarity(name,old);
+    if(sim>.65)score-=150;
+    else if(sim>.45)score-=88;
+    else if(sim>.34)score-=38;
+  });
+
   const recentSigs=recentShort.map(nameSignature);
   const recentFirsts=recentShort.map(startsWithKey);
-  if(recentSigs.includes(sig))score-=95;
-  if(recentFirsts.includes(first))score-=48;
+  const sigCount=recentSigs.filter(s=>s===sig).length;
+  const firstCount=recentFirsts.filter(f=>f===first).length;
+
+  if(sigCount)score-=105+(sigCount*60);
+  if(firstCount)score-=52+(firstCount*24);
+
   const recentWords=recentShort.flatMap(meaningfulWords);
-  words.forEach(w=>{if(w.length>4&&recentWords.includes(w))score-=28;});
-  score+=Math.random()*18;
+  words.forEach(w=>{
+    if(w.length>4){
+      const count=recentWords.filter(rw=>rw===w).length;
+      if(count)score-=30+(count*24);
+    }
+  });
+
   return score;
+}
+function weightedNamePick(ranked){
+  if(!ranked.length)return '';
+  const minScore=Math.min(...ranked.map(x=>x.score));
+  const weighted=ranked.map((item,index)=>{
+    const quality=Math.max(1,item.score-minScore+8);
+    const rankTaper=1/(1+(index*.18));
+    return {...item,weight:quality*rankTaper};
+  });
+  const total=weighted.reduce((sum,item)=>sum+item.weight,0);
+  let roll=Math.random()*total;
+  for(const item of weighted){
+    roll-=item.weight;
+    if(roll<=0)return item.name;
+  }
+  return weighted[weighted.length-1].name;
+}
+function buildDiverseNamePool(ranked,limit=18){
+  const pool=[];
+  const usedSigs=new Set();
+  const usedFirsts=new Set();
+
+  ranked.forEach(item=>{
+    if(pool.length>=limit)return;
+    if(usedSigs.has(item.signature))return;
+    if(usedFirsts.has(item.first)&&pool.length>5)return;
+    pool.push(item);
+    usedSigs.add(item.signature);
+    usedFirsts.add(item.first);
+  });
+
+  ranked.forEach(item=>{
+    if(pool.length>=limit)return;
+    if(pool.some(existing=>existing.name===item.name))return;
+    const sigDupes=pool.filter(existing=>existing.signature===item.signature).length;
+    const firstDupes=pool.filter(existing=>existing.first===item.first).length;
+    if(sigDupes>=2||firstDupes>=2)return;
+    pool.push(item);
+  });
+
+  return pool;
 }
 function generateComboName(combo=selections,offset=0){
   loadNameHistory();
@@ -1306,13 +1366,24 @@ function generateComboName(combo=selections,offset=0){
   const excludeUnavailable=name=>!isSavedComboName(name,savedKeys);
   let candidates=buildCandidateNames(combo).filter(n=>!isBadLocalName(n)&&excludeUnavailable(n));
   if(candidates.length<8)candidates=unique([...candidates,...FALLBACK_DECK]).filter(n=>!isBadLocalName(n)&&excludeUnavailable(n));
-  candidates.sort((a,b)=>scoreLocalName(b,info)-scoreLocalName(a,info));
-  const top=candidates.slice(0,Math.min(10,candidates.length));
-  let chosen=top.length?top[Math.floor(Math.random()*Math.min(4,top.length))]:'';
+
+  const ranked=candidates
+    .map(name=>({
+      name,
+      score:scoreLocalName(name,info),
+      signature:nameSignature(name),
+      first:startsWithKey(name)
+    }))
+    .sort((a,b)=>b.score-a.score);
+
+  const diversePool=buildDiverseNamePool(ranked,18);
+  let chosen=weightedNamePick(diversePool);
+
   if(!chosen){
     const emergency=unique([...FALLBACK_DECK,'Ivory Side Eye','Cabernet Confetti','Chili Forecast']).filter(excludeUnavailable);
     chosen=emergency[0]||'Ivory Side Eye';
   }
+
   rememberName(chosen);
   return chosen;
 }
