@@ -893,7 +893,7 @@ body.saved-context-mode .combo-strip{
 
 
 
-/* v52: hidden admin AI refresh trigger */
+/* v59: hidden admin AI refresh trigger + visible status */
 .admin-name-refresh-btn{
   position:absolute;
   right:10px;
@@ -911,6 +911,62 @@ body.saved-context-mode .combo-strip{
 }
 .admin-name-refresh-btn:hover,
 .admin-name-refresh-btn:focus{opacity:.22;outline:1px solid rgba(17,17,17,.4);}
+
+/* v59: visible admin refresh progress so long AI calls do not look broken */
+.admin-refresh-status{
+  position:fixed;
+  left:50%;
+  top:18px;
+  transform:translateX(-50%);
+  z-index:9999;
+  width:min(420px, calc(100vw - 28px));
+  background:#0b0b0b;
+  color:#fff;
+  border:1px solid rgba(255,255,255,.18);
+  border-radius:18px;
+  box-shadow:0 18px 40px rgba(0,0,0,.28);
+  padding:14px 16px;
+  font-family:inherit;
+}
+.admin-refresh-status[hidden]{display:none !important;}
+.admin-refresh-status-title{
+  font-family:var(--mono);
+  font-size:12px;
+  font-weight:900;
+  letter-spacing:.04em;
+  text-transform:uppercase;
+  margin-bottom:6px;
+}
+.admin-refresh-status-copy{
+  font-size:12px;
+  line-height:1.35;
+  color:#f7f0e7;
+}
+.admin-refresh-status-bar{
+  height:5px;
+  margin-top:10px;
+  border-radius:999px;
+  overflow:hidden;
+  background:rgba(255,255,255,.16);
+}
+.admin-refresh-status-bar::before{
+  content:'';
+  display:block;
+  width:42%;
+  height:100%;
+  border-radius:999px;
+  background:#f8f4ec;
+  animation:adminRefreshPulse 1.25s ease-in-out infinite;
+}
+@keyframes adminRefreshPulse{
+  0%{transform:translateX(-110%);}
+  100%{transform:translateX(255%);}
+}
+.admin-name-refresh-btn.is-running{
+  opacity:.34;
+  background:#7b5a2a;
+}
+
 
 </style>
 </head>
@@ -936,6 +992,13 @@ body.saved-context-mode .combo-strip{
       </div>
     </main>
   </div>
+
+  <div class="admin-refresh-status" id="adminRefreshStatus" role="status" aria-live="polite" hidden>
+    <div class="admin-refresh-status-title">Name refresh running</div>
+    <div class="admin-refresh-status-copy" id="adminRefreshStatusCopy">Generating names…</div>
+    <div class="admin-refresh-status-bar" aria-hidden="true"></div>
+  </div>
+
   <div class="drawer-backdrop" id="saveDrawer" aria-hidden="true">
     <div class="save-panel" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
       <div class="drawer-grab"></div>
@@ -967,7 +1030,7 @@ const STASH_STORAGE='skeinSchemeCurrentStashCacheV1';
 const CHART_PREVIEW_STORAGE='skeinSchemeChartPreviewPinnedV1';
 const STASH_TABLE='stash_inventory';
 const NAME_REFRESH_TABLE='name_refresh_bank';
-const SKEIN_NAME_AI_REFRESH_V52=true;
+const SKEIN_NAME_AI_REFRESH_V59_STATUS=true;
 let aiRefreshNames=[];
 const ADMIN_CODE='123';
 const el=id=>document.getElementById(id);
@@ -1127,7 +1190,7 @@ const NAME_HISTORY_STORAGE='skeinSchemeInstantNameHistoryV4';
 const NAME_HISTORY_LIMIT=360;
 
 /*
-  Skein Scheme local name engine v52 + admin AI refresh bank
+  Skein Scheme local name engine v59 + admin AI refresh status
   Runtime goal: instant/free names with no OpenAI calls.
   Main fix from v47: hard strict-color gate + stronger no-repeat rotation for names/signatures.
   - bigger curated pools
@@ -2118,6 +2181,19 @@ async function loadSharedCombos(){
 }
 
 
+function setAdminRefreshStatus(message){
+  const box=el('adminRefreshStatus');
+  const copy=el('adminRefreshStatusCopy');
+  if(!box)return;
+  if(message){
+    if(copy)copy.textContent=message;
+    box.hidden=false;
+  }else{
+    box.hidden=true;
+  }
+}
+function nextPaint(){return new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));}
+
 async function adminRefreshNameBank(){
   const code=prompt('Admin code to refresh the name bank:');
   if(code===null)return;
@@ -2151,12 +2227,19 @@ async function adminRefreshNameBank(){
   const avoidNames=unique([...hardcodedNames,...savedNames,...refreshNames].map(normalizeNameKey)).slice(0,1200);
 
   const button=el('adminNameRefreshBtn');
-  if(button)button.disabled=true;
+  if(button){
+    button.disabled=true;
+    button.classList.add('is-running');
+  }
+  setAdminRefreshStatus(`Generating 40 ${mode} names… this can take 20–60 seconds. Do not click refresh again yet.`);
+  await nextPaint();
+
   try{
     const {data,error}=await db.functions.invoke('refresh-colorway-name-bank',{
       body:{
         adminCode:code.trim(),
         mode,
+        batchSize:40,
         targetFamilies:info.primaryFamilies,
         allFamilies:unique(info.allFamilies),
         currentYarnNames:info.colors.map(c=>c.name),
@@ -2165,9 +2248,11 @@ async function adminRefreshNameBank(){
     });
     if(error){
       console.error('Name refresh failed.',error);
+      setAdminRefreshStatus('Name refresh failed. Check Supabase function logs.');
       alert('Name refresh failed. Check Supabase function logs.');
       return;
     }
+    setAdminRefreshStatus('Refresh complete. Loading the new names into the generator…');
     await loadAINameRefreshBank();
     renderAll();
     const generated=data?.generated ?? 0;
@@ -2179,9 +2264,14 @@ Rejected by filters: ${rejected}
 Added: ${added}`);
   }catch(err){
     console.error('Name refresh failed.',err);
+    setAdminRefreshStatus('Name refresh failed. Check Console / Supabase function logs.');
     alert('Name refresh failed. Check Console / Supabase function logs.');
   }finally{
-    if(button)button.disabled=false;
+    setAdminRefreshStatus('');
+    if(button){
+      button.disabled=false;
+      button.classList.remove('is-running');
+    }
   }
 }
 
