@@ -968,6 +968,139 @@ body.saved-context-mode .combo-strip{
 }
 
 
+
+/* v60: one cover photo per Made Combo */
+#savedSection .saved-card.made-card{
+  min-height:74px !important;
+  padding:9px 128px 9px 9px !important;
+  overflow:hidden;
+}
+.made-card-main{min-width:0;}
+.made-card-side{
+  position:absolute;
+  top:8px;
+  right:8px;
+  display:grid;
+  grid-template-columns:78px 24px;
+  grid-template-rows:24px 24px;
+  gap:6px 7px;
+  align-items:start;
+}
+.made-photo-slot{
+  grid-column:1;
+  grid-row:1 / span 2;
+  width:78px;
+  height:54px;
+  border:1px dashed rgba(17,17,17,.28);
+  border-radius:10px;
+  background:rgba(248,244,236,.58);
+  padding:0;
+  overflow:hidden;
+  cursor:pointer;
+  display:block;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.45);
+}
+.made-photo-slot.has-photo{
+  border-style:solid;
+  border-color:rgba(17,17,17,.22);
+  background:#eee6da;
+  box-shadow:0 1px 3px rgba(18,18,18,.10);
+}
+.made-photo-slot img{
+  width:100%;
+  height:100%;
+  display:block;
+  object-fit:cover;
+}
+.made-card-actions{
+  grid-column:2;
+  grid-row:1 / span 2;
+  display:grid;
+  gap:6px;
+}
+.made-card .made-card-actions .delete,
+.made-card .made-card-actions .saved-note-edit{
+  position:static !important;
+  top:auto !important;
+  right:auto !important;
+  width:24px !important;
+  height:24px !important;
+  border-radius:8px !important;
+  opacity:.78 !important;
+}
+.made-card .made-card-actions .delete:hover,
+.made-card .made-card-actions .saved-note-edit:hover{
+  opacity:1 !important;
+}
+.made-edit-photo-row{
+  display:grid;
+  grid-template-columns:96px minmax(0,1fr);
+  gap:10px;
+  align-items:start;
+}
+.made-edit-photo-preview{
+  width:96px;
+  height:72px;
+  border:1px dashed rgba(17,17,17,.30);
+  border-radius:13px;
+  background:#f8f2e7;
+  overflow:hidden;
+}
+.made-edit-photo-preview.has-photo{border-style:solid;background:#eee6da;}
+.made-edit-photo-preview img{width:100%;height:100%;object-fit:cover;display:block;}
+.made-edit-photo-actions{display:grid;gap:7px;}
+.made-edit-photo-actions .btn{min-height:34px;font-size:10px;border-radius:999px;}
+.photo-lightbox{
+  position:fixed;
+  inset:0;
+  z-index:80;
+  background:rgba(18,18,18,.74);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:22px;
+}
+.photo-lightbox.open{display:flex;}
+.photo-lightbox-img{
+  max-width:min(94vw,760px);
+  max-height:82vh;
+  border-radius:16px;
+  background:#fffaf2;
+  box-shadow:0 20px 50px rgba(0,0,0,.35);
+  object-fit:contain;
+}
+.photo-lightbox-close{
+  position:absolute;
+  top:14px;
+  right:14px;
+  width:38px;
+  height:38px;
+  border:1px solid rgba(255,255,255,.32);
+  background:rgba(0,0,0,.30);
+  color:#fff;
+  border-radius:12px;
+  font-size:24px;
+  line-height:1;
+  cursor:pointer;
+}
+@media (max-width:720px){
+  #savedSection .saved-card.made-card{
+    min-height:72px !important;
+    padding-right:120px !important;
+  }
+  .made-card-side{grid-template-columns:72px 23px;gap:6px 6px;}
+  .made-photo-slot{width:72px;height:52px;border-radius:9px;}
+  .made-card .made-card-actions .delete,
+  .made-card .made-card-actions .saved-note-edit{width:23px !important;height:23px !important;}
+}
+@media (max-width:360px){
+  #savedSection .saved-card.made-card{padding-right:110px !important;}
+  .made-card-side{grid-template-columns:66px 22px;gap:5px 5px;}
+  .made-photo-slot{width:66px;height:48px;}
+  .made-card .made-card-actions .delete,
+  .made-card .made-card-actions .saved-note-edit{width:22px !important;height:22px !important;}
+}
+
 </style>
 </head>
 <body>
@@ -1017,6 +1150,39 @@ body.saved-context-mode .combo-strip{
     </div>
   </div>
 
+
+  <div class="drawer-backdrop" id="madeEditDrawer" aria-hidden="true">
+    <div class="save-panel made-edit-panel" role="dialog" aria-modal="true" aria-labelledby="madeEditTitle">
+      <div class="drawer-grab"></div>
+      <div class="drawer-head">
+        <div><div class="drawer-title" id="madeEditTitle">Edit Made Combo</div><div class="drawer-sub" id="madeEditSub"></div></div>
+        <button class="drawer-close" id="closeMadeEditDrawer" type="button" aria-label="Close">×</button>
+      </div>
+      <div class="save-body">
+        <label><span class="field-label">Note</span><textarea id="madeEditNote" placeholder="Optional project note" maxlength="120"></textarea></label>
+        <div>
+          <span class="field-label">Project photo</span>
+          <div class="made-edit-photo-row">
+            <div class="made-edit-photo-preview" id="madeEditPhotoPreview"></div>
+            <div class="made-edit-photo-actions">
+              <button class="btn" id="madeEditPhotoUpload" type="button">Add / Replace Photo</button>
+              <button class="btn" id="madeEditPhotoRemove" type="button">Remove Photo</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="drawer-actions">
+        <button class="btn" id="cancelMadeEdit" type="button">Cancel</button>
+        <button class="btn primary drawer-save" id="saveMadeEdit" type="button">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="photo-lightbox" id="photoLightbox" aria-hidden="true">
+    <button class="photo-lightbox-close" id="photoLightboxClose" type="button" aria-label="Close photo">×</button>
+    <img class="photo-lightbox-img" id="photoLightboxImg" alt="Made combo project photo" />
+  </div>
+
 <script>
 const COLORS = [{"hex":"#440C17","number":"2401","name":"Burgundy"},{"hex":"#470E1D","number":"9489","name":"Red Wine Heather"},{"hex":"#660D16","number":"1095","name":"Red Marl"},{"hex":"#7D1417","number":"2413","name":"Red"},{"hex":"#2D0104","number":"9404","name":"Ruby"},{"hex":"#7C0511","number":"8895","name":"Christmas Red"},{"hex":"#811C1C","number":"8414","name":"Bright Red"},{"hex":"#992927","number":"9668","name":"Paprika"},{"hex":"#CF4A34","number":"1048","name":"Camelia"},{"hex":"#FA9079","number":"9682","name":"Desert Flower"},{"hex":"#D7B0A2","number":"1049","name":"Peach Dust"},{"hex":"#BB8A7C","number":"1065","name":"Rose Cloud"},{"hex":"#9E5A4F","number":"9681","name":"Crabapple"},{"hex":"#2D1C17","number":"9656","name":"Burnt Sienna Heather"},{"hex":"#1E161F","number":"4006","name":"Galaxy"},{"hex":"#A97F69","number":"1084","name":"Blush Heather"},{"hex":"#B38E77","number":"1033","name":"Nectarine"},{"hex":"#B54E38","number":"7824","name":"Jack O Lantern"},{"hex":"#AC361B","number":"9465B","name":"Burnt Orange"},{"hex":"#4B1A0A","number":"2414","name":"Ginger"},{"hex":"#9E4E2F","number":"1068","name":"Copper"},{"hex":"#5A180A","number":"2435","name":"Japanese Maple"},{"hex":"#A03226","number":"1097","name":"Pumpkin Marl"},{"hex":"#802A21","number":"2425","name":"Provence"},{"hex":"#C8320F","number":"9605","name":"Tiger Lily"},{"hex":"#E64405","number":"9542","name":"Blaze"},{"hex":"#E7B53D","number":"9463B","name":"Gold"},{"hex":"#FDAD00","number":"9669","name":"Gold Fusion"},{"hex":"#BF8F19","number":"7827","name":"Goldenrod"},{"hex":"#C5BD71","number":"4147","name":"Lemon Yellow"},{"hex":"#BFBA8F","number":"1069","name":"Anise Flower"},{"hex":"#EEE3A7","number":"8687","name":"Butter"},{"hex":"#E3DE09","number":"7828","name":"Neon Yellow"},{"hex":"#C3C13C","number":"1070","name":"Golden Kiwi"},{"hex":"#8FB450","number":"8910","name":"Citron"},{"hex":"#8B933E","number":"1002","name":"Leaf Green"},{"hex":"#355B2A","number":"1035","name":"Fern Heather"},{"hex":"#12642A","number":"2409","name":"Palm"},{"hex":"#192320","number":"8267","name":"Forest Green"},{"hex":"#0E230F","number":"9430","name":"Highland Green"},{"hex":"#445944","number":"9684","name":"Green Tea"},{"hex":"#13281A","number":"2445","name":"Shire"},{"hex":"#2F401F","number":"1093","name":"Shire Marl"},{"hex":"#47592A","number":"2429","name":"Irelande"},{"hex":"#798736","number":"1051","name":"Fern"},{"hex":"#434F1A","number":"1052","name":"Calla Green"},{"hex":"#1B1E10","number":"1036","name":"Chive"},{"hex":"#1C1F1C","number":"1089","name":"Lichen Twist"},{"hex":"#5D602C","number":"2452","name":"Turtle"},{"hex":"#87845E","number":"1082","name":"Savannah Heather"},{"hex":"#9FB68E","number":"1034","name":"Tender Greens"},{"hex":"#7F9580","number":"1090","name":"Fluorite Heather"},{"hex":"#034E39","number":"8894","name":"Christmas Green"},{"hex":"#081C15","number":"9447","name":"Forest Heather"},{"hex":"#132C2C","number":"1087","name":"Rainforest Heather"},{"hex":"#002F2D","number":"8893","name":"Hunter Green"},{"hex":"#224038","number":"1104","name":"Forest Marl"},{"hex":"#2A4A48","number":"9322","name":"Silver Spruce Heather"},{"hex":"#2C605C","number":"9451","name":"Lake Chelan Heather"},{"hex":"#5CB298","number":"1072","name":"Key West"},{"hex":"#009180","number":"7812","name":"Lagoon"},{"hex":"#004D4D","number":"9687","name":"Deep Blue Grass"},{"hex":"#86C6C5","number":"9634","name":"Aqua Haze"},{"hex":"#336172","number":"1054","name":"Mallard Blue"},{"hex":"#222E34","number":"8836","name":"Stonewash"},{"hex":"#507584","number":"9452","name":"Summer Sky Heather"},{"hex":"#7DC2C4","number":"1073","name":"Water Spout"},{"hex":"#4B9297","number":"1004","name":"Bristol Blue"},{"hex":"#0B4858","number":"2433","name":"Pacific"},{"hex":"#023D5A","number":"8891","name":"Cyan Blue"},{"hex":"#010712","number":"8892","name":"Azure"},{"hex":"#01030B","number":"4009","name":"Aporto"},{"hex":"#0B111E","number":"2448","name":"Mallard"},{"hex":"#08080E","number":"9449","name":"Midnight Heather"},{"hex":"#0B0D4F","number":"9484","name":"Stratosphere"},{"hex":"#06113B","number":"9568","name":"Twilight Blue"},{"hex":"#617386","number":"1005","name":"Blue Quartz Heather"},{"hex":"#0E264D","number":"9689","name":"Lapis Heather"},{"hex":"#28282C","number":"1091","name":"Stormy Seas Heather"},{"hex":"#5A6063","number":"1081","name":"Coast Heather"},{"hex":"#0F2244","number":"2404","name":"Atlantic"},{"hex":"#6A9AAF","number":"7815","name":"Summer Sky"},{"hex":"#0E1518","number":"9567","name":"Smoke Blue"},{"hex":"#6B7B87","number":"1037","name":"Faded Denim Heather"},{"hex":"#0D1621","number":"9332","name":"Sapphire"},{"hex":"#222D3E","number":"1100","name":"Sapphire Marl"},{"hex":"#181D28","number":"8393","name":"Navy"},{"hex":"#2F3E5B","number":"9326","name":"Colonial Blue Heather"},{"hex":"#56637B","number":"9325","name":"West Point Blue Heather"},{"hex":"#7F8F98","number":"1006","name":"Sky Blue"},{"hex":"#5982AE","number":"8905","name":"Robin Egg Blue"},{"hex":"#101E4B","number":"7818","name":"Blue Velvet"},{"hex":"#101018","number":"9543","name":"Midnight Blue"},{"hex":"#2C3B6D","number":"9655","name":"Blueberry Heather"},{"hex":"#5D6193","number":"2423","name":"Montmartre"},{"hex":"#3E3D4D","number":"1038","name":"Dusky Violet"},{"hex":"#7F7996","number":"2422","name":"Lavender Heather"},{"hex":"#6B5B7D","number":"1102","name":"Lavender Marl"},{"hex":"#45395D","number":"2450","name":"Mystic Purple"},{"hex":"#110E1C","number":"8886","name":"Italian Plum"},{"hex":"#3D1755","number":"9570","name":"Concord Grape"},{"hex":"#785BC8","number":"8762","name":"Deep Lavender"},{"hex":"#867382","number":"1083","name":"Sweet Pea Heather"},{"hex":"#442FA0","number":"7808","name":"Purple Hyacinth"},{"hex":"#A24297","number":"1056","name":"Orchid"},{"hex":"#831977","number":"7803","name":"Magenta"},{"hex":"#813AA0","number":"2420","name":"Heather"},{"hex":"#281B34","number":"7807","name":"Regal"},{"hex":"#783F6E","number":"1075","name":"Raspberry Coulis"},{"hex":"#280C1A","number":"9572","name":"Cabernet"},{"hex":"#997385","number":"1039","name":"Helleborus Heather"},{"hex":"#2E1929","number":"9642","name":"Crushed Grapes"},{"hex":"#482034","number":"1103","name":"Razzleberry Marl"},{"hex":"#613853","number":"9692","name":"Razzleberry Heather"},{"hex":"#B57D9A","number":"8114","name":"Dusty Rose"},{"hex":"#806971","number":"1007","name":"Lepidolite Heather"},{"hex":"#200B1A","number":"8418","name":"Eggplant"},{"hex":"#84757C","number":"8872","name":"Iridescense"},{"hex":"#AD8698","number":"1076","name":"Antique Lilac"},{"hex":"#963239","number":"1008","name":"Flamingo Heather"},{"hex":"#DE7D88","number":"1057","name":"Peony"},{"hex":"#EEDFE9","number":"4192","name":"Soft Pink"},{"hex":"#D0819B","number":"9477","name":"Tutu"},{"hex":"#CA5A84","number":"9478","name":"Cotton Candy"},{"hex":"#B32F64","number":"9469","name":"Hot Pink"},{"hex":"#942A69","number":"7802","name":"Cerise"},{"hex":"#6C6D6B","number":"1009","name":"Storm Cloud Heather"},{"hex":"#4D617B","number":"1101","name":"Faded Denim Marl"},{"hex":"#7C8091","number":"9559","name":"Indigo Frost Heather"},{"hex":"#E5E5DB","number":"8505","name":"White"},{"hex":"#AEAEB1","number":"1058","name":"Nimbus Cloud"},{"hex":"#868588","number":"1050","name":"Harbor Mist"},{"hex":"#6D6F71","number":"8509","name":"Grey"},{"hex":"#2D3443","number":"9473","name":"Gris"},{"hex":"#101114","number":"8555","name":"Black"},{"hex":"#1E1F21","number":"4002","name":"Jet"},{"hex":"#363939","number":"8400","name":"Charcoal Grey"},{"hex":"#5E5D59","number":"1094","name":"Charcoal Marl"},{"hex":"#5B5C53","number":"8401","name":"Silver Grey"},{"hex":"#ABA597","number":"8011","name":"Aspen Heather"},{"hex":"#52545D","number":"9491","name":"Greystone Heather"},{"hex":"#3C2128","number":"1077","name":"Oxblood Red"},{"hex":"#110E0F","number":"7822","name":"Van Dyke Brown"},{"hex":"#322217","number":"2431","name":"Chocolate Heather"},{"hex":"#846651","number":"9695","name":"Praline"},{"hex":"#794A33","number":"1010","name":"Carob Brown"},{"hex":"#1B110C","number":"8686","name":"Brown"},{"hex":"#623F1F","number":"8622","name":"Camel"},{"hex":"#DFC9AB","number":"8021","name":"Beige"},{"hex":"#EEE9D3","number":"8010","name":"Natural"},{"hex":"#B5A564","number":"8412","name":"Pear"},{"hex":"#653A16","number":"2415","name":"Sunflower"},{"hex":"#A66129","number":"1096","name":"Spice Marl"},{"hex":"#613B2F","number":"2453","name":"Pumpkin Spice"},{"hex":"#806627","number":"4010","name":"Straw"},{"hex":"#A08527","number":"9564","name":"Birch Heather"},{"hex":"#826A02","number":"9566","name":"Olive Oil"},{"hex":"#B98E4A","number":"1088","name":"Wheat Heather"},{"hex":"#71705B","number":"4011","name":"Sparrow"},{"hex":"#1E2316","number":"9448","name":"Olive Heather"},{"hex":"#302E2D","number":"9465","name":"Vashon Island Heather"},{"hex":"#513F31","number":"9748","name":"Mocha Heather"},{"hex":"#806E5B","number":"8013","name":"Walnut Heather"},{"hex":"#6F5D4D","number":"1092","name":"Walnut Marl"},{"hex":"#7E7771","number":"8012","name":"Doeskin Heather"},{"hex":"#9A8F7D","number":"2442","name":"Fog Hatt"},{"hex":"#8E7E6F","number":"2441","name":"River Rock"},{"hex":"#E2D6B7","number":"9600","name":"Antiqued Heather"},{"hex":"#B19772","number":"1099","name":"Antique Marl"},{"hex":"#716252","number":"2440","name":"Vinci"},{"hex":"#B18F74","number":"9499","name":"Sand"},{"hex":"#564C3F","number":"9696","name":"Copper Heather"},{"hex":"#5A6862","number":"9450","name":"Smoke Heather"},{"hex":"#798878","number":"1059","name":"Seagrass"},{"hex":"#07070B","number":"9674","name":"Pine Grove"}];
 const PATTERN = ["LDDDLDLDDLLLLLLLDDLDLDDDLD","LDDLDLDDLLLDDDLLLDDLDLDDLD","LDLDLDDLLLLDDDLLLLDDLDLDLD","LLDLDDLLLLLDDDLLLLLDDLDLLD","MDMDDMMMDDDMMMDDDMMMDDMDMD","MMDDMMMMDDDMMMDDDMMMMDDMMD","MDDMMMMMDDDMMMDDDMMMMMDDMD","STTSSTTTSSSTTTSSSTTTSSTTST","STTSSTTTSSSTTTSSSTTTSSTTST","STTSSTTTSSSTTTSSSTTTSSTTST","MDDMMMMMDDDMMMDDDMMMMMDDMD","MMDDMMMMDDDMMMDDDMMMMDDMMD","MDMDDMMMDDDMMMDDDMMMDDMDMD","LLDLDDLLLLLDDDLLLLLDDLDLLD","LDLDLDDLLLLDDDLLLLDDLDLDLD","LDDLDLDDLLLDDDLLLDDLDLDDLD","LDDDLDLDDLLLLLLLDDLDLDDDLD"];
@@ -1033,6 +1199,8 @@ const NAME_REFRESH_TABLE='name_refresh_bank';
 const SKEIN_NAME_AI_REFRESH_V60_DIRECT_FETCH=true;
 let aiRefreshNames=[];
 const ADMIN_CODE='123';
+const COMBO_PHOTO_BUCKET='combo-photos';
+let editingMadeItem=null, madeEditAdminCode='';
 const el=id=>document.getElementById(id);
 const SUPABASE_URL='https://upyxpakxrpudsudsencg.supabase.co';
 const SUPABASE_KEY='sb_publishable_WWCfJ2OsbQVguApac-Rnaw_PnqILcDf';
@@ -1917,6 +2085,246 @@ async function savePending(){
 }
 function escapeHTML(s=''){return String(s).replace(/[&<>'"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]));}
 
+function escapeAttr(s=''){return escapeHTML(s).replace(/`/g,'&#96;');}
+function validateAdminCode(code){return String(code||'').trim()===ADMIN_CODE;}
+function comboPhotoPath(item){return item?.photoPath || item?.photo_path || '';}
+function comboPhotoUrl(item){
+  const path=comboPhotoPath(item);
+  if(!path) return '';
+  if(/^https?:\/\//i.test(path) || /^data:image\//i.test(path)) return path;
+  if(db){
+    try{return db.storage.from(COMBO_PHOTO_BUCKET).getPublicUrl(path).data.publicUrl || '';}
+    catch(e){console.warn('Could not build Supabase photo URL.',e);}
+  }
+  return `${SUPABASE_URL}/storage/v1/object/public/${COMBO_PHOTO_BUCKET}/${path.split('/').map(encodeURIComponent).join('/')}`;
+}
+function openPhotoLightbox(url){
+  if(!url) return;
+  const box=el('photoLightbox'), img=el('photoLightboxImg');
+  if(!box||!img) return;
+  img.src=url;
+  box.classList.add('open');
+  box.setAttribute('aria-hidden','false');
+}
+function closePhotoLightbox(){
+  const box=el('photoLightbox'), img=el('photoLightboxImg');
+  if(img) img.src='';
+  if(box){box.classList.remove('open');box.setAttribute('aria-hidden','true');}
+}
+function pickPhotoFile(){
+  return new Promise(resolve=>{
+    const input=document.createElement('input');
+    input.type='file';
+    input.accept='image/*';
+    input.onchange=()=>resolve(input.files?.[0]||null);
+    input.click();
+  });
+}
+function loadImageFromFile(file){
+  return new Promise((resolve,reject)=>{
+    const url=URL.createObjectURL(file);
+    const img=new Image();
+    img.onload=()=>{URL.revokeObjectURL(url);resolve(img);};
+    img.onerror=()=>{URL.revokeObjectURL(url);reject(new Error('Could not read that image file.'));};
+    img.src=url;
+  });
+}
+function canvasToBlob(canvas,type,quality){
+  return new Promise(resolve=>canvas.toBlob(resolve,type,quality));
+}
+async function preparePhotoBlob(file){
+  if(!file || !file.type.startsWith('image/')) throw new Error('Please choose an image file.');
+  const img=await loadImageFromFile(file);
+  const maxSide=1400;
+  const scale=Math.min(1,maxSide/Math.max(img.naturalWidth||img.width,img.naturalHeight||img.height));
+  const width=Math.max(1,Math.round((img.naturalWidth||img.width)*scale));
+  const height=Math.max(1,Math.round((img.naturalHeight||img.height)*scale));
+  const canvas=document.createElement('canvas');
+  canvas.width=width;
+  canvas.height=height;
+  const ctx=canvas.getContext('2d');
+  ctx.drawImage(img,0,0,width,height);
+  let blob=await canvasToBlob(canvas,'image/webp',.82);
+  let ext='webp', contentType='image/webp';
+  if(!blob){
+    blob=await canvasToBlob(canvas,'image/jpeg',.84);
+    ext='jpg';
+    contentType='image/jpeg';
+  }
+  if(!blob) throw new Error('Could not compress that image.');
+  return {blob,ext,contentType};
+}
+async function deleteComboPhotoPath(path){
+  if(!path || !db || /^https?:\/\//i.test(path) || /^data:image\//i.test(path)) return true;
+  const {error}=await db.storage.from(COMBO_PHOTO_BUCKET).remove([path]);
+  if(error){console.warn('Photo storage cleanup failed.',error);return false;}
+  return true;
+}
+async function updateMadePhotoPath(item,newPath,code){
+  if(!item?.remote || !item.id){
+    alert('Photo upload only works for shared Made Combos. This combo is local-only, so save/load through Supabase first.');
+    return false;
+  }
+  if(!db){
+    alert('Shared photo storage is unavailable right now.');
+    return false;
+  }
+
+  let savedRemote=false;
+  const rpcResult=await db.rpc('update_combo_photo_admin',{combo_id:item.id,photo_path_input:newPath||null,admin_code:code});
+  if(!rpcResult.error){
+    savedRemote=true;
+  }else{
+    console.warn('Supabase photo RPC unavailable or failed; trying direct update.',rpcResult.error);
+    const directResult=await db.from('combos').update({photo_path:newPath||null}).eq('id',item.id);
+    if(!directResult.error){
+      savedRemote=true;
+    }else{
+      console.error('Supabase photo path update failed.',directResult.error);
+      alert('Photo upload needs the Supabase photo_path column plus either the update_combo_photo_admin function or an update policy for combo photos.');
+      return false;
+    }
+  }
+  return savedRemote;
+}
+async function uploadMadePhoto(item,code){
+  if(!validateAdminCode(code)){alert('Nice try.');return;}
+  if(!item || item.kind!=='made') return;
+  if(!item.remote || !item.id){
+    alert('Photo upload only works for shared Made Combos. This one is local-only.');
+    return;
+  }
+  if(!db){
+    alert('Supabase is not available yet. Refresh and try again.');
+    return;
+  }
+  const file=await pickPhotoFile();
+  if(!file) return;
+  try{
+    const oldPath=comboPhotoPath(item);
+    const prepared=await preparePhotoBlob(file);
+    const newPath=`made-combos/${item.id}/cover-${Date.now()}.${prepared.ext}`;
+    const uploadResult=await db.storage.from(COMBO_PHOTO_BUCKET).upload(newPath,prepared.blob,{contentType:prepared.contentType,cacheControl:'3600',upsert:false});
+    if(uploadResult.error){
+      console.error('Photo upload failed.',uploadResult.error);
+      alert('Photo upload failed. Check the Supabase Storage bucket/policy.');
+      return;
+    }
+    const updated=await updateMadePhotoPath(item,newPath,code);
+    if(!updated){
+      await deleteComboPhotoPath(newPath);
+      return;
+    }
+    item.photoPath=newPath;
+    if(oldPath && oldPath!==newPath) await deleteComboPhotoPath(oldPath);
+    renderSaved();
+    updateMadeEditPhotoPreview();
+    await loadSharedCombos();
+  }catch(err){
+    console.error('Photo upload failed.',err);
+    alert(`Photo upload failed. ${err?.message||err}`);
+  }
+}
+async function removeMadePhoto(item,code){
+  if(!validateAdminCode(code)){alert('Nice try.');return;}
+  if(!item || item.kind!=='made') return;
+  const oldPath=comboPhotoPath(item);
+  if(!oldPath) return;
+  if(!confirm('Remove the photo from this Made Combo?')) return;
+  const updated=await updateMadePhotoPath(item,null,code);
+  if(!updated) return;
+  item.photoPath='';
+  await deleteComboPhotoPath(oldPath);
+  renderSaved();
+  updateMadeEditPhotoPreview();
+  await loadSharedCombos();
+}
+async function handleMadePhotoSlotClick(item){
+  const url=comboPhotoUrl(item);
+  if(url){
+    openPhotoLightbox(url);
+    return;
+  }
+  const code=prompt('Admin code to add a photo:');
+  if(code===null) return;
+  await uploadMadePhoto(item,code);
+}
+function updateMadeEditPhotoPreview(){
+  const preview=el('madeEditPhotoPreview');
+  const removeBtn=el('madeEditPhotoRemove');
+  if(!preview) return;
+  const url=comboPhotoUrl(editingMadeItem);
+  preview.classList.toggle('has-photo',!!url);
+  preview.innerHTML=url?`<img src="${escapeAttr(url)}" alt="" />`:'';
+  if(removeBtn) removeBtn.disabled=!url;
+}
+function closeMadeEditDrawer(){
+  blurActiveSaveField();
+  const drawer=el('madeEditDrawer');
+  if(drawer){drawer.classList.remove('open');drawer.setAttribute('aria-hidden','true');}
+  editingMadeItem=null;
+  madeEditAdminCode='';
+}
+async function openMadeEdit(item){
+  if(!item || item.kind!=='made') return;
+  const code=prompt('Admin code to edit this Made Combo:');
+  if(code===null) return;
+  if(!validateAdminCode(code)){alert('Nice try.');return;}
+  editingMadeItem=item;
+  madeEditAdminCode=code.trim();
+  if(el('madeEditSub')) el('madeEditSub').textContent=item.comboName||'';
+  if(el('madeEditNote')) el('madeEditNote').value=item.note||'';
+  updateMadeEditPhotoPreview();
+  const drawer=el('madeEditDrawer');
+  if(drawer){drawer.classList.add('open');drawer.setAttribute('aria-hidden','false');}
+}
+async function saveMadeEdit(){
+  if(!editingMadeItem) return;
+  const clean=(el('madeEditNote')?.value||'').trim().slice(0,120);
+  const ok=await saveMadeNote(editingMadeItem,clean,madeEditAdminCode);
+  if(ok) closeMadeEditDrawer();
+}
+async function saveMadeNote(item,clean,code){
+  if(!item || item.kind!=='made') return false;
+  if(!validateAdminCode(code)){alert('Nice try.');return false;}
+
+  if(item.remote){
+    if(!db){
+      alert('Shared edit is unavailable right now.');
+      return false;
+    }
+
+    let savedRemote=false;
+    const rpcResult=await db.rpc('update_combo_note_admin',{combo_id:item.id,new_note:clean||null,admin_code:code});
+    if(!rpcResult.error){
+      savedRemote=true;
+    }else{
+      console.warn('Supabase note-edit RPC unavailable or failed; trying direct update.',rpcResult.error);
+      const directResult=await db.from('combos').update({note:clean||null}).eq('id',item.id);
+      if(!directResult.error){
+        savedRemote=true;
+      }else{
+        console.error('Supabase note edit failed',directResult.error);
+        alert('Edit failed. Supabase needs the note-edit admin function or an update policy for combo notes.');
+        return false;
+      }
+    }
+
+    if(savedRemote){
+      item.note=clean;
+      renderSaved();
+      await loadSharedCombos();
+      return true;
+    }
+    return false;
+  }
+
+  item.note=clean;
+  try{localStorage.setItem(STORAGE,JSON.stringify(saved.filter(x=>!x.remote)));}catch(e){}
+  renderSaved();
+  return true;
+}
+
 function loadChartPreviewPreference(){
   chartPreviewPinned=false;
   chartPreviewMode=null;
@@ -1992,14 +2400,15 @@ function renderSavedList(id,kind){
   list.forEach(item=>{
     const d=document.createElement('div');
     d.className='saved-card'+(kind==='made'?' made-card':'');
-    const deleteButton=`<button class="delete" aria-label="delete">×</button>`;
-    const editNoteLabel=item.note?'Edit note':'Add note';
-    const editNoteButton=kind==='made'
-      ? `<button class="saved-note-edit" type="button" aria-label="${editNoteLabel}" title="${editNoteLabel}">✎</button>`
-      : '';
-    d.innerHTML=`${deleteButton}<div class="saved-colors">${ROLES.map(r=>`<span class="mini" style="background:${item.selections?.[r.key]?.hex||'#ddd'}"></span>`).join('')}</div><div class="saved-title">${escapeHTML(item.comboName)}</div><div class="saved-meta">by ${escapeHTML(item.name)}</div>${item.note?`<div class="saved-note">${escapeHTML(item.note)}</div>`:''}${editNoteButton}`;
+    const cardBody=`<div class="saved-colors">${ROLES.map(r=>`<span class="mini" style="background:${item.selections?.[r.key]?.hex||'#ddd'}"></span>`).join('')}</div><div class="saved-title">${escapeHTML(item.comboName)}</div><div class="saved-meta">by ${escapeHTML(item.name)}</div>${item.note?`<div class="saved-note">${escapeHTML(item.note)}</div>`:''}`;
+    if(kind==='made'){
+      const photoUrl=comboPhotoUrl(item);
+      d.innerHTML=`<div class="made-card-main">${cardBody}</div><div class="made-card-side"><button class="made-photo-slot${photoUrl?' has-photo':''}" type="button" aria-label="${photoUrl?'View project photo':'Add project photo'}">${photoUrl?`<img src="${escapeAttr(photoUrl)}" alt="" loading="lazy" />`:''}</button><div class="made-card-actions"><button class="delete" aria-label="delete">×</button><button class="saved-note-edit made-edit-btn" type="button" aria-label="Edit Made Combo" title="Edit Made Combo">✎</button></div></div>`;
+    }else{
+      d.innerHTML=`<button class="delete" aria-label="delete">×</button>${cardBody}`;
+    }
     d.onclick=e=>{
-      if(e.target.classList.contains('delete')||e.target.classList.contains('saved-note-edit'))return;
+      if(e.target.closest('.delete')||e.target.closest('.saved-note-edit')||e.target.closest('.made-photo-slot'))return;
       selections=cloneSelections(item.selections);
       currentComboName=item.comboName;
       nameHistoryStack=[];
@@ -2015,7 +2424,14 @@ function renderSavedList(id,kind){
     if(edit){
       edit.onclick=async(event)=>{
         event.stopPropagation();
-        await editMadeNote(item);
+        await openMadeEdit(item);
+      };
+    }
+    const photo=d.querySelector('.made-photo-slot');
+    if(photo){
+      photo.onclick=async(event)=>{
+        event.stopPropagation();
+        await handleMadePhotoSlotClick(item);
       };
     }
     box.appendChild(d);
@@ -2059,55 +2475,7 @@ function updateSavedTabs(){
   if(chartPreviewPinned && activeSavedTab) scrollGoodStuffForPinnedPreview();
 }
 
-async function editMadeNote(item){
-  if(!item || item.kind!=='made') return;
-
-  const code=prompt('Admin code to edit this Made note:');
-  if(!code) return;
-
-  if(code !== ADMIN_CODE){
-    alert('Nice try.');
-    return;
-  }
-
-  const next=prompt('Update note:', item.note||'');
-  if(next===null) return;
-  const clean=next.trim().slice(0,120);
-
-  if(item.remote){
-    if(!db){
-      alert('Shared edit is unavailable right now.');
-      return;
-    }
-
-    let savedRemote=false;
-    const rpcResult=await db.rpc('update_combo_note_admin',{combo_id:item.id,new_note:clean||null,admin_code:code});
-    if(!rpcResult.error){
-      savedRemote=true;
-    }else{
-      console.warn('Supabase note-edit RPC unavailable or failed; trying direct update.',rpcResult.error);
-      const directResult=await db.from('combos').update({note:clean||null}).eq('id',item.id);
-      if(!directResult.error){
-        savedRemote=true;
-      }else{
-        console.error('Supabase note edit failed',directResult.error);
-        alert('Edit failed. Supabase needs the note-edit admin function or an update policy for combo notes.');
-        return;
-      }
-    }
-
-    if(savedRemote){
-      item.note=clean;
-      renderSaved();
-      await loadSharedCombos();
-    }
-    return;
-  }
-
-  item.note=clean;
-  try{localStorage.setItem(STORAGE,JSON.stringify(saved.filter(x=>!x.remote)));}catch(e){}
-  renderSaved();
-}
+async function editMadeNote(item){return openMadeEdit(item);}
 
 async function deleteSavedItem(item){
   if(!item) return;
@@ -2119,10 +2487,12 @@ async function deleteSavedItem(item){
 
   if(!code) return;
 
-  if(code !== '123'){
+  if(!validateAdminCode(code)){
     alert('Nice try.');
     return;
   }
+
+  const photoPath=comboPhotoPath(item);
 
   if(item.remote){
     if(!db){
@@ -2136,6 +2506,7 @@ async function deleteSavedItem(item){
       alert('Delete failed. Check admin code or Supabase delete setup.');
       return;
     }
+    if(photoPath) await deleteComboPhotoPath(photoPath);
   }
 
   saved=saved.filter(x=>x!==item);
@@ -2174,6 +2545,7 @@ async function loadSharedCombos(){
     comboName: row.combo_name||'saved combo',
     selections: row.colors_json,
     at: row.created_at,
+    photoPath: row.photo_path || row.photo_url || '',
     remote:true
   })).filter(x=>x.selections);
   saved=[...remote,...local.filter(x=>!x.remote)];
@@ -2319,7 +2691,7 @@ async function init(){
   await loadSharedCombos();
   maybeRefreshVisibleSavedName();
 }
-el('gridToggle').onchange=drawChart;el('randomBtn').onclick=randomize;el('backBtn').onclick=back;el('sourceFullBtn').onclick=()=>setRandomSource('full');el('sourceStashBtn').onclick=()=>setRandomSource('stash');el('newNameBtn').onclick=newName;if(el('nameBackBtn')) el('nameBackBtn').onclick=backName;if(el('adminNameRefreshBtn')) el('adminNameRefreshBtn').onclick=adminRefreshNameBank;el('saveBtn').onclick=()=>openSaveDrawer('dig');el('madeBtn').onclick=()=>openSaveDrawer('made');if(el('digTab')) el('digTab').onclick=()=>setSavedTab('dig');if(el('madeTab')) el('madeTab').onclick=()=>setSavedTab('made');if(el('chartPreviewToggle')) el('chartPreviewToggle').onclick=()=>setChartPreviewPinned(!(chartPreviewPinned&&chartPreviewMode==='good'),{scroll:true,mode:'good'});if(el('paletteChartPreviewToggle')) el('paletteChartPreviewToggle').onclick=()=>setChartPreviewPinned(!(chartPreviewPinned&&chartPreviewMode==='palette'),{scroll:true,mode:'palette'});if(el('swapStripesBtn')) el('swapStripesBtn').onclick=swapStripeColors;if(el('rolesSection')) el('rolesSection').addEventListener('toggle',()=>{if(el('rolesSection').open) leaveSavedContext();});if(el('paletteSection')) el('paletteSection').addEventListener('toggle',()=>{if(el('paletteSection').open) leaveSavedContext();});el('confirmSave').onclick=savePending;el('cancelSave').onclick=closeSaveDrawer;el('closeSaveDrawer').onclick=closeSaveDrawer;el('saveDrawer').addEventListener('click',e=>{if(e.target.id==='saveDrawer')closeSaveDrawer();});el('search').oninput=renderPalette;el('saveName').oninput=updateSaveState;window.addEventListener('resize',drawChart);init();
+el('gridToggle').onchange=drawChart;el('randomBtn').onclick=randomize;el('backBtn').onclick=back;el('sourceFullBtn').onclick=()=>setRandomSource('full');el('sourceStashBtn').onclick=()=>setRandomSource('stash');el('newNameBtn').onclick=newName;if(el('nameBackBtn')) el('nameBackBtn').onclick=backName;if(el('adminNameRefreshBtn')) el('adminNameRefreshBtn').onclick=adminRefreshNameBank;el('saveBtn').onclick=()=>openSaveDrawer('dig');el('madeBtn').onclick=()=>openSaveDrawer('made');if(el('digTab')) el('digTab').onclick=()=>setSavedTab('dig');if(el('madeTab')) el('madeTab').onclick=()=>setSavedTab('made');if(el('chartPreviewToggle')) el('chartPreviewToggle').onclick=()=>setChartPreviewPinned(!(chartPreviewPinned&&chartPreviewMode==='good'),{scroll:true,mode:'good'});if(el('paletteChartPreviewToggle')) el('paletteChartPreviewToggle').onclick=()=>setChartPreviewPinned(!(chartPreviewPinned&&chartPreviewMode==='palette'),{scroll:true,mode:'palette'});if(el('swapStripesBtn')) el('swapStripesBtn').onclick=swapStripeColors;if(el('rolesSection')) el('rolesSection').addEventListener('toggle',()=>{if(el('rolesSection').open) leaveSavedContext();});if(el('paletteSection')) el('paletteSection').addEventListener('toggle',()=>{if(el('paletteSection').open) leaveSavedContext();});el('confirmSave').onclick=savePending;el('cancelSave').onclick=closeSaveDrawer;el('closeSaveDrawer').onclick=closeSaveDrawer;el('saveDrawer').addEventListener('click',e=>{if(e.target.id==='saveDrawer')closeSaveDrawer();});if(el('closeMadeEditDrawer')) el('closeMadeEditDrawer').onclick=closeMadeEditDrawer;if(el('cancelMadeEdit')) el('cancelMadeEdit').onclick=closeMadeEditDrawer;if(el('saveMadeEdit')) el('saveMadeEdit').onclick=saveMadeEdit;if(el('madeEditDrawer')) el('madeEditDrawer').addEventListener('click',e=>{if(e.target.id==='madeEditDrawer')closeMadeEditDrawer();});if(el('madeEditPhotoUpload')) el('madeEditPhotoUpload').onclick=()=>uploadMadePhoto(editingMadeItem,madeEditAdminCode);if(el('madeEditPhotoRemove')) el('madeEditPhotoRemove').onclick=()=>removeMadePhoto(editingMadeItem,madeEditAdminCode);if(el('photoLightboxClose')) el('photoLightboxClose').onclick=closePhotoLightbox;if(el('photoLightbox')) el('photoLightbox').addEventListener('click',e=>{if(e.target.id==='photoLightbox')closePhotoLightbox();});el('search').oninput=renderPalette;el('saveName').oninput=updateSaveState;window.addEventListener('resize',drawChart);init();
 </script>
 
 <script>
