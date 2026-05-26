@@ -1077,9 +1077,9 @@ const NAME_HISTORY_STORAGE='skeinSchemeInstantNameHistoryV4';
 const NAME_HISTORY_LIMIT=360;
 
 /*
-  Skein Scheme local name engine v46
+  Skein Scheme local name engine v48
   Runtime goal: instant/free names with no OpenAI calls.
-  Main fix from v45: stronger Main/Contrast color fit + small refresh pack.
+  Main fix from v47: hard strict-color gate + stronger no-repeat rotation for names/signatures.
   - bigger curated pools
   - repeated endings/structures get heavily penalized
   - resets old local history key so stale bad names do not steer the next run
@@ -1403,6 +1403,37 @@ function scoreLocalName(name,info,options={}){
 
   return score;
 }
+
+function applyStrictNameGuardrails(ranked,info,options={}){
+  if(!options.strictColorFit)return ranked;
+
+  let rows=[...ranked];
+  const recentNames=new Set(nameHistory.slice(-NAME_HISTORY_LIMIT).map(n=>String(n||'').toLowerCase()));
+  const recentShort=nameHistory.slice(-42);
+  const recentVeryShort=nameHistory.slice(-18);
+  const recentSigs=new Set(recentShort.map(nameSignature).filter(Boolean));
+  const recentFirsts=new Set(recentVeryShort.map(startsWithKey).filter(Boolean));
+
+  // Exact repeats are the most annoying. Drop them outright when there are enough other choices.
+  const noExact=rows.filter(row=>!recentNames.has(String(row.name||'').toLowerCase()));
+  if(noExact.length>=10)rows=noExact;
+
+  // Strict New Name mode should not offer obvious off-color names.
+  // 18 means: exact minor/stripe family or stronger. Related-only hits score 4; true misses score negative.
+  const colorFitRows=rows.filter(row=>Number(row.colorFit)>=18);
+  if(colorFitRows.length>=8)rows=colorFitRows;
+
+  // Rotate phrase families instead of just penalizing them.
+  const noRecentSig=rows.filter(row=>!recentSigs.has(row.signature));
+  if(noRecentSig.length>=8)rows=noRecentSig;
+
+  // Rotate leading anchors too: less Olive/Charcoal/Mocha over and over.
+  const noRecentFirst=rows.filter(row=>!recentFirsts.has(row.first));
+  if(noRecentFirst.length>=8)rows=noRecentFirst;
+
+  return rows;
+}
+
 function weightedNamePick(ranked){
   if(!ranked.length)return '';
   const minScore=Math.min(...ranked.map(x=>x.score));
@@ -1419,7 +1450,7 @@ function weightedNamePick(ranked){
   }
   return weighted[weighted.length-1].name;
 }
-function buildDiverseNamePool(ranked,limit=18){
+function buildDiverseNamePool(ranked,limit=18,options={}){
   const pool=[];
   const usedSigs=new Set();
   const usedFirsts=new Set();
@@ -1436,9 +1467,15 @@ function buildDiverseNamePool(ranked,limit=18){
   ranked.forEach(item=>{
     if(pool.length>=limit)return;
     if(pool.some(existing=>existing.name===item.name))return;
+
     const sigDupes=pool.filter(existing=>existing.signature===item.signature).length;
     const firstDupes=pool.filter(existing=>existing.first===item.first).length;
-    if(sigDupes>=2||firstDupes>=2)return;
+
+    // In strict mode, keep the finalist pool to one name per phrase signature whenever possible.
+    if(options.strictColorFit && sigDupes>=1)return;
+    if(!options.strictColorFit && sigDupes>=2)return;
+    if(firstDupes>=2)return;
+
     pool.push(item);
   });
 
@@ -1456,12 +1493,15 @@ function generateComboName(combo=selections,offset=0,options={}){
     .map(name=>({
       name,
       score:scoreLocalName(name,info,options),
+      colorFit:colorFitScore(name,info,options),
+      familyHits:unique(nameFamilyHits(name)).join(', '),
       signature:nameSignature(name),
       first:startsWithKey(name)
     }))
     .sort((a,b)=>b.score-a.score);
 
-  const diversePool=buildDiverseNamePool(ranked,18);
+  const guardedRanked=applyStrictNameGuardrails(ranked,info,options);
+  const diversePool=buildDiverseNamePool(guardedRanked,18,options);
   let chosen=weightedNamePick(diversePool);
 
   if(!chosen){
@@ -1474,8 +1514,8 @@ function generateComboName(combo=selections,offset=0,options={}){
 }
 
 
-/* v47: DevTools-only name diagnostics. Nothing visible is added to the site. */
-const SKEIN_NAME_DEBUG_V47=true;
+/* v48: DevTools-only name diagnostics. Nothing visible is added to the site. */
+const SKEIN_NAME_DEBUG_V48=true;
 function buildNameDecision(combo=selections,options={}){
   loadNameHistory();
   const info=comboNameInfo(combo);
@@ -1519,7 +1559,8 @@ function buildNameDecision(combo=selections,options={}){
     }))
     .sort((a,b)=>b.score-a.score);
 
-  const diversePool=buildDiverseNamePool(ranked,18);
+  const guardedRanked=applyStrictNameGuardrails(ranked,info,options);
+  const diversePool=buildDiverseNamePool(guardedRanked,18,options);
   const chosen=weightedNamePick(diversePool);
 
   return {
@@ -1530,6 +1571,7 @@ function buildNameDecision(combo=selections,options={}){
     fallbackAdded,
     candidateRows,
     ranked,
+    guardedRanked,
     diversePool,
     chosen
   };
@@ -1551,7 +1593,7 @@ function skeinNameSnapshot(options={strictColorFit:true}){
     signature:row.signature,
     first:row.first
   }));
-  console.groupCollapsed('Skein Scheme Name Snapshot v47');
+  console.groupCollapsed('Skein Scheme Name Snapshot v48');
   console.log('Target families:', decision.info.primaryFamilies.join(', '));
   console.log('All families:', decision.info.allFamilies.join(', '));
   console.log('Candidate counts:', {
@@ -1599,7 +1641,7 @@ function simulateNamePicks(count=50,options={strictColorFit:true}){
 }
 window.skeinNameDebug=function(count=50,options={strictColorFit:true}){
   const rows=simulateNamePicks(count,options);
-  console.groupCollapsed(`Skein Scheme Name Debug v47 — ${rows.length} simulated names`);
+  console.groupCollapsed(`Skein Scheme Name Debug v48 — ${rows.length} simulated names`);
   console.table(rows);
   console.groupEnd();
   return rows;
@@ -1621,7 +1663,7 @@ window.skeinNameStats=function(count=100,options={strictColorFit:true}){
   const words=Object.entries(wordCounts).sort((a,b)=>b[1]-a[1]).slice(0,25).map(([word,count])=>({word,count}));
   const signatures=Object.entries(sigCounts).sort((a,b)=>b[1]-a[1]).slice(0,25).map(([signature,count])=>({signature,count}));
 
-  console.groupCollapsed(`Skein Scheme Name Stats v47 — ${rows.length} simulated names`);
+  console.groupCollapsed(`Skein Scheme Name Stats v48 — ${rows.length} simulated names`);
   console.log('Run skeinNameSnapshot() to inspect the current candidate pool.');
   console.log('Off-color / negative colorFit picks:', familyMisses.length);
   console.log('Simulated names:');
