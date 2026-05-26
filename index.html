@@ -1030,7 +1030,7 @@ const STASH_STORAGE='skeinSchemeCurrentStashCacheV1';
 const CHART_PREVIEW_STORAGE='skeinSchemeChartPreviewPinnedV1';
 const STASH_TABLE='stash_inventory';
 const NAME_REFRESH_TABLE='name_refresh_bank';
-const SKEIN_NAME_AI_REFRESH_V59_STATUS=true;
+const SKEIN_NAME_AI_REFRESH_V60_DIRECT_FETCH=true;
 let aiRefreshNames=[];
 const ADMIN_CODE='123';
 const el=id=>document.getElementById(id);
@@ -2234,38 +2234,69 @@ async function adminRefreshNameBank(){
   setAdminRefreshStatus(`Generating 40 ${mode} names… this can take 20–60 seconds. Do not click refresh again yet.`);
   await nextPaint();
 
+  const beforeRefreshNameCount=aiRefreshNames.length;
+  const payload={
+    adminCode:code.trim(),
+    mode,
+    batchSize:40,
+    targetFamilies:info.primaryFamilies,
+    allFamilies:unique(info.allFamilies),
+    currentYarnNames:info.colors.map(c=>c.name),
+    avoidNames
+  };
+  const refreshFunctionUrl=`${SUPABASE_URL}/functions/v1/refresh-colorway-name-bank`;
+
   try{
-    const {data,error}=await db.functions.invoke('refresh-colorway-name-bank',{
-      body:{
-        adminCode:code.trim(),
-        mode,
-        batchSize:40,
-        targetFamilies:info.primaryFamilies,
-        allFamilies:unique(info.allFamilies),
-        currentYarnNames:info.colors.map(c=>c.name),
-        avoidNames
-      }
+    const response=await fetch(refreshFunctionUrl,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(payload)
     });
-    if(error){
-      console.error('Name refresh failed.',error);
-      setAdminRefreshStatus('Name refresh failed. Check Supabase function logs.');
-      alert('Name refresh failed. Check Supabase function logs.');
+    const responseText=await response.text();
+    let data=null;
+    try{data=responseText?JSON.parse(responseText):null;}catch(parseErr){data={raw:responseText};}
+
+    if(!response.ok){
+      console.error('Name refresh function returned an error.',response.status,data||responseText);
+      setAdminRefreshStatus(`Name refresh returned status ${response.status}. Check Supabase function logs.`);
+      alert(`Name refresh returned status ${response.status}.
+
+${String(responseText||'No response body').slice(0,600)}`);
       return;
     }
+
     setAdminRefreshStatus('Refresh complete. Loading the new names into the generator…');
     await loadAINameRefreshBank();
     renderAll();
+
     const generated=data?.generated ?? 0;
     const rejected=data?.rejected ?? 0;
     const added=data?.added ?? 0;
+    const loadedDelta=Math.max(0, aiRefreshNames.length-beforeRefreshNameCount);
     alert(`Name refresh complete.
 Generated: ${generated}
 Rejected by filters: ${rejected}
-Added: ${added}`);
+Added: ${added}
+Loaded into generator: ${loadedDelta}`);
   }catch(err){
-    console.error('Name refresh failed.',err);
-    setAdminRefreshStatus('Name refresh failed. Check Console / Supabase function logs.');
-    alert('Name refresh failed. Check Console / Supabase function logs.');
+    console.error('Name refresh browser request failed.',err);
+
+    // Sometimes the database insert succeeds but the browser-side request/relay still reports a failure.
+    // Reload the refresh bank before telling the user it truly failed.
+    await loadAINameRefreshBank();
+    renderAll();
+    const loadedDelta=Math.max(0, aiRefreshNames.length-beforeRefreshNameCount);
+    if(loadedDelta>0){
+      setAdminRefreshStatus('Names were added, but the browser did not receive a clean response. New names are loaded.');
+      alert(`Name refresh appears to have added names, but the browser did not receive a clean response.
+
+Loaded into generator: ${loadedDelta}`);
+    }else{
+      setAdminRefreshStatus('Name refresh failed. Check Console / Supabase function logs.');
+      alert(`Name refresh failed.
+
+${err?.message || err}`);
+    }
   }finally{
     setAdminRefreshStatus('');
     if(button){
