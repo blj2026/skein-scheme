@@ -1190,6 +1190,116 @@ const REFRESH_NAME_DECKS={
   black:['Black Truffle Alibi','Cauldron Confetti','Nightcall Ruckus','Black Plum After Hours','Jet Pocket Radio','Pine Grove Mischief']
 };
 
+
+/* v50 semantic structure refresh: generated local names must pass anchor/tail compatibility.
+   This avoids arbitrary noun piles like Mallard Fire Escape without chasing one-off bans. */
+const FRESH_STRUCTURE_TAILS=[
+  'Pocket Radio','Night Shift','Field Report','Spare Key','Gate Code','Service Bell','Office Hours','Control Room','Map Room','House Rules','Loose Change','Cold Open','Shop Talk','Weather Desk','Tape Deck','Night Manager','Field Notes','Side Door','Corner Booth','Back Room','After Hours','Odd Job','Left Turn','Undercover','Daybreak','Radio Hour'
+];
+const FRESH_TAIL_SEMANTICS={
+  'Pocket Radio':['noir','cool','object'],
+  'Night Shift':['noir','dark','work'],
+  'Field Report':['nature','earth','work'],
+  'Spare Key':['object','domestic'],
+  'Gate Code':['object','noir'],
+  'Service Bell':['object','nostalgia'],
+  'Office Hours':['work','dry'],
+  'Control Room':['noir','work'],
+  'Map Room':['travel','work'],
+  'House Rules':['domestic','dry'],
+  'Loose Change':['object','warm'],
+  'Cold Open':['noir','cool'],
+  'Shop Talk':['work','dry'],
+  'Weather Desk':['weather','work'],
+  'Tape Deck':['object','nostalgia'],
+  'Night Manager':['noir','dark'],
+  'Field Notes':['nature','earth','work'],
+  'Side Door':['noir','domestic'],
+  'Corner Booth':['nostalgia','domestic'],
+  'Back Room':['noir','work'],
+  'After Hours':['noir','dark'],
+  'Odd Job':['dry','work'],
+  'Left Turn':['motion','dry'],
+  'Undercover':['noir','dark'],
+  'Daybreak':['weather','bright'],
+  'Radio Hour':['object','nostalgia']
+};
+const FRESH_FAMILY_ANCHORS={
+  blue:['Lapis','Sapphire','Cobalt','Atlantic','Pacific','Denim','Harbor','Stonewash','Twilight','Aqua','Cyan'],
+  purple:['Plum','Lavender','Blackberry','Violet','Orchid','Cabernet','Regal','Razzleberry','Mulberry','Grape'],
+  green:['Olive','Moss','Fern','Rainforest','Sage','Cedar','Lichen','Forest','Seagrass','Boreal','Clover'],
+  orange:['Paprika','Pumpkin','Copper','Cider','Nectarine','Sienna','Rust','Spice','Amber','Citrus'],
+  red:['Burgundy','Ruby','Cherry','Cranberry','Scarlet','Brick','Oxblood','Rhubarb','Cassis','Sangria','Crabapple'],
+  pink:['Peony','Blush','Flamingo','Rose','Coral','Taffy','Fuchsia','Cerise','Rosehip'],
+  yellow:['Gold','Honey','Lemon','Marigold','Mustard','Wheat','Pear','Sunflower','Straw','Dandelion'],
+  brown:['Walnut','Mocha','Praline','Carob','Cocoa','Chocolate','River Rock','Camel','Toffee','Hickory','Pecan','Rye','Vinci'],
+  gray:['Charcoal','Graphite','Smoke','Fog','Nimbus','Harbor Mist','Silver','Greystone','Aspen','Concrete','Ash'],
+  white:['Ivory','White','Natural','Pearl','Snow','Salt','Chalk','Antiqued','Paper','Antler'],
+  black:['Ink','Midnight','Jet','Onyx','Blacktop','Nightcall','Darkroom','Cauldron','Pine Grove']
+};
+const FRESH_ANCHOR_SEMANTICS={
+  lapis:['mineral','cool'],sapphire:['mineral','cool'],cobalt:['mineral','cool'],atlantic:['water','cool'],pacific:['water','cool'],denim:['fabric','dry'],harbor:['water','noir'],stonewash:['fabric','gray'],twilight:['dark','weather'],aqua:['water','cool'],cyan:['cool'],
+  plum:['fruit','dark'],lavender:['floral','soft'],blackberry:['fruit','dark'],violet:['floral','soft'],orchid:['floral','soft'],cabernet:['drink','dark'],regal:['dark'],razzleberry:['fruit'],mulberry:['fruit','dark'],grape:['fruit'],
+  olive:['food','earth'],moss:['nature','earth'],fern:['nature','earth'],rainforest:['nature','earth'],sage:['herb','earth'],cedar:['wood','earth'],lichen:['nature','earth'],forest:['nature','earth'],seagrass:['nature','water'],boreal:['nature','cool'],clover:['nature','bright'],
+  paprika:['spice','warm'],pumpkin:['food','warm'],copper:['metal','warm'],cider:['drink','warm'],nectarine:['fruit','warm'],sienna:['earth','warm'],rust:['metal','warm'],spice:['spice','warm'],amber:['mineral','warm'],citrus:['fruit','bright'],
+  burgundy:['drink','dark'],ruby:['mineral','red'],cherry:['fruit','red'],cranberry:['fruit','red'],scarlet:['red'],brick:['urban','red'],oxblood:['dark','red'],rhubarb:['fruit','red'],cassis:['drink','dark'],sangria:['drink','red'],crabapple:['fruit','red'],
+  peony:['floral','soft'],blush:['soft'],flamingo:['bright'],rose:['floral','soft'],coral:['mineral','bright'],taffy:['sweet','bright'],fuchsia:['floral','bright'],cerise:['fruit','bright'],rosehip:['nature','red'],
+  gold:['metal','warm'],honey:['food','warm'],lemon:['fruit','bright'],marigold:['floral','bright'],mustard:['food','warm'],wheat:['earth','warm'],pear:['fruit','warm'],sunflower:['floral','bright'],straw:['earth','warm'],dandelion:['floral','bright'],
+  walnut:['wood','earth'],mocha:['drink','warm'],praline:['sweet','warm'],carob:['food','earth'],cocoa:['drink','warm'],chocolate:['food','warm'],riverrock:['stone','earth'],camel:['earth','warm'],toffee:['sweet','warm'],hickory:['wood','earth'],pecan:['nut','earth'],rye:['grain','warm'],vinci:['earth'],
+  charcoal:['noir','gray'],graphite:['mineral','gray'],smoke:['noir','gray'],fog:['weather','gray'],nimbus:['weather','gray'],harbormist:['water','gray'],silver:['metal','gray'],greystone:['stone','gray'],aspen:['wood','gray'],concrete:['urban','gray'],ash:['wood','gray'],
+  ivory:['soft','white'],white:['white'],natural:['earth','soft'],pearl:['mineral','soft'],snow:['weather','white'],salt:['food','white'],chalk:['mineral','white'],antiqued:['soft'],paper:['object','white'],antler:['nature','white'],
+  ink:['noir','dark'],midnight:['noir','dark'],jet:['noir','dark'],onyx:['mineral','dark'],blacktop:['urban','dark'],nightcall:['noir','dark'],darkroom:['noir','dark'],cauldron:['dark'],pinegrove:['nature','dark']
+};
+function semanticKey(text){return String(text||'').toLowerCase().replace(/[^a-z0-9]+/g,'');}
+function freshAnchorTags(anchor){return FRESH_ANCHOR_SEMANTICS[semanticKey(anchor)]||[];}
+function freshTailTags(tail){return FRESH_TAIL_SEMANTICS[tail]||[];}
+function freshSemanticFit(anchor,tail){
+  const a=freshAnchorTags(anchor), t=freshTailTags(tail);
+  if(!a.length||!t.length)return -6;
+  const has=(tag)=>a.includes(tag)||t.includes(tag);
+  const overlap=a.filter(tag=>t.includes(tag)).length;
+  let score=overlap*12;
+  if(a.includes('noir')&&(t.includes('noir')||t.includes('dark')||t.includes('object')))score+=14;
+  if((a.includes('water')||a.includes('weather'))&&(t.includes('weather')||t.includes('travel')||t.includes('noir')))score+=10;
+  if((a.includes('wood')||a.includes('earth')||a.includes('nature')||a.includes('stone'))&&(t.includes('nature')||t.includes('earth')||t.includes('field')||t.includes('work')))score+=10;
+  if((a.includes('food')||a.includes('fruit')||a.includes('drink')||a.includes('spice')||a.includes('sweet'))&&(t.includes('nostalgia')||t.includes('warm')||t.includes('domestic')||t.includes('dry')))score+=9;
+  if(a.includes('mineral')&&(t.includes('object')||t.includes('noir')||t.includes('cool')))score+=8;
+  // Hard mismatches: these are what created "Mallard Fire Escape" energy.
+  if((a.includes('nature')||a.includes('water')||a.includes('floral'))&&(t.includes('office')||t.includes('urban')||tail==='Service Bell'||tail==='Control Room'||tail==='Back Room'))score-=18;
+  if((a.includes('fruit')||a.includes('food')||a.includes('sweet'))&&(tail==='Control Room'||tail==='Map Room'||tail==='Gate Code'))score-=14;
+  return score;
+}
+const FRESH_NAME_SAFE_WORDS=new Set(FRESH_STRUCTURE_TAILS.flatMap(tail=>meaningfulWords(tail)).concat(
+  Object.values(FRESH_FAMILY_ANCHORS).flat().flatMap(anchor=>meaningfulWords(anchor))
+));
+function isFreshStructuredName(name){
+  const lower=String(name||'').toLowerCase();
+  return FRESH_STRUCTURE_TAILS.some(tail=>lower.endsWith(tail.toLowerCase()));
+}
+function freshStructuredSignature(name){
+  const lower=String(name||'').toLowerCase();
+  return (FRESH_STRUCTURE_TAILS.find(tail=>lower.endsWith(tail.toLowerCase()))||'').toLowerCase();
+}
+function buildStructuredRefreshNames(info,combo=selections){
+  const families=unique([...(info.primaryFamilies||[]),...(info.allFamilies||[])]).slice(0,4);
+  let anchors=[];
+  families.forEach(f=>anchors.push(...(FRESH_FAMILY_ANCHORS[f]||[])));
+  // Do not use arbitrary yarn terms as generated anchors.
+  // They still feed curated lanes, but synthetic names need approved anchor semantics.
+  anchors=unique(anchors).filter(anchor=>freshAnchorTags(anchor).length).slice(0,14);
+  const seed=comboHash(combo);
+  const names=[];
+  anchors.forEach((anchor,ai)=>{
+    FRESH_STRUCTURE_TAILS.forEach((tail,ti)=>{
+      const fit=freshSemanticFit(anchor,tail);
+      if(fit<8)return;
+      // deterministic sparse sampling: enough fresh options without flooding every combo with every tail
+      if(((seed + ai*17 + ti*31 + Math.max(0,fit)) % 9) < 2) names.push(`${anchor} ${tail}`);
+    });
+  });
+  return names.slice(0,70);
+}
+
 const NAME_FAMILY_WORDS={
   blue:['blue','denim','lapis','cobalt','sapphire','pool','sea','pacific','harbor','stormglass','cyan','mallard','atlantic','stonewash','aqua','twilight','sky','lake','canoe','cove','tidepool'],
   purple:['purple','plum','violet','lavender','amethyst','concord','grape','eggplant','lilac','regal','cabernet','blackberry','razzleberry','orchid','mulberry'],
@@ -1331,6 +1441,7 @@ function buildCandidateNames(combo=selections){
     candidates.push(...(NAME_DECKS[f]||[]));
     candidates.push(...(REFRESH_NAME_DECKS[f]||[]));
   });
+  candidates.push(...buildStructuredRefreshNames(info,combo));
   if(profiles.includes('bright'))candidates.push(...NAME_DECKS.loud);
   if(!candidates.length)candidates=[...FALLBACK_DECK];
   return unique(candidates.map(titleCase));
@@ -1339,6 +1450,8 @@ function buildCandidateNames(combo=selections){
 function nameSimilarity(a,b){const aw=new Set(meaningfulWords(a)),bw=new Set(meaningfulWords(b));if(!aw.size||!bw.size)return 0;let inter=0;aw.forEach(w=>{if(bw.has(w))inter++;});return inter/Math.max(aw.size,bw.size);}
 function nameSignature(name){
   const lower=String(name||'').toLowerCase();
+  const fresh=freshStructuredSignature(name);
+  if(fresh)return fresh;
   const phrases=['side eye','coin toss','button panic','plot twist','after hours','after dark','afterimage','went sideways','got promoted','got loud','got loose','made trouble','borrowed fire','in the breeze','lost the plot','weather report','left turn','took five','backtalk','detour','alibi','mischief','ruckus','confetti','forecast','punchline','rendezvous','assembly','carnival','parade','riot','daydream','social'];
   const found=phrases.find(p=>lower.includes(p));
   if(found)return found;
@@ -1355,7 +1468,12 @@ function isBadLocalName(name){
   if(words.some(w=>NAME_WEAK_WORDS.has(w)))return true;
   if(/^blue\s/i.test(name)||/^grass\s/i.test(name))return true;
   if(words.length===4 && lower.startsWith('the '))return true;
-  if(!words.some(w=>CORE_COLORWAY_WORDS.has(w)) && !/\b(lapis|lavender|pumpkin|nectarine|cabernet|burgundy|cobalt|ivory|charcoal|graphite|bluegrass|river|olive|moss|sage|cocoa|walnut|marigold|chili|papaya|flamingo|blackberry|grape|pool|sea|stormglass|razzleberry|saffron|paprika|peony|cider|marmalade|hot|sauce|cranberry|ruby|cherry|honey|mustard|cream|snow|ink|midnight|denim|sapphire|violet|plum|orchid|cotton|candy|copper|rust|terracotta|mocha|praline|aspen|fog|smoke|silver|pearl)\b/i.test(lower))return true;
+  if(isFreshStructuredName(name)){
+    const tail=FRESH_STRUCTURE_TAILS.find(t=>lower.endsWith(t.toLowerCase()));
+    const anchor=tail?name.slice(0, name.length-tail.length).trim():'';
+    if(freshSemanticFit(anchor,tail)<8)return true;
+  }
+  if(!words.some(w=>CORE_COLORWAY_WORDS.has(w)||FRESH_NAME_SAFE_WORDS.has(w)) && !/\b(lapis|lavender|pumpkin|nectarine|cabernet|burgundy|cobalt|ivory|charcoal|graphite|bluegrass|river|olive|moss|sage|cocoa|walnut|marigold|chili|papaya|flamingo|blackberry|grape|pool|sea|stormglass|razzleberry|saffron|paprika|peony|cider|marmalade|hot|sauce|cranberry|ruby|cherry|honey|mustard|cream|snow|ink|midnight|denim|sapphire|violet|plum|orchid|cotton|candy|copper|rust|terracotta|mocha|praline|aspen|fog|smoke|silver|pearl)\b/i.test(lower))return true;
   return false;
 }
 function scoreLocalName(name,info,options={}){
@@ -1371,7 +1489,14 @@ function scoreLocalName(name,info,options={}){
   if(words.length===3)score+=24;
   if(words.length===4)score+=4;
 
-  if(/\b(confetti|forecast|riot|rendezvous|assembly|backtalk|afterimage|alibi|detour|punchline|mischief|coin toss|went sideways|borrowed fire|in the breeze|got promoted|lost the plot|button panic|made trouble|left turn)\b/i.test(name))score+=14;
+  if(/\b(confetti|forecast|riot|rendezvous|assembly|backtalk|afterimage|alibi|detour|punchline|mischief|coin toss|went sideways|borrowed fire|in the breeze|got promoted|lost the plot|button panic|made trouble|left turn)\b/i.test(name))score+=8;
+  if(isFreshStructuredName(name)){
+    score+=12;
+    const lowerName=String(name||'').toLowerCase();
+    const tail=FRESH_STRUCTURE_TAILS.find(t=>lowerName.endsWith(t.toLowerCase()));
+    const anchor=tail?name.slice(0, name.length-tail.length).trim():'';
+    score+=freshSemanticFit(anchor,tail);
+  }
   if(/\b(lapis|lavender|pumpkin|nectarine|cabernet|burgundy|cobalt|ivory|charcoal|graphite|bluegrass|river rock|olive|moss|sage|cocoa|walnut|marigold|chili|papaya|flamingo|blackberry|grape soda|pool tile|sea glass|stormglass|razzleberry|saffron|paprika|peony|denim|sapphire|violet|plum|orchid|cider|marmalade|hot sauce|cranberry|ruby|honey|mustard|cream soda|ink spill|midnight|copper|rust|terracotta|mocha|praline|aspen|foglight|smoke|silver)\b/i.test(name))score+=22;
 
   score+=colorFitScore(name,info,options);
@@ -1416,20 +1541,20 @@ function applyStrictNameGuardrails(ranked,info,options={}){
 
   // Exact repeats are the most annoying. Drop them outright when there are enough other choices.
   const noExact=rows.filter(row=>!recentNames.has(String(row.name||'').toLowerCase()));
-  if(noExact.length>=10)rows=noExact;
+  if(noExact.length>=14)rows=noExact;
 
   // Strict New Name mode should not offer obvious off-color names.
   // 18 means: exact minor/stripe family or stronger. Related-only hits score 4; true misses score negative.
   const colorFitRows=rows.filter(row=>Number(row.colorFit)>=18);
-  if(colorFitRows.length>=8)rows=colorFitRows;
+  if(colorFitRows.length>=14)rows=colorFitRows;
 
   // Rotate phrase families instead of just penalizing them.
   const noRecentSig=rows.filter(row=>!recentSigs.has(row.signature));
-  if(noRecentSig.length>=8)rows=noRecentSig;
+  if(noRecentSig.length>=14)rows=noRecentSig;
 
   // Rotate leading anchors too: less Olive/Charcoal/Mocha over and over.
   const noRecentFirst=rows.filter(row=>!recentFirsts.has(row.first));
-  if(noRecentFirst.length>=8)rows=noRecentFirst;
+  if(noRecentFirst.length>=14)rows=noRecentFirst;
 
   return rows;
 }
@@ -1514,8 +1639,8 @@ function generateComboName(combo=selections,offset=0,options={}){
 }
 
 
-/* v48: DevTools-only name diagnostics. Nothing visible is added to the site. */
-const SKEIN_NAME_DEBUG_V48=true;
+/* v50: DevTools-only name diagnostics + semantic structure-refresh generator. Nothing visible is added to the site. */
+const SKEIN_NAME_DEBUG_V50=true;
 function buildNameDecision(combo=selections,options={}){
   loadNameHistory();
   const info=comboNameInfo(combo);
@@ -1593,7 +1718,7 @@ function skeinNameSnapshot(options={strictColorFit:true}){
     signature:row.signature,
     first:row.first
   }));
-  console.groupCollapsed('Skein Scheme Name Snapshot v48');
+  console.groupCollapsed('Skein Scheme Name Snapshot v50');
   console.log('Target families:', decision.info.primaryFamilies.join(', '));
   console.log('All families:', decision.info.allFamilies.join(', '));
   console.log('Candidate counts:', {
@@ -1641,7 +1766,7 @@ function simulateNamePicks(count=50,options={strictColorFit:true}){
 }
 window.skeinNameDebug=function(count=50,options={strictColorFit:true}){
   const rows=simulateNamePicks(count,options);
-  console.groupCollapsed(`Skein Scheme Name Debug v48 — ${rows.length} simulated names`);
+  console.groupCollapsed(`Skein Scheme Name Debug v50 — ${rows.length} simulated names`);
   console.table(rows);
   console.groupEnd();
   return rows;
@@ -1663,7 +1788,7 @@ window.skeinNameStats=function(count=100,options={strictColorFit:true}){
   const words=Object.entries(wordCounts).sort((a,b)=>b[1]-a[1]).slice(0,25).map(([word,count])=>({word,count}));
   const signatures=Object.entries(sigCounts).sort((a,b)=>b[1]-a[1]).slice(0,25).map(([signature,count])=>({signature,count}));
 
-  console.groupCollapsed(`Skein Scheme Name Stats v48 — ${rows.length} simulated names`);
+  console.groupCollapsed(`Skein Scheme Name Stats v50 — ${rows.length} simulated names`);
   console.log('Run skeinNameSnapshot() to inspect the current candidate pool.');
   console.log('Off-color / negative colorFit picks:', familyMisses.length);
   console.log('Simulated names:');
