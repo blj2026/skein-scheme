@@ -969,10 +969,10 @@ body.saved-context-mode .combo-strip{
 
 
 
-/* v60: one cover photo per Made Combo */
+/* v61: one cover photo per Made Combo; taller thumbnail + lightbox focus cleanup */
 #savedSection .saved-card.made-card{
-  min-height:74px !important;
-  padding:9px 128px 9px 9px !important;
+  min-height:88px !important;
+  padding:9px 138px 9px 9px !important;
   overflow:hidden;
 }
 .made-card-main{min-width:0;}
@@ -981,16 +981,16 @@ body.saved-context-mode .combo-strip{
   top:8px;
   right:8px;
   display:grid;
-  grid-template-columns:78px 24px;
-  grid-template-rows:24px 24px;
+  grid-template-columns:88px 24px;
+  grid-template-rows:32px 32px;
   gap:6px 7px;
   align-items:start;
 }
 .made-photo-slot{
   grid-column:1;
   grid-row:1 / span 2;
-  width:78px;
-  height:54px;
+  width:88px;
+  height:70px;
   border:1px dashed rgba(17,17,17,.28);
   border-radius:10px;
   background:rgba(248,244,236,.58);
@@ -1085,18 +1085,18 @@ body.saved-context-mode .combo-strip{
 }
 @media (max-width:720px){
   #savedSection .saved-card.made-card{
-    min-height:72px !important;
+    min-height:86px !important;
     padding-right:120px !important;
   }
-  .made-card-side{grid-template-columns:72px 23px;gap:6px 6px;}
-  .made-photo-slot{width:72px;height:52px;border-radius:9px;}
+  .made-card-side{grid-template-columns:78px 23px;grid-template-rows:31px 31px;gap:6px 6px;}
+  .made-photo-slot{width:78px;height:68px;border-radius:9px;}
   .made-card .made-card-actions .delete,
   .made-card .made-card-actions .saved-note-edit{width:23px !important;height:23px !important;}
 }
 @media (max-width:360px){
-  #savedSection .saved-card.made-card{padding-right:110px !important;}
-  .made-card-side{grid-template-columns:66px 22px;gap:5px 5px;}
-  .made-photo-slot{width:66px;height:48px;}
+  #savedSection .saved-card.made-card{min-height:82px !important;padding-right:110px !important;}
+  .made-card-side{grid-template-columns:72px 22px;grid-template-rows:29px 29px;gap:5px 5px;}
+  .made-photo-slot{width:72px;height:64px;}
   .made-card .made-card-actions .delete,
   .made-card .made-card-actions .saved-note-edit{width:22px !important;height:22px !important;}
 }
@@ -2100,16 +2100,26 @@ function comboPhotoUrl(item){
 }
 function openPhotoLightbox(url){
   if(!url) return;
-  const box=el('photoLightbox'), img=el('photoLightboxImg');
+  const box=el('photoLightbox'), img=el('photoLightboxImg'), closeBtn=el('photoLightboxClose');
   if(!box||!img) return;
   img.src=url;
-  box.classList.add('open');
   box.setAttribute('aria-hidden','false');
+  box.classList.add('open');
+  window.requestAnimationFrame(()=>{
+    try{closeBtn?.focus({preventScroll:true});}catch(e){}
+  });
 }
 function closePhotoLightbox(){
   const box=el('photoLightbox'), img=el('photoLightboxImg');
+  if(box){
+    try{
+      const active=document.activeElement;
+      if(active && box.contains(active) && typeof active.blur==='function') active.blur();
+    }catch(e){}
+    box.classList.remove('open');
+    box.setAttribute('aria-hidden','true');
+  }
   if(img) img.src='';
-  if(box){box.classList.remove('open');box.setAttribute('aria-hidden','true');}
 }
 function pickPhotoFile(){
   return new Promise(resolve=>{
@@ -2281,8 +2291,8 @@ async function openMadeEdit(item){
 async function saveMadeEdit(){
   if(!editingMadeItem) return;
   const clean=(el('madeEditNote')?.value||'').trim().slice(0,120);
-  const ok=await saveMadeNote(editingMadeItem,clean,madeEditAdminCode);
-  if(ok) closeMadeEditDrawer();
+  await saveMadeNote(editingMadeItem,clean,madeEditAdminCode);
+  closeMadeEditDrawer();
 }
 async function saveMadeNote(item,clean,code){
   if(!item || item.kind!=='made') return false;
@@ -2691,7 +2701,7 @@ async function init(){
   await loadSharedCombos();
   maybeRefreshVisibleSavedName();
 }
-el('gridToggle').onchange=drawChart;el('randomBtn').onclick=randomize;el('backBtn').onclick=back;el('sourceFullBtn').onclick=()=>setRandomSource('full');el('sourceStashBtn').onclick=()=>setRandomSource('stash');el('newNameBtn').onclick=newName;if(el('nameBackBtn')) el('nameBackBtn').onclick=backName;if(el('adminNameRefreshBtn')) el('adminNameRefreshBtn').onclick=adminRefreshNameBank;el('saveBtn').onclick=()=>openSaveDrawer('dig');el('madeBtn').onclick=()=>openSaveDrawer('made');if(el('digTab')) el('digTab').onclick=()=>setSavedTab('dig');if(el('madeTab')) el('madeTab').onclick=()=>setSavedTab('made');if(el('chartPreviewToggle')) el('chartPreviewToggle').onclick=()=>setChartPreviewPinned(!(chartPreviewPinned&&chartPreviewMode==='good'),{scroll:true,mode:'good'});if(el('paletteChartPreviewToggle')) el('paletteChartPreviewToggle').onclick=()=>setChartPreviewPinned(!(chartPreviewPinned&&chartPreviewMode==='palette'),{scroll:true,mode:'palette'});if(el('swapStripesBtn')) el('swapStripesBtn').onclick=swapStripeColors;if(el('rolesSection')) el('rolesSection').addEventListener('toggle',()=>{if(el('rolesSection').open) leaveSavedContext();});if(el('paletteSection')) el('paletteSection').addEventListener('toggle',()=>{if(el('paletteSection').open) leaveSavedContext();});el('confirmSave').onclick=savePending;el('cancelSave').onclick=closeSaveDrawer;el('closeSaveDrawer').onclick=closeSaveDrawer;el('saveDrawer').addEventListener('click',e=>{if(e.target.id==='saveDrawer')closeSaveDrawer();});if(el('closeMadeEditDrawer')) el('closeMadeEditDrawer').onclick=closeMadeEditDrawer;if(el('cancelMadeEdit')) el('cancelMadeEdit').onclick=closeMadeEditDrawer;if(el('saveMadeEdit')) el('saveMadeEdit').onclick=saveMadeEdit;if(el('madeEditDrawer')) el('madeEditDrawer').addEventListener('click',e=>{if(e.target.id==='madeEditDrawer')closeMadeEditDrawer();});if(el('madeEditPhotoUpload')) el('madeEditPhotoUpload').onclick=()=>uploadMadePhoto(editingMadeItem,madeEditAdminCode);if(el('madeEditPhotoRemove')) el('madeEditPhotoRemove').onclick=()=>removeMadePhoto(editingMadeItem,madeEditAdminCode);if(el('photoLightboxClose')) el('photoLightboxClose').onclick=closePhotoLightbox;if(el('photoLightbox')) el('photoLightbox').addEventListener('click',e=>{if(e.target.id==='photoLightbox')closePhotoLightbox();});el('search').oninput=renderPalette;el('saveName').oninput=updateSaveState;window.addEventListener('resize',drawChart);init();
+el('gridToggle').onchange=drawChart;el('randomBtn').onclick=randomize;el('backBtn').onclick=back;el('sourceFullBtn').onclick=()=>setRandomSource('full');el('sourceStashBtn').onclick=()=>setRandomSource('stash');el('newNameBtn').onclick=newName;if(el('nameBackBtn')) el('nameBackBtn').onclick=backName;if(el('adminNameRefreshBtn')) el('adminNameRefreshBtn').onclick=adminRefreshNameBank;el('saveBtn').onclick=()=>openSaveDrawer('dig');el('madeBtn').onclick=()=>openSaveDrawer('made');if(el('digTab')) el('digTab').onclick=()=>setSavedTab('dig');if(el('madeTab')) el('madeTab').onclick=()=>setSavedTab('made');if(el('chartPreviewToggle')) el('chartPreviewToggle').onclick=()=>setChartPreviewPinned(!(chartPreviewPinned&&chartPreviewMode==='good'),{scroll:true,mode:'good'});if(el('paletteChartPreviewToggle')) el('paletteChartPreviewToggle').onclick=()=>setChartPreviewPinned(!(chartPreviewPinned&&chartPreviewMode==='palette'),{scroll:true,mode:'palette'});if(el('swapStripesBtn')) el('swapStripesBtn').onclick=swapStripeColors;if(el('rolesSection')) el('rolesSection').addEventListener('toggle',()=>{if(el('rolesSection').open) leaveSavedContext();});if(el('paletteSection')) el('paletteSection').addEventListener('toggle',()=>{if(el('paletteSection').open) leaveSavedContext();});el('confirmSave').onclick=savePending;el('cancelSave').onclick=closeSaveDrawer;el('closeSaveDrawer').onclick=closeSaveDrawer;el('saveDrawer').addEventListener('click',e=>{if(e.target.id==='saveDrawer')closeSaveDrawer();});if(el('closeMadeEditDrawer')) el('closeMadeEditDrawer').onclick=closeMadeEditDrawer;if(el('cancelMadeEdit')) el('cancelMadeEdit').onclick=closeMadeEditDrawer;if(el('saveMadeEdit')) el('saveMadeEdit').onclick=saveMadeEdit;if(el('madeEditDrawer')) el('madeEditDrawer').addEventListener('click',e=>{if(e.target.id==='madeEditDrawer')closeMadeEditDrawer();});if(el('madeEditPhotoUpload')) el('madeEditPhotoUpload').onclick=()=>uploadMadePhoto(editingMadeItem,madeEditAdminCode);if(el('madeEditPhotoRemove')) el('madeEditPhotoRemove').onclick=()=>removeMadePhoto(editingMadeItem,madeEditAdminCode);if(el('photoLightboxClose')) el('photoLightboxClose').onclick=closePhotoLightbox;if(el('photoLightbox')) el('photoLightbox').addEventListener('click',e=>{if(e.target.id==='photoLightbox')closePhotoLightbox();});window.addEventListener('keydown',e=>{if(e.key==='Escape'&&el('photoLightbox')?.classList.contains('open'))closePhotoLightbox();});el('search').oninput=renderPalette;el('saveName').oninput=updateSaveState;window.addEventListener('resize',drawChart);init();
 </script>
 
 <script>
