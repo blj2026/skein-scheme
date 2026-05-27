@@ -969,7 +969,7 @@ body.saved-context-mode .combo-strip{
 
 
 
-/* v61: one cover photo per Made Combo; taller thumbnail + lightbox focus cleanup */
+/* v62: Made Combo polish — larger note line, edit-only card control, locked photo lightbox scroll */
 #savedSection .saved-card.made-card{
   min-height:88px !important;
   padding:9px 138px 9px 9px !important;
@@ -982,13 +982,13 @@ body.saved-context-mode .combo-strip{
   right:8px;
   display:grid;
   grid-template-columns:88px 24px;
-  grid-template-rows:32px 32px;
-  gap:6px 7px;
-  align-items:start;
+  grid-template-rows:70px;
+  gap:7px;
+  align-items:center;
 }
 .made-photo-slot{
   grid-column:1;
-  grid-row:1 / span 2;
+  grid-row:1;
   width:88px;
   height:70px;
   border:1px dashed rgba(17,17,17,.28);
@@ -1014,11 +1014,11 @@ body.saved-context-mode .combo-strip{
 }
 .made-card-actions{
   grid-column:2;
-  grid-row:1 / span 2;
+  grid-row:1;
   display:grid;
+  place-items:center;
   gap:6px;
 }
-.made-card .made-card-actions .delete,
 .made-card .made-card-actions .saved-note-edit{
   position:static !important;
   top:auto !important;
@@ -1028,10 +1028,41 @@ body.saved-context-mode .combo-strip{
   border-radius:8px !important;
   opacity:.78 !important;
 }
-.made-card .made-card-actions .delete:hover,
 .made-card .made-card-actions .saved-note-edit:hover{
   opacity:1 !important;
 }
+.made-card .saved-note{
+  font-size:10px !important;
+  line-height:1.05 !important;
+  font-weight:800 !important;
+  letter-spacing:.015em !important;
+  color:#5f574f !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+  max-width:100% !important;
+}
+.made-edit-delete-row{
+  margin-top:4px;
+  padding-top:9px;
+  border-top:1px solid var(--line-soft);
+}
+.made-edit-delete-btn{
+  width:100%;
+  min-height:34px !important;
+  border-radius:999px !important;
+  font-size:10px !important;
+  color:#111 !important;
+  background:#fffaf2 !important;
+}
+.made-edit-delete-btn:hover{
+  background:#111 !important;
+  color:#fff !important;
+}
+body.photo-lightbox-scroll-locked{
+  overflow:hidden !important;
+}
+
 .made-edit-photo-row{
   display:grid;
   grid-template-columns:96px minmax(0,1fr);
@@ -1059,6 +1090,9 @@ body.saved-context-mode .combo-strip{
   align-items:center;
   justify-content:center;
   padding:22px;
+  overflow:hidden;
+  overscroll-behavior:contain;
+  touch-action:none;
 }
 .photo-lightbox.open{display:flex;}
 .photo-lightbox-img{
@@ -1088,16 +1122,14 @@ body.saved-context-mode .combo-strip{
     min-height:86px !important;
     padding-right:120px !important;
   }
-  .made-card-side{grid-template-columns:78px 23px;grid-template-rows:31px 31px;gap:6px 6px;}
+  .made-card-side{grid-template-columns:78px 23px;grid-template-rows:68px;gap:6px;}
   .made-photo-slot{width:78px;height:68px;border-radius:9px;}
-  .made-card .made-card-actions .delete,
   .made-card .made-card-actions .saved-note-edit{width:23px !important;height:23px !important;}
 }
 @media (max-width:360px){
   #savedSection .saved-card.made-card{min-height:82px !important;padding-right:110px !important;}
-  .made-card-side{grid-template-columns:72px 22px;grid-template-rows:29px 29px;gap:5px 5px;}
+  .made-card-side{grid-template-columns:72px 22px;grid-template-rows:64px;gap:5px;}
   .made-photo-slot{width:72px;height:64px;}
-  .made-card .made-card-actions .delete,
   .made-card .made-card-actions .saved-note-edit{width:22px !important;height:22px !important;}
 }
 
@@ -1111,7 +1143,7 @@ body.saved-context-mode .combo-strip{
     </header>
     <main class="app-grid">
       <section class="card chart-card" data-panel="chart">
-        <div class="pattern-section-title">KNITTING PATTERN</div>
+        <div class="pattern-section-title">KNIT PATTERN</div>
         <div class="combo-strip"><div class="combo-left"><strong id="comboName">starter mix</strong><div class="dots" id="comboDots"></div></div><div class="name-tools"><button class="icon-btn name-back-btn" id="nameBackBtn" type="button" title="Back to previous combo name" disabled>↶</button><button class="icon-btn name-new-btn" id="newNameBtn" type="button" title="Generate a new combo name">new name ↺</button></div><label class="toggle">Grid <input id="gridToggle" type="checkbox" checked /></label></div>
         <div class="chart-scroll"><div id="chart"></div></div><p id="chartInfo" style="display:none"></p>
         <div class="actions" data-panel="actions"><button class="btn primary" id="randomBtn">Randomize</button><button class="btn" id="backBtn" disabled>Back</button><div class="source-row"><button class="source-btn active" id="sourceFullBtn" type="button">Full Palette</button><button class="source-btn" id="sourceStashBtn" type="button">Current Stash</button><div class="source-warning" id="stashWarning">Add at least 5 colors to Current Stash before randomizing from it.</div></div><button class="btn save-action" id="saveBtn">I Dig This!</button><button class="btn save-action" id="madeBtn">I Made This!</button></div>
@@ -1170,6 +1202,9 @@ body.saved-context-mode .combo-strip{
             </div>
           </div>
         </div>
+        <div class="made-edit-delete-row">
+          <button class="btn made-edit-delete-btn" id="madeEditDelete" type="button">Delete Made Combo</button>
+        </div>
       </div>
       <div class="drawer-actions">
         <button class="btn" id="cancelMadeEdit" type="button">Cancel</button>
@@ -1201,6 +1236,7 @@ let aiRefreshNames=[];
 const ADMIN_CODE='123';
 const COMBO_PHOTO_BUCKET='combo-photos';
 let editingMadeItem=null, madeEditAdminCode='';
+let photoLightboxScrollY=0;
 const el=id=>document.getElementById(id);
 const SUPABASE_URL='https://upyxpakxrpudsudsencg.supabase.co';
 const SUPABASE_KEY='sb_publishable_WWCfJ2OsbQVguApac-Rnaw_PnqILcDf';
@@ -2098,11 +2134,31 @@ function comboPhotoUrl(item){
   }
   return `${SUPABASE_URL}/storage/v1/object/public/${COMBO_PHOTO_BUCKET}/${path.split('/').map(encodeURIComponent).join('/')}`;
 }
+function lockPhotoLightboxScroll(){
+  photoLightboxScrollY=window.scrollY||document.documentElement.scrollTop||0;
+  document.body.classList.add('photo-lightbox-scroll-locked');
+  document.body.style.position='fixed';
+  document.body.style.top=`-${photoLightboxScrollY}px`;
+  document.body.style.left='0';
+  document.body.style.right='0';
+  document.body.style.width='100%';
+}
+function unlockPhotoLightboxScroll(){
+  if(!document.body.classList.contains('photo-lightbox-scroll-locked')) return;
+  document.body.classList.remove('photo-lightbox-scroll-locked');
+  document.body.style.position='';
+  document.body.style.top='';
+  document.body.style.left='';
+  document.body.style.right='';
+  document.body.style.width='';
+  window.scrollTo(0,photoLightboxScrollY||0);
+}
 function openPhotoLightbox(url){
   if(!url) return;
   const box=el('photoLightbox'), img=el('photoLightboxImg'), closeBtn=el('photoLightboxClose');
   if(!box||!img) return;
   img.src=url;
+  lockPhotoLightboxScroll();
   box.setAttribute('aria-hidden','false');
   box.classList.add('open');
   window.requestAnimationFrame(()=>{
@@ -2120,6 +2176,7 @@ function closePhotoLightbox(){
     box.setAttribute('aria-hidden','true');
   }
   if(img) img.src='';
+  unlockPhotoLightboxScroll();
 }
 function pickPhotoFile(){
   return new Promise(resolve=>{
@@ -2288,6 +2345,14 @@ async function openMadeEdit(item){
   const drawer=el('madeEditDrawer');
   if(drawer){drawer.classList.add('open');drawer.setAttribute('aria-hidden','false');}
 }
+async function deleteMadeFromEdit(){
+  if(!editingMadeItem) return;
+  if(!confirm('Delete this Made Combo?')) return;
+  const item=editingMadeItem;
+  const code=madeEditAdminCode;
+  closeMadeEditDrawer();
+  await deleteSavedItem(item,code);
+}
 async function saveMadeEdit(){
   if(!editingMadeItem) return;
   const clean=(el('madeEditNote')?.value||'').trim().slice(0,120);
@@ -2413,7 +2478,7 @@ function renderSavedList(id,kind){
     const cardBody=`<div class="saved-colors">${ROLES.map(r=>`<span class="mini" style="background:${item.selections?.[r.key]?.hex||'#ddd'}"></span>`).join('')}</div><div class="saved-title">${escapeHTML(item.comboName)}</div><div class="saved-meta">by ${escapeHTML(item.name)}</div>${item.note?`<div class="saved-note">${escapeHTML(item.note)}</div>`:''}`;
     if(kind==='made'){
       const photoUrl=comboPhotoUrl(item);
-      d.innerHTML=`<div class="made-card-main">${cardBody}</div><div class="made-card-side"><button class="made-photo-slot${photoUrl?' has-photo':''}" type="button" aria-label="${photoUrl?'View project photo':'Add project photo'}">${photoUrl?`<img src="${escapeAttr(photoUrl)}" alt="" loading="lazy" />`:''}</button><div class="made-card-actions"><button class="delete" aria-label="delete">×</button><button class="saved-note-edit made-edit-btn" type="button" aria-label="Edit Made Combo" title="Edit Made Combo">✎</button></div></div>`;
+      d.innerHTML=`<div class="made-card-main">${cardBody}</div><div class="made-card-side"><button class="made-photo-slot${photoUrl?' has-photo':''}" type="button" aria-label="${photoUrl?'View project photo':'Add project photo'}">${photoUrl?`<img src="${escapeAttr(photoUrl)}" alt="" loading="lazy" />`:''}</button><div class="made-card-actions"><button class="saved-note-edit made-edit-btn" type="button" aria-label="Edit Made Combo" title="Edit Made Combo">✎</button></div></div>`;
     }else{
       d.innerHTML=`<button class="delete" aria-label="delete">×</button>${cardBody}`;
     }
@@ -2426,10 +2491,12 @@ function renderSavedList(id,kind){
       renderAll();
     };
     const del=d.querySelector('.delete');
-    del.onclick=async(event)=>{
-      event.stopPropagation();
-      await deleteSavedItem(item);
-    };
+    if(del){
+      del.onclick=async(event)=>{
+        event.stopPropagation();
+        await deleteSavedItem(item);
+      };
+    }
     const edit=d.querySelector('.saved-note-edit');
     if(edit){
       edit.onclick=async(event)=>{
@@ -2487,13 +2554,16 @@ function updateSavedTabs(){
 
 async function editMadeNote(item){return openMadeEdit(item);}
 
-async function deleteSavedItem(item){
+async function deleteSavedItem(item,providedCode=null){
   if(!item) return;
 
-  const code=prompt(
-    "Whoops, did you accidentally save an ugly one? Embarrassing! Text Bryant and he\'ll delete it.\n\n" +
-    'Admin code:'
-  );
+  let code=providedCode;
+  if(code===null){
+    code=prompt(
+      "Whoops, did you accidentally save an ugly one? Embarrassing! Text Bryant and he\'ll delete it.\n\n" +
+      'Admin code:'
+    );
+  }
 
   if(!code) return;
 
@@ -2701,7 +2771,7 @@ async function init(){
   await loadSharedCombos();
   maybeRefreshVisibleSavedName();
 }
-el('gridToggle').onchange=drawChart;el('randomBtn').onclick=randomize;el('backBtn').onclick=back;el('sourceFullBtn').onclick=()=>setRandomSource('full');el('sourceStashBtn').onclick=()=>setRandomSource('stash');el('newNameBtn').onclick=newName;if(el('nameBackBtn')) el('nameBackBtn').onclick=backName;if(el('adminNameRefreshBtn')) el('adminNameRefreshBtn').onclick=adminRefreshNameBank;el('saveBtn').onclick=()=>openSaveDrawer('dig');el('madeBtn').onclick=()=>openSaveDrawer('made');if(el('digTab')) el('digTab').onclick=()=>setSavedTab('dig');if(el('madeTab')) el('madeTab').onclick=()=>setSavedTab('made');if(el('chartPreviewToggle')) el('chartPreviewToggle').onclick=()=>setChartPreviewPinned(!(chartPreviewPinned&&chartPreviewMode==='good'),{scroll:true,mode:'good'});if(el('paletteChartPreviewToggle')) el('paletteChartPreviewToggle').onclick=()=>setChartPreviewPinned(!(chartPreviewPinned&&chartPreviewMode==='palette'),{scroll:true,mode:'palette'});if(el('swapStripesBtn')) el('swapStripesBtn').onclick=swapStripeColors;if(el('rolesSection')) el('rolesSection').addEventListener('toggle',()=>{if(el('rolesSection').open) leaveSavedContext();});if(el('paletteSection')) el('paletteSection').addEventListener('toggle',()=>{if(el('paletteSection').open) leaveSavedContext();});el('confirmSave').onclick=savePending;el('cancelSave').onclick=closeSaveDrawer;el('closeSaveDrawer').onclick=closeSaveDrawer;el('saveDrawer').addEventListener('click',e=>{if(e.target.id==='saveDrawer')closeSaveDrawer();});if(el('closeMadeEditDrawer')) el('closeMadeEditDrawer').onclick=closeMadeEditDrawer;if(el('cancelMadeEdit')) el('cancelMadeEdit').onclick=closeMadeEditDrawer;if(el('saveMadeEdit')) el('saveMadeEdit').onclick=saveMadeEdit;if(el('madeEditDrawer')) el('madeEditDrawer').addEventListener('click',e=>{if(e.target.id==='madeEditDrawer')closeMadeEditDrawer();});if(el('madeEditPhotoUpload')) el('madeEditPhotoUpload').onclick=()=>uploadMadePhoto(editingMadeItem,madeEditAdminCode);if(el('madeEditPhotoRemove')) el('madeEditPhotoRemove').onclick=()=>removeMadePhoto(editingMadeItem,madeEditAdminCode);if(el('photoLightboxClose')) el('photoLightboxClose').onclick=closePhotoLightbox;if(el('photoLightbox')) el('photoLightbox').addEventListener('click',e=>{if(e.target.id==='photoLightbox')closePhotoLightbox();});window.addEventListener('keydown',e=>{if(e.key==='Escape'&&el('photoLightbox')?.classList.contains('open'))closePhotoLightbox();});el('search').oninput=renderPalette;el('saveName').oninput=updateSaveState;window.addEventListener('resize',drawChart);init();
+el('gridToggle').onchange=drawChart;el('randomBtn').onclick=randomize;el('backBtn').onclick=back;el('sourceFullBtn').onclick=()=>setRandomSource('full');el('sourceStashBtn').onclick=()=>setRandomSource('stash');el('newNameBtn').onclick=newName;if(el('nameBackBtn')) el('nameBackBtn').onclick=backName;if(el('adminNameRefreshBtn')) el('adminNameRefreshBtn').onclick=adminRefreshNameBank;el('saveBtn').onclick=()=>openSaveDrawer('dig');el('madeBtn').onclick=()=>openSaveDrawer('made');if(el('digTab')) el('digTab').onclick=()=>setSavedTab('dig');if(el('madeTab')) el('madeTab').onclick=()=>setSavedTab('made');if(el('chartPreviewToggle')) el('chartPreviewToggle').onclick=()=>setChartPreviewPinned(!(chartPreviewPinned&&chartPreviewMode==='good'),{scroll:true,mode:'good'});if(el('paletteChartPreviewToggle')) el('paletteChartPreviewToggle').onclick=()=>setChartPreviewPinned(!(chartPreviewPinned&&chartPreviewMode==='palette'),{scroll:true,mode:'palette'});if(el('swapStripesBtn')) el('swapStripesBtn').onclick=swapStripeColors;if(el('rolesSection')) el('rolesSection').addEventListener('toggle',()=>{if(el('rolesSection').open) leaveSavedContext();});if(el('paletteSection')) el('paletteSection').addEventListener('toggle',()=>{if(el('paletteSection').open) leaveSavedContext();});el('confirmSave').onclick=savePending;el('cancelSave').onclick=closeSaveDrawer;el('closeSaveDrawer').onclick=closeSaveDrawer;el('saveDrawer').addEventListener('click',e=>{if(e.target.id==='saveDrawer')closeSaveDrawer();});if(el('closeMadeEditDrawer')) el('closeMadeEditDrawer').onclick=closeMadeEditDrawer;if(el('cancelMadeEdit')) el('cancelMadeEdit').onclick=closeMadeEditDrawer;if(el('saveMadeEdit')) el('saveMadeEdit').onclick=saveMadeEdit;if(el('madeEditDrawer')) el('madeEditDrawer').addEventListener('click',e=>{if(e.target.id==='madeEditDrawer')closeMadeEditDrawer();});if(el('madeEditPhotoUpload')) el('madeEditPhotoUpload').onclick=()=>uploadMadePhoto(editingMadeItem,madeEditAdminCode);if(el('madeEditPhotoRemove')) el('madeEditPhotoRemove').onclick=()=>removeMadePhoto(editingMadeItem,madeEditAdminCode);if(el('madeEditDelete')) el('madeEditDelete').onclick=deleteMadeFromEdit;if(el('photoLightboxClose')) el('photoLightboxClose').onclick=closePhotoLightbox;if(el('photoLightbox')) el('photoLightbox').addEventListener('click',e=>{if(e.target.id==='photoLightbox')closePhotoLightbox();});window.addEventListener('keydown',e=>{if(e.key==='Escape'&&el('photoLightbox')?.classList.contains('open'))closePhotoLightbox();});el('search').oninput=renderPalette;el('saveName').oninput=updateSaveState;window.addEventListener('resize',drawChart);init();
 </script>
 
 <script>
