@@ -1,4 +1,4 @@
-const CACHE_NAME = 'skein-scheme-pwa-v10-palette-caption';
+const CACHE_NAME = 'hue-queue-pwa-v1';
 const CORE_ASSETS = [
   './',
   './index.html',

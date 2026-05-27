@@ -1,7 +1,7 @@
 {
-  "name": "Skein Scheme",
-  "short_name": "Skein Scheme",
-  "description": "A colorwork palette preview tool for knitters.",
+  "name": "Hue Queue",
+  "short_name": "Hue Queue",
+  "description": "A color palette preview tool for knitters.",
   "id": "./",
   "start_url": "./",
   "scope": "./",
