@@ -1,4 +1,4 @@
-const CACHE_NAME = 'hue-queue-pwa-v1';
+const CACHE_NAME = 'hue-queue-pwa-v2-metadata';
 const CORE_ASSETS = [
   './',
   './index.html',

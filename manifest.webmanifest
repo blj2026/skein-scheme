@@ -1,7 +1,7 @@
 {
   "name": "Hue Queue",
   "short_name": "Hue Queue",
-  "description": "A color palette preview tool for knitters.",
+  "description": "A color palette preview tool for testing yarn color combinations before they hit the chart.",
   "id": "./",
   "start_url": "./",
   "scope": "./",
@@ -28,5 +28,11 @@
       "type": "image/png",
       "purpose": "maskable"
     }
+  ],
+  "lang": "en-US",
+  "categories": [
+    "design",
+    "utilities",
+    "lifestyle"
   ]
 }
