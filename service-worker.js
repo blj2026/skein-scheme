@@ -1,4 +1,4 @@
-const CACHE_NAME = 'hue-queue-pwa-v2-metadata';
+const CACHE_NAME = 'hue-queue-pwa-v4-photo-color-calibration-existing-combos';
 const CORE_ASSETS = [
   './',
   './index.html',
