@@ -5168,9 +5168,71 @@ body.photo-lightbox-scroll-locked{
   }
 }
 
+
+/* v147: help popup clearance + background signature layer
+   Keeps v146 mobile/chart/help behavior, then gives the help copy room around the close button
+   and anchors the blj mark to the page background instead of floating over scrolled content. */
+body{
+  position:relative !important;
+}
+.page{
+  position:relative !important;
+  z-index:1 !important;
+}
+.hq-help-panel{
+  padding:20px 58px 20px 20px !important;
+}
+.hq-help-copy{
+  max-width:100% !important;
+}
+.hq-help-close{
+  top:12px !important;
+  right:12px !important;
+}
+.hq-signature{
+  position:absolute !important;
+  right:26px !important;
+  bottom:18px !important;
+  z-index:0 !important;
+  color:#5f5a54 !important;
+  opacity:.72 !important;
+}
+@media (max-width:720px){
+  .hq-help-backdrop{
+    padding:84px 12px 16px !important;
+  }
+  .hq-help-panel{
+    width:calc(100vw - 24px) !important;
+    padding:18px 50px 18px 16px !important;
+    border-radius:18px !important;
+  }
+  .hq-help-close{
+    top:10px !important;
+    right:10px !important;
+    width:28px !important;
+    height:28px !important;
+    border-radius:10px !important;
+    font-size:18px !important;
+  }
+  body.chart-preview-on .hq-signature,
+  .hq-signature{
+    position:absolute !important;
+    right:calc(34px + env(safe-area-inset-right,0px)) !important;
+    bottom:calc(18px + env(safe-area-inset-bottom,0px)) !important;
+    z-index:0 !important;
+    font-size:10px !important;
+  }
+}
+
+
+/* v148: desktop Good Stuff alignment guard
+   Only stretch the collapsed Good Stuff summary in the default desktop stack where Palette and
+   Readability are open. If those panels are collapsed, keep Good Stuff at its natural height
+   instead of turning into a large blank spacer. */
+
 </style>
 </head>
-<body data-hq-build="v146-mobile-preview-help-tune">
+<body data-hq-build="v148-desktop-good-stuff-alignment-guard">
 <div class="page">
 
 <main class="app-grid">
@@ -7046,13 +7108,17 @@ function scheduleGoodStuffBottomAlign(delay=0){
 function alignCollapsedGoodStuffToChartColors(){
   const good=el('savedSection');
   const roles=el('rolesSection');
+  const palette=el('paletteSection');
+  const readability=el('readabilitySection');
   if(!good || !roles) return;
-  if(!isDesktopWorkbench() || good.open || !roles.open){
+  const defaultRightStackOpen=!!(palette?.open && readability?.open);
+  if(!isDesktopWorkbench() || good.open || !roles.open || !defaultRightStackOpen){
     good.style.removeProperty('--hq-good-stuff-align-height');
     return;
   }
   requestAnimationFrame(()=>{
-    if(!isDesktopWorkbench() || good.open || !roles.open){
+    const stillDefaultRightStackOpen=!!(palette?.open && readability?.open);
+    if(!isDesktopWorkbench() || good.open || !roles.open || !stillDefaultRightStackOpen){
       good.style.removeProperty('--hq-good-stuff-align-height');
       return;
     }
