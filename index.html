@@ -5308,9 +5308,37 @@ body{
   }
 }
 
+
+
+/* v151: tiny Good Stuff view-pill spacing nudge
+   Presentation-only: move the collapsed Good Stuff "view" pill a hair to the right
+   so it breathes away from the waving title text. */
+#savedSection:not([open]) .good-stuff-summary-main:after{
+  margin-left:8px !important;
+}
+
+
+/* v153: mobile chart no-empty-scroll repair
+   Mobile follow-up to the v122 desktop fix: use layout-aware zoom instead of transform scaling
+   so the chart's horizontal scrollbar ends where the visible pattern ends. */
+@media (max-width:720px){
+  .chart-scroll #chart{
+    transform:none !important;
+    zoom:.74 !important;
+    margin-bottom:0 !important;
+  }
+}
+@media (max-width:360px){
+  .chart-scroll #chart{
+    transform:none !important;
+    zoom:.68 !important;
+    margin-bottom:0 !important;
+  }
+}
+
 </style>
 </head>
-<body data-hq-build="v150-desktop-signature-goodstuff-wave">
+<body data-hq-build="v153-mobile-chart-no-empty-scroll">
 <div class="page">
 
 <main class="app-grid">
@@ -7274,8 +7302,26 @@ init();
   });
 })();
 </script>
+
 <script>
-const HQ_APP_BUILD = 'v144-no-default-page-scroll';
+/* v152: mobile header reset backup
+   Mobile-only: tapping the top Hue Queue header acts like turning off the chart-preview eyeball.
+   It preserves the current chart/colors/name and simply restores the normal browsing view
+   when someone gets stuck inside the Good Stuff chart-preview state. */
+(function(){
+  const heroHeader=document.querySelector('.hero');
+  if(!heroHeader) return;
+  heroHeader.addEventListener('click',event=>{
+    if(window.matchMedia('(min-width: 721px)').matches) return;
+    if(event.target.closest('button,a,input,label,summary,[role="button"]')) return;
+    if(typeof chartPreviewPinned==='undefined' || !chartPreviewPinned) return;
+    if(typeof setChartPreviewPinned!=='function') return;
+    setChartPreviewPinned(false,{scroll:false});
+  });
+})();
+</script>
+<script>
+const HQ_APP_BUILD = 'v153-mobile-chart-no-empty-scroll';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', async () => {
     try {
