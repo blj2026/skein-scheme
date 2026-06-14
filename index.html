@@ -5336,9 +5336,27 @@ body{
   }
 }
 
+
+/* v154: mobile signature fixed-background behavior
+   Keep desktop behavior as-is. On mobile, keep blj 2026 anchored to the viewport bottom like desktop,
+   but leave it behind the app cards so scrolling content covers it instead of text merging over cards. */
+@media (max-width:720px){
+  body.chart-preview-on .hq-signature,
+  .hq-signature{
+    position:fixed !important;
+    right:calc(34px + env(safe-area-inset-right,0px)) !important;
+    bottom:calc(8px + env(safe-area-inset-bottom,0px)) !important;
+    z-index:0 !important;
+    font-size:10px !important;
+    color:#5f5a54 !important;
+    opacity:.72 !important;
+    pointer-events:none !important;
+  }
+}
+
 </style>
 </head>
-<body data-hq-build="v153-mobile-chart-no-empty-scroll">
+<body data-hq-build="v154-mobile-signature-fixed-bg">
 <div class="page">
 
 <main class="app-grid">
@@ -7321,7 +7339,7 @@ init();
 })();
 </script>
 <script>
-const HQ_APP_BUILD = 'v153-mobile-chart-no-empty-scroll';
+const HQ_APP_BUILD = 'v154-mobile-signature-fixed-bg';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', async () => {
     try {
