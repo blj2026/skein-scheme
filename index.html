@@ -5230,9 +5230,87 @@ body{
    Readability are open. If those panels are collapsed, keep Good Stuff at its natural height
    instead of turning into a large blank spacer. */
 
+
+/* v149: mobile signature nudge
+   Mobile-only placement tweak after v148: move the background blj mark slightly lower
+   so it sits in the grid margin instead of hiding behind the last mobile card. */
+@media (max-width:720px){
+  body.chart-preview-on .hq-signature,
+  .hq-signature{
+    right:calc(34px + env(safe-area-inset-right,0px)) !important;
+    bottom:calc(6px + env(safe-area-inset-bottom,0px)) !important;
+  }
+}
+
+
+/* v150: desktop signature split + Good Stuff wave cue
+   Desktop gets the blj mark fixed back to the viewport corner. Mobile keeps the background-layer
+   treatment so it does not sit over scrolled cards. The collapsed Good Stuff cue changes from
+   scale/zoom to a staggered letter wave; the view pill remains still. */
+@media (min-width:721px){
+  .hq-signature{
+    position:fixed !important;
+    right:14px !important;
+    bottom:10px !important;
+    z-index:12 !important;
+    font-size:11px !important;
+    color:#5f5a54 !important;
+    opacity:.82 !important;
+  }
+}
+
+@media (max-width:720px){
+  body.chart-preview-on .hq-signature,
+  .hq-signature{
+    position:absolute !important;
+    right:calc(34px + env(safe-area-inset-right,0px)) !important;
+    bottom:calc(6px + env(safe-area-inset-bottom,0px)) !important;
+    z-index:0 !important;
+  }
+}
+
+#savedSection:not([open]) > summary .good-stuff-summary-main{
+  animation:none !important;
+  transform:none !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  gap:0 !important;
+}
+
+#savedSection:not([open]) > summary .good-stuff-summary-main .hq-good-letter{
+  display:inline-block !important;
+  transform:translateY(0);
+  animation:hqGoodStuffLetterWave 6.8s ease-in-out infinite;
+  animation-delay:calc(var(--hq-letter-index) * .065s);
+  transform-origin:center bottom;
+}
+
+#savedSection:not([open]) > summary .good-stuff-summary-main .hq-good-space{
+  width:.42em;
+}
+
+#savedSection[open] > summary .good-stuff-summary-main .hq-good-letter{
+  animation:none !important;
+  transform:none !important;
+}
+
+@keyframes hqGoodStuffLetterWave{
+  0%,60%,100%{transform:translateY(0) rotate(0deg);}
+  66%{transform:translateY(-2px) rotate(-1deg);}
+  72%{transform:translateY(1px) rotate(1deg);}
+  78%{transform:translateY(0) rotate(0deg);}
+}
+
+@media (prefers-reduced-motion:reduce){
+  #savedSection:not([open]) > summary .good-stuff-summary-main .hq-good-letter{
+    animation:none !important;
+    transform:none !important;
+  }
+}
+
 </style>
 </head>
-<body data-hq-build="v148-desktop-good-stuff-alignment-guard">
+<body data-hq-build="v150-desktop-signature-goodstuff-wave">
 <div class="page">
 
 <main class="app-grid">
@@ -5246,7 +5324,7 @@ body{
 <div class="chart-scroll"><div id="chart"></div></div><p id="chartInfo" style="display:none"></p>
 <div class="actions" data-panel="actions"><button class="btn primary" id="randomBtn">Randomize</button><button class="btn" disabled="" id="backBtn">Back</button><div class="source-row"><button class="source-btn active" id="sourceFullBtn" type="button">Full Palette</button><button class="source-btn" id="sourceStashBtn" type="button">Current Stash</button><div class="source-warning" id="stashWarning">Add at least 5 colors to Current Stash before randomizing from it.</div></div><button class="btn save-action" id="saveBtn">I Dig This!</button><button class="btn save-action" id="madeBtn">I Made This!</button></div>
 </section><details class="section" id="rolesSection"><summary>Chart Colors</summary><div class="section-body"><div class="roles-row" id="roleCards"></div><button aria-label="Swap Stripe A and Stripe B" class="stripe-swap-icon" id="swapStripesBtn" title="Swap Stripe A and Stripe B" type="button">↔</button></div></details></div>
-      <div class="below right-workspace"><details class="section" id="paletteSection"><summary>Palette</summary><div class="section-body"><div class="palette-tools"><input class="search" id="search" placeholder="Search number, name, hex"/><div class="active-pill" id="activeRoleLabel">Main</div><button aria-pressed="false" class="chart-preview-toggle palette-preview-toggle" id="paletteChartPreviewToggle" title="Chart preview" type="button"><span aria-hidden="true" class="preview-eye"><svg fill="none" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M2.75 12s3.25-5.5 9.25-5.5S21.25 12 21.25 12 18 17.5 12 17.5 2.75 12 2.75 12Z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path><circle cx="12" cy="12" r="2.75" stroke-width="2"></circle></svg></span><span class="preview-label">chart preview</span></button></div><div class="palette-source-note">Cascade 220® wool yarn · 175 colors</div><div class="filters" id="filters"></div><div class="palette" id="palette"></div></div></details><details class="section" id="readabilitySection"><summary>Readability Check</summary><div class="section-body"><div class="metrics" id="metrics"></div></div></details><details class="section" id="savedSection" open=""><summary><span class="good-stuff-summary-main">The Good Stuff</span><span class="good-stuff-summary-sub" id="goodStuffTeaser">Saved + Made combos</span></summary><div class="section-body"><div aria-label="Saved and made combos" class="combo-tabs" role="tablist"><button aria-controls="digPanel" aria-selected="false" class="combo-tab" data-tab="dig" id="digTab" role="tab" type="button">Saved <span id="digCount">0</span></button><button aria-controls="madePanel" aria-selected="false" class="combo-tab" data-tab="made" id="madeTab" role="tab" type="button">Made <span id="madeCount">0</span></button></div><div class="my-combos-head is-hidden" id="savedTabHead"><div class="my-combos-text"><div class="my-combos-title" id="savedTabTitle"></div><div class="my-combos-copy" id="savedTabCopy"></div></div><button aria-pressed="false" class="chart-preview-toggle" id="chartPreviewToggle" title="Chart preview" type="button"><span aria-hidden="true" class="preview-eye"><svg fill="none" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M2.75 12s3.25-5.5 9.25-5.5S21.25 12 21.25 12 18 17.5 12 17.5 2.75 12 2.75 12Z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path><circle cx="12" cy="12" r="2.75" stroke-width="2"></circle></svg></span><span class="preview-label">chart preview</span></button></div><div aria-labelledby="digTab" class="combo-panel" id="digPanel" role="tabpanel"><div class="saved-grid" id="digCombos"></div></div><div aria-labelledby="madeTab" class="combo-panel" id="madePanel" role="tabpanel"><div class="saved-grid" id="madeCombos"></div></div></div></details></div>
+      <div class="below right-workspace"><details class="section" id="paletteSection"><summary>Palette</summary><div class="section-body"><div class="palette-tools"><input class="search" id="search" placeholder="Search number, name, hex"/><div class="active-pill" id="activeRoleLabel">Main</div><button aria-pressed="false" class="chart-preview-toggle palette-preview-toggle" id="paletteChartPreviewToggle" title="Chart preview" type="button"><span aria-hidden="true" class="preview-eye"><svg fill="none" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M2.75 12s3.25-5.5 9.25-5.5S21.25 12 21.25 12 18 17.5 12 17.5 2.75 12 2.75 12Z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path><circle cx="12" cy="12" r="2.75" stroke-width="2"></circle></svg></span><span class="preview-label">chart preview</span></button></div><div class="palette-source-note">Cascade 220® wool yarn · 175 colors</div><div class="filters" id="filters"></div><div class="palette" id="palette"></div></div></details><details class="section" id="readabilitySection"><summary>Readability Check</summary><div class="section-body"><div class="metrics" id="metrics"></div></div></details><details class="section" id="savedSection" open=""><summary><span class="good-stuff-summary-main" aria-label="The Good Stuff"><span class="hq-good-letter" style="--hq-letter-index:0">T</span><span class="hq-good-letter" style="--hq-letter-index:1">h</span><span class="hq-good-letter" style="--hq-letter-index:2">e</span><span class="hq-good-letter hq-good-space" style="--hq-letter-index:3">&nbsp;</span><span class="hq-good-letter" style="--hq-letter-index:4">G</span><span class="hq-good-letter" style="--hq-letter-index:5">o</span><span class="hq-good-letter" style="--hq-letter-index:6">o</span><span class="hq-good-letter" style="--hq-letter-index:7">d</span><span class="hq-good-letter hq-good-space" style="--hq-letter-index:8">&nbsp;</span><span class="hq-good-letter" style="--hq-letter-index:9">S</span><span class="hq-good-letter" style="--hq-letter-index:10">t</span><span class="hq-good-letter" style="--hq-letter-index:11">u</span><span class="hq-good-letter" style="--hq-letter-index:12">f</span><span class="hq-good-letter" style="--hq-letter-index:13">f</span></span><span class="good-stuff-summary-sub" id="goodStuffTeaser">Saved + Made combos</span></summary><div class="section-body"><div aria-label="Saved and made combos" class="combo-tabs" role="tablist"><button aria-controls="digPanel" aria-selected="false" class="combo-tab" data-tab="dig" id="digTab" role="tab" type="button">Saved <span id="digCount">0</span></button><button aria-controls="madePanel" aria-selected="false" class="combo-tab" data-tab="made" id="madeTab" role="tab" type="button">Made <span id="madeCount">0</span></button></div><div class="my-combos-head is-hidden" id="savedTabHead"><div class="my-combos-text"><div class="my-combos-title" id="savedTabTitle"></div><div class="my-combos-copy" id="savedTabCopy"></div></div><button aria-pressed="false" class="chart-preview-toggle" id="chartPreviewToggle" title="Chart preview" type="button"><span aria-hidden="true" class="preview-eye"><svg fill="none" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M2.75 12s3.25-5.5 9.25-5.5S21.25 12 21.25 12 18 17.5 12 17.5 2.75 12 2.75 12Z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path><circle cx="12" cy="12" r="2.75" stroke-width="2"></circle></svg></span><span class="preview-label">chart preview</span></button></div><div aria-labelledby="digTab" class="combo-panel" id="digPanel" role="tabpanel"><div class="saved-grid" id="digCombos"></div></div><div aria-labelledby="madeTab" class="combo-panel" id="madePanel" role="tabpanel"><div class="saved-grid" id="madeCombos"></div></div></div></details></div>
     </main>
 </div>
 <div aria-hidden="true" class="hq-help-backdrop" id="hqHelpBackdrop">
