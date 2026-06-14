@@ -5110,15 +5110,73 @@ body.photo-lightbox-scroll-locked{
   }
 }
 
+
+
+/* v145: mobile chart-preview stick + mobile signature safe inset
+   Keeps v144 desktop no-scroll behavior, then repairs mobile chart-preview pinning and
+   moves the fixed blj signature left/up slightly so it does not clip on mobile browser chrome.
+   Presentation-only; no Supabase/data logic changes. */
+@media (max-width:720px){
+  /* Let the chart card's sticky container be the full app flow, not only the short left workspace. */
+  body.chart-preview-on .left-workspace{
+    display:contents !important;
+  }
+
+  body.chart-preview-on .chart-card{
+    position:sticky !important;
+    top:0 !important;
+    z-index:60 !important;
+    margin-top:0 !important;
+    border-radius:0 0 20px 20px !important;
+    box-shadow:0 12px 24px rgba(18,18,18,.16) !important;
+  }
+
+  body.chart-preview-on .hq-signature,
+  .hq-signature{
+    right:calc(22px + env(safe-area-inset-right,0px)) !important;
+    bottom:calc(12px + env(safe-area-inset-bottom,0px)) !important;
+    font-size:10px !important;
+  }
+}
+
+
+/* v146: help button copy tune
+   Keeps v145 mobile chart-preview/signature fixes, changes the header help affordance
+   from ? to ?!, and removes the redundant Own it! title inside the help panel. */
+.hq-help-btn{
+  width:28px !important;
+  height:24px !important;
+  font-size:10.5px !important;
+  letter-spacing:-.06em !important;
+  padding:0 !important;
+}
+.hq-help-panel{
+  padding-top:18px !important;
+}
+.hq-help-title{
+  display:none !important;
+}
+@media (max-width:720px){
+  .hq-help-btn{
+    width:28px !important;
+    height:24px !important;
+    right:12px !important;
+    font-size:10px !important;
+  }
+  .hq-help-panel{
+    padding-top:18px !important;
+  }
+}
+
 </style>
 </head>
-<body data-hq-build="v144-no-default-page-scroll">
+<body data-hq-build="v146-mobile-preview-help-tune">
 <div class="page">
 
 <main class="app-grid">
       <div class="left-workspace"><header class="hero">
 <div class="brand"><div class="logo"><img alt="" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNzIgMjAwIiByb2xlPSJpbWciIGFyaWEtbGFiZWw9Illhcm4gYmFsbCBzdW5nbGFzc2VzIGxvZ28iPgogIDx0aXRsZT5ZYXJuIGJhbGwgc3VuZ2xhc3NlcyBsb2dvPC90aXRsZT4KICA8ZyBmaWxsPSIjMDAwMDAwIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPgogICAgPHBhdGggZD0iTSAyNjMgMTgwIEwgMjU5IDE3NyBMIDI1NCAxNzYgTCAyNDUgMTc3IEwgMjM1IDE4MSBMIDIyNiAxODEgTCAyMjEgMTc5IEwgMjE5IDE3NyBMIDIyOSAxNzEgTCAyMzYgMTYzIEwgMjM1IDE1NCBMIDIyOCAxNTAgTCAyMTkgMTUxIEwgMjExIDE1NyBMIDIwOSAxNjEgTCAyMDkgMTcyIEwgMjEwIDE3MyBMIDIwOSAxNzUgTCAxOTQgMTc0IEwgMTg4IDE3MSBMIDE4MyAxNjYgTCAxODEgMTU5IEwgMTkzIDE0MiBMIDE5OSAxMjkgTCAyMDIgMTE4IEwgMjAyIDExMyBMIDIwNCAxMDcgTCAyMDQgOTcgTCAyMDMgOTMgTCAyMDEgOTEgTCAyMDAgOTIgTCAyMDAgMTEyIEwgMTk4IDExNiBMIDE5OCAxMjAgTCAxOTIgMTMyIEwgMTkyIDEzNSBMIDE4NSAxNDggTCAxODAgMTUzIEwgMTc5IDE1MiBMIDE4MCAxMzMgTCAxNzggMTMzIEwgMTc2IDEzOSBMIDE3NiAxNTkgTCAxNjQgMTcwIEwgMTUzIDE3OCBMIDEzNSAxODUgTCAxMjUgMTg2IEwgMTI0IDE4NyBMIDExOSAxODcgTCAxMTggMTg2IEwgMTM0IDE3NiBMIDE0NSAxNjUgTCAxNTEgMTU3IEwgMTU4IDE0MyBMIDE1NyAxMzkgTCAxNDYgMTU4IEwgMTMyIDE3MyBMIDEyMyAxNzkgTCAxMDggMTg2IEwgMTAyIDE4NiBMIDEwMSAxODcgTCAxMDAgMTg2IEwgOTUgMTg2IEwgODYgMTgzIEwgODQgMTgwIEwgMTAwIDE3MiBMIDExMyAxNjMgTCAxMzUgMTQxIEwgMTM4IDEzNiBMIDEzNiAxMzQgTCAxMDggMTYyIEwgOTMgMTcxIEwgODkgMTc1IEwgNzkgMTc4IEwgNzMgMTc4IEwgNjggMTc0IEwgNjYgMTcwIEwgNjYgMTY1IEwgNjggMTYzIEwgNzAgMTYzIEwgNzkgMTU4IEwgOTYgMTQ2IEwgMTEwIDEzMiBMIDExNiAxMjIgTCAxMTMgMTIxIEwgMTA2IDEzMSBMIDg4IDE0OCBMIDc2IDE1NiBMIDY3IDE1OSBMIDY2IDE1OCBMIDY3IDE1MSBMIDcyIDE0MCBMIDc0IDEzOCBMIDc0IDEzNiBMIDcxIDEzNiBMIDY4IDE0MCBMIDY0IDE0OSBMIDYzIDE1NSBMIDYxIDE1NyBMIDU2IDE1NSBMIDQxIDE0NiBMIDQyIDE0MiBMIDQ2IDEzOCBMIDQ1IDEzNSBMIDM3IDE0MyBMIDM1IDE0MyBMIDI5IDEzOSBMIDIxIDEzMSBMIDE4IDEyNSBMIDE4IDEwNyBMIDE3IDEwNiBMIDE2IDEwNyBMIDE0IDExNiBMIDEyIDExMyBMIDEzIDEwMyBMIDEwIDEwMiBMIDggMTA4IEwgOSAxMTggTCAxNSAxMjkgTCAxNiAxMzcgTCAyMCAxNDYgTCAzMiAxNTkgTCAzNCAxNzAgTCA0MSAxNzcgTCA1NyAxODMgTCA3NiAxODIgTCA4MyAxODYgTCA5MiAxODkgTCAxMDkgMTg5IEwgMTE4IDE5MSBMIDExOSAxOTAgTCAxMjkgMTkwIEwgMTQ0IDE4NiBMIDE1NSAxODEgTCAxNzAgMTcwIEwgMTc2IDE2NCBMIDE3OCAxNjQgTCAxODIgMTcxIEwgMTg5IDE3NiBMIDIwMiAxNzkgTCAyMTMgMTc4IEwgMjIzIDE4NCBMIDIzOCAxODQgTCAyNDggMTgwIEwgMjU3IDE4MCBMIDI2MSAxODIgWiBNIDM3IDE2MyBMIDM5IDE2MiBMIDQ2IDE2NSBMIDYxIDE2NSBMIDYzIDE2NyBMIDY0IDE3NCBMIDY3IDE3OSBMIDY2IDE4MCBMIDYwIDE4MCBMIDUxIDE3OCBMIDQ2IDE3NSBMIDQyIDE3NSBMIDM3IDE2NyBaIE0gMjI5IDE1NSBMIDIzMiAxNTggTCAyMzIgMTYzIEwgMjI0IDE3MSBMIDIxNiAxNzQgTCAyMTMgMTcwIEwgMjEzIDE2MyBMIDIxNSAxNTkgTCAyMTggMTU2IEwgMjIzIDE1NCBaIE0gMzcgMTUzIEwgMzkgMTUwIEwgNDEgMTUwIEwgNDMgMTUyIEwgNTYgMTU4IEwgNTkgMTYxIEwgNTggMTYyIEwgNDMgMTYxIEwgMzcgMTU3IFogTSAyMiAxMzcgTCAzNSAxNDcgTCAzNCAxNTIgTCAzMiAxNTQgTCAyNCAxNDUgTCAyMSAxMzkgWiBNIDE5NSA4NCBMIDE5MCA4MSBMIDE4MSA4MSBMIDE4MCA4MCBMIDE0NyA4MCBMIDEyNCA4NSBMIDExNCA5MCBMIDk3IDkwIEwgOTIgODcgTCA3NSA4MyBMIDQ0IDgyIEwgNDMgODMgTCAzNSA4MyBMIDM0IDg0IEwgMTcgODYgTCAxNSA4OCBMIDE1IDkzIEwgMjAgOTUgTCAyMyA5OCBMIDIzIDEwMSBMIDI5IDExNCBMIDM2IDEyMyBMIDQ5IDEzMSBMIDY4IDEzMiBMIDgwIDEyOCBMIDg5IDEyMSBMIDk0IDExNCBMIDk5IDEwMSBMIDEwNCA5OCBMIDExMSA5OSBMIDExMyAxMDEgTCAxMjAgMTE2IEwgMTI4IDEyNCBMIDEzNCAxMjggTCAxNDIgMTMxIEwgMTYwIDEzMSBMIDE3MCAxMjcgTCAxODAgMTE4IEwgMTg2IDEwNiBMIDE4OSA5NCBMIDE5NSA4OSBaIE0gMTI2IDkyIEwgMTIxIDk2IEwgMTE4IDk1IEwgMTIxIDkyIEwgMTI0IDkxIFogTSA3MiA5MCBMIDczIDg5IEwgNzYgOTAgTCA3NSA5MSBaIE0gMTgyIDg4IEwgMTg0IDkwIEwgMTgyIDEwMyBMIDE3NyAxMTMgTCAxNzIgMTE4IEwgMTcxIDExNiBMIDE3NiAxMDggTCAxNzkgOTkgTCAxODAgOTAgWiBNIDE3OCA3MiBMIDE3NSA2NyBMIDE2NiA1OCBMIDE1NCA1MSBMIDE0NiA0OSBMIDE0NCA1MSBMIDE1MSA1NSBMIDEzOCA2MCBMIDEyNyA2NyBMIDExNiA3OSBMIDExOSA4MCBMIDEzMSA2OSBMIDE0NSA2MSBMIDE1MiA1OSBMIDE1NCA1NiBMIDE1OSA1NyBMIDE2NyA2MyBMIDE3NSA3NCBMIDE3NyA3NCBaIE0gMTQgNjkgTCAxNCA3NCBMIDE3IDc4IEwgMTggNzcgTCAxOCA3MCBMIDIzIDYyIEwgMjkgNjcgTCAzOSA2NyBMIDQ1IDY1IEwgNTUgNjAgTCA2MCA1NiBMIDcxIDUxIEwgOTEgMzcgTCAxMDMgMzIgTCAxMTMgMjYgTCAxNDEgMTkgTCAxNTAgMjAgTCAxNjAgMjUgTCAxNzAgMzQgTCAxNzIgMzggTCAxNzAgMzkgTCAxNjUgMzcgTCAxNTIgMzYgTCAxNTEgMzcgTCAxNDQgMzcgTCAxMzAgNDAgTCAxMTAgNTAgTCAxMDYgNTAgTCA3NCA2NiBMIDUwIDc0IEwgNDcgNzcgTCA1MiA3OCBMIDEwMyA1NiBMIDEwNCA1NyBMIDg5IDczIEwgODggNzYgTCA5MCA3NyBMIDk5IDY2IEwgMTEwIDU3IEwgMTEwIDUzIEwgMTEzIDUwIEwgMTQ4IDQwIEwgMTYzIDQwIEwgMTc4IDQ2IEwgMTg2IDU2IEwgMTkyIDczIEwgMTk0IDcyIEwgMTk0IDY0IEwgMTkxIDU2IEwgMTc4IDQzIEwgMTc4IDQwIEwgMTczIDMyIEwgMTYwIDIxIEwgMTUwIDE3IEwgMTQwIDE3IEwgMTMxIDEyIEwgMTE3IDggTCA5NSA4IEwgOTAgMTAgTCA3OCAxMiBMIDcyIDE1IEwgNjMgMjMgTCA0OSAyNyBMIDM4IDM0IEwgMzEgNDEgTCAyNiA1MCBMIDI1IDU1IEwgMTggNjEgWiBNIDU1IDMxIEwgNDMgNDQgTCAzNSA0OSBMIDMyIDQ4IEwgMzUgNDIgTCA0MiAzNSBMIDUyIDMwIFogTSAxMzAgMTYgTCAxMjcgMTkgTCAxMTggMjEgTCAxMDYgMjcgTCA5OSAyNyBMIDk1IDI1IEwgODUgMjQgTCA4NCAyMyBMIDc0IDIzIEwgNzEgMjYgTCA4MSAyNiBMIDgyIDI3IEwgOTMgMjggTCA5NiAzMSBMIDkwIDM1IEwgODIgMzggTCA3MiA0NiBMIDU2IDU2IEwgMzMgNjQgTCAzMSA2NCBMIDI4IDYxIEwgMjggNTggTCAzNCA1MiBMIDUwIDQzIEwgNzEgMjEgTCA3NyAxNyBMIDg0IDE0IEwgMTAwIDEyIEwgMTAxIDExIEwgMTE5IDEyIFoiLz4KICA8L2c+Cjwvc3ZnPgo="/></div><div><h1>hue queue</h1><div class="tagline">see the yarn hit the chart before you hit the sticks</div></div></div>
-<button aria-label="How Hue Queue works" aria-controls="hqHelpBackdrop" aria-expanded="false" class="hq-help-btn" id="hqHelpBtn" title="How this works" type="button">?</button>
+<button aria-label="How Hue Queue works" aria-controls="hqHelpBackdrop" aria-expanded="false" class="hq-help-btn" id="hqHelpBtn" title="How this works" type="button">?!</button>
 <button aria-label="Admin name refresh" class="admin-name-refresh-btn" id="adminNameRefreshBtn" title="Admin name refresh" type="button">name refresh</button>
 </header><section class="card chart-card" data-panel="chart">
 <div class="pattern-section-title">KNIT PATTERN</div>
@@ -5130,9 +5188,8 @@ body.photo-lightbox-scroll-locked{
     </main>
 </div>
 <div aria-hidden="true" class="hq-help-backdrop" id="hqHelpBackdrop">
-<div aria-labelledby="hqHelpTitle" aria-modal="true" class="hq-help-panel" role="dialog">
+<div aria-label="How Hue Queue works" aria-modal="true" class="hq-help-panel" role="dialog">
 <button aria-label="Close" class="hq-help-close" id="hqHelpClose" type="button">×</button>
-<div class="hq-help-title" id="hqHelpTitle">Own it!</div>
 <p class="hq-help-copy">Mix the five chart colors with yarn from the Palette. Browse all colors or stick to the Current Stash on hand, randomize the chart if you’re feeling fun, refresh the name if you’re feeling wild, and save the keepers to The Good Stuff. Have at it!</p>
 </div>
 </div>
