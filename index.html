@@ -1,46 +1,47 @@
-<!doctype html>
+<!DOCTYPE html>
+
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Hue Queue | Color Palette Preview Tool</title>
-  <meta name="description" content="Hue Queue helps knitters test yarn color combinations directly on a knit chart before casting on." />
-  <meta name="robots" content="index, follow" />
-  <link rel="canonical" href="https://huequeueknits.com/" />
-  <meta property="og:site_name" content="Hue Queue" />
-  <meta property="og:title" content="Hue Queue" />
-  <meta property="og:description" content="A knitting color palette preview tool for testing yarn combinations directly on a knit chart before casting on." />
-  <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://huequeueknits.com/" />
-  <meta property="og:image" content="https://huequeueknits.com/icons/icon-512.png" />
-  <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="Hue Queue" />
-  <meta name="twitter:description" content="A knitting color palette preview tool for testing yarn combinations directly on a knit chart before casting on." />
-  <meta name="twitter:image" content="https://huequeueknits.com/icons/icon-512.png" />
-  <script type="application/ld+json">
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Hue Queue | Knit Chart Color Palette Preview Tool</title>
+<meta content="Hue Queue is a chart-first color palette preview tool for testing yarn color combinations directly on a knit pattern before you hit the sticks." name="description"/>
+<meta content="index, follow" name="robots"/>
+<link href="https://huequeueknits.com/" rel="canonical"/>
+<meta content="Hue Queue" property="og:site_name"/>
+<meta content="Hue Queue" property="og:title"/>
+<meta content="Hue Queue is a chart-first color palette preview tool for testing yarn color combinations directly on a knit pattern before you hit the sticks." property="og:description"/>
+<meta content="website" property="og:type"/>
+<meta content="https://huequeueknits.com/" property="og:url"/>
+<meta content="https://huequeueknits.com/icons/icon-512.png" property="og:image"/>
+<meta content="summary" name="twitter:card"/>
+<meta content="Hue Queue" name="twitter:title"/>
+<meta content="Hue Queue is a chart-first color palette preview tool for testing yarn color combinations directly on a knit pattern before you hit the sticks." name="twitter:description"/>
+<meta content="https://huequeueknits.com/icons/icon-512.png" name="twitter:image"/>
+<script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "WebApplication",
     "name": "Hue Queue",
     "url": "https://huequeueknits.com/",
-    "description": "Hue Queue helps knitters test yarn color combinations directly on a knit chart before casting on.",
+    "description": "Hue Queue is a chart-first color palette preview tool for testing yarn color combinations directly on a knit pattern before you hit the sticks.",
     "applicationCategory": "DesignApplication",
     "operatingSystem": "Any",
     "browserRequirements": "Requires JavaScript"
   }
   </script>
-  <meta name="application-name" content="Hue Queue" />
-  <meta name="theme-color" content="#111111" />
-  <meta name="color-scheme" content="light" />
-  <meta name="mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-title" content="Hue Queue" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <link rel="manifest" href="./manifest.webmanifest" />
-  <link rel="apple-touch-icon" sizes="180x180" href="./icons/apple-touch-icon.png" />
-  <link rel="icon" type="image/png" sizes="32x32" href="./icons/favicon-32.png" />
-  <link rel="icon" type="image/png" sizes="16x16" href="./icons/favicon-16.png" />
-  <style>
+<meta content="Hue Queue" name="application-name"/>
+<meta content="#111111" name="theme-color"/>
+<meta content="light" name="color-scheme"/>
+<meta content="yes" name="mobile-web-app-capable"/>
+<meta content="Hue Queue" name="apple-mobile-web-app-title"/>
+<meta content="yes" name="apple-mobile-web-app-capable"/>
+<meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/>
+<link href="./manifest.webmanifest" rel="manifest"/>
+<link href="./icons/apple-touch-icon.png" rel="apple-touch-icon" sizes="180x180"/>
+<link href="./icons/favicon-32.png" rel="icon" sizes="32x32" type="image/png"/>
+<link href="./icons/favicon-16.png" rel="icon" sizes="16x16" type="image/png"/>
+<style>
 @import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap");
 :root{
   --bg:#e8e2d8;
@@ -1247,91 +1248,4192 @@ body.photo-lightbox-scroll-locked{
 }
 
 
+
+
+
+
+
+/* v89: desktop workbench repair
+   Model: one fixed left comparison workbench + one normal right browsing column.
+   Mobile <=720px remains controlled by the approved mobile rules above. */
+@media (min-width:721px){
+  html,
+  body{
+    width:auto !important;
+    height:auto !important;
+    min-height:100% !important;
+    overflow-x:hidden !important;
+    overflow-y:auto !important;
+    position:static !important;
+  }
+
+  body{inset:auto !important;}
+
+  .page{
+    --hq-pad:clamp(14px,2vw,28px);
+    --hq-gap:20px;
+    --hq-shell:calc(min(100vw, 1360px) - (var(--hq-pad) * 2));
+    --hq-left:clamp(340px, calc((var(--hq-shell) - var(--hq-gap)) * .52), 620px);
+    --hq-left-x:max(var(--hq-pad), calc((100vw - 1360px) / 2 + var(--hq-pad)));
+    width:100% !important;
+    max-width:1360px !important;
+    min-height:100vh !important;
+    height:auto !important;
+    max-height:none !important;
+    margin:0 auto !important;
+    padding:18px var(--hq-pad) 38px !important;
+    overflow:visible !important;
+  }
+
+  .app-grid{
+    display:block !important;
+    height:auto !important;
+    min-height:100vh !important;
+    max-height:none !important;
+    overflow:visible !important;
+  }
+
+  .left-workspace{
+    position:fixed !important;
+    left:var(--hq-left-x) !important;
+    top:18px !important;
+    width:var(--hq-left) !important;
+    max-width:var(--hq-left) !important;
+    height:auto !important;
+    max-height:calc(100vh - 36px) !important;
+    overflow:visible !important;
+    display:flex !important;
+    flex-direction:column !important;
+    gap:12px !important;
+    z-index:10 !important;
+  }
+
+  .right-workspace{
+    width:calc(100% - var(--hq-left) - var(--hq-gap)) !important;
+    max-width:none !important;
+    margin:0 0 0 calc(var(--hq-left) + var(--hq-gap)) !important;
+    padding:0 !important;
+    display:flex !important;
+    flex-direction:column !important;
+    gap:12px !important;
+    position:relative !important;
+    top:auto !important;
+    overflow:visible !important;
+    background:transparent !important;
+    z-index:1 !important;
+  }
+
+  .hero{
+    width:100% !important;
+    max-width:none !important;
+    margin:0 !important;
+    padding:12px 18px 12px 14px !important;
+    position:relative !important;
+    top:auto !important;
+    z-index:1 !important;
+    background:rgba(255,253,248,.96) !important;
+    border:1px solid var(--line) !important;
+    border-radius:22px !important;
+    box-shadow:0 9px 22px rgba(18,18,18,.08) !important;
+    overflow:hidden !important;
+  }
+
+  .hero .brand{gap:13px !important;}
+  .hero .logo{width:66px !important;height:66px !important;}
+  .brand h1{
+    font-size:clamp(34px,3.25vw,46px) !important;
+    line-height:.86 !important;
+    letter-spacing:-.095em !important;
+  }
+  .tagline{
+    margin-top:5px !important;
+    font-size:clamp(8px,.8vw,11px) !important;
+    line-height:1.05 !important;
+    letter-spacing:.045em !important;
+    white-space:nowrap !important;
+  }
+
+  .card,
+  details.section{border-radius:20px !important;}
+
+  .chart-card{
+    width:100% !important;
+    max-width:100% !important;
+    position:relative !important;
+    top:auto !important;
+    z-index:2 !important;
+    max-height:none !important;
+    overflow:hidden !important;
+    padding:11px !important;
+    gap:10px !important;
+    border-radius:22px !important;
+    background:rgba(255,253,248,.97) !important;
+    box-shadow:0 13px 28px rgba(18,18,18,.11) !important;
+  }
+
+  .pattern-section-title{
+    margin:0 0 -1px 5px !important;
+    font-size:13px !important;
+    letter-spacing:.035em !important;
+  }
+
+  .combo-strip{
+    grid-template-columns:minmax(0,1fr) auto !important;
+    grid-template-areas:"combo name" !important;
+    align-items:center !important;
+    padding:11px 12px !important;
+    min-height:62px !important;
+    background:#101010 !important;
+    color:#fff !important;
+    border-radius:18px !important;
+  }
+
+  .combo-left{
+    grid-area:combo !important;
+    min-width:0 !important;
+    padding-right:8px !important;
+  }
+
+  #comboName{
+    color:#fff !important;
+    font-size:clamp(20px,1.65vw,25px) !important;
+    letter-spacing:-.065em !important;
+    white-space:nowrap !important;
+    overflow:hidden !important;
+    text-overflow:ellipsis !important;
+  }
+
+  .combo-strip .dots{gap:6px !important;}
+  .combo-strip .dot{
+    width:19px !important;
+    height:19px !important;
+    border-color:rgba(255,255,255,.34) !important;
+    box-shadow:0 0 0 1px rgba(0,0,0,.10) !important;
+  }
+
+  .name-tools{
+    grid-area:name !important;
+    justify-self:end !important;
+    align-self:center !important;
+    display:flex !important;
+    align-items:center !important;
+    gap:10px !important;
+  }
+
+  .name-new-btn,
+  .name-back-btn{
+    color:rgba(255,255,255,.78) !important;
+    background:transparent !important;
+    border:0 !important;
+    box-shadow:none !important;
+  }
+  .name-new-btn:hover,
+  .name-back-btn:hover{color:#fff !important;}
+
+  .chart-scroll{
+    min-height:clamp(236px,27vw,330px) !important;
+    max-height:min(48vh,390px) !important;
+    border-radius:17px !important;
+    overflow:auto !important;
+    background:#f1e8dc !important;
+    border-color:#a99f91 !important;
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.55),0 8px 16px rgba(18,18,18,.06) !important;
+  }
+
+  #chart{
+    transform:scale(.82) !important;
+    transform-origin:top left !important;
+    margin-bottom:-52px !important;
+  }
+
+  .chart-card .actions{
+    grid-template-columns:1fr 1fr !important;
+    gap:7px !important;
+  }
+
+  .chart-card .actions .btn,
+  .chart-card .actions .source-btn{
+    min-height:31px !important;
+    padding:6px 8px !important;
+    border-radius:999px !important;
+    font-size:10px !important;
+    line-height:1 !important;
+    letter-spacing:.055em !important;
+  }
+
+  .chart-card .actions .source-row{
+    gap:7px !important;
+    margin:0 !important;
+  }
+
+  .left-workspace > #rolesSection,
+  .right-workspace > details.section{
+    width:100% !important;
+    margin-top:0 !important;
+    position:relative !important;
+    top:auto !important;
+    z-index:auto !important;
+    height:auto !important;
+    min-height:0 !important;
+    max-height:none !important;
+    overflow:hidden !important;
+    background:rgba(255,253,248,.96) !important;
+    box-shadow:0 6px 15px rgba(18,18,18,.06) !important;
+  }
+
+  details.section > summary,
+  .right-workspace #savedSection > summary,
+  .right-workspace #savedSection .combo-tabs,
+  .right-workspace #savedSection .my-combos-head{
+    position:relative !important;
+    top:auto !important;
+    z-index:auto !important;
+    background:transparent !important;
+    box-shadow:none !important;
+  }
+
+  details.section > summary{
+    padding:15px 16px !important;
+    font-size:13px !important;
+  }
+
+  .section-body{
+    position:relative !important;
+    padding:0 12px 13px !important;
+    height:auto !important;
+    min-height:0 !important;
+    max-height:none !important;
+    overflow:visible !important;
+  }
+
+  #rolesSection .roles-row{gap:8px !important;}
+  #rolesSection .role-card{
+    min-height:106px !important;
+    padding:9px 6px !important;
+    border-radius:14px !important;
+  }
+  #rolesSection .role-dot{width:34px !important;height:34px !important;}
+  #rolesSection .role-label{font-size:8px !important;}
+  #rolesSection .role-num{font-size:8px !important;}
+  #rolesSection .role-name{font-size:7px !important;height:16px !important;}
+  #rolesSection .stripe-swap-icon{top:42px !important;}
+
+  .palette-tools{
+    display:grid !important;
+    grid-template-columns:minmax(0,1fr) auto !important;
+    align-items:center !important;
+    gap:8px !important;
+  }
+
+  .chart-preview-toggle,
+  .palette-preview-toggle{display:none !important;}
+
+  .palette{
+    grid-template-columns:repeat(4,minmax(0,1fr)) !important;
+    gap:8px !important;
+    max-height:min(42vh,430px) !important;
+    overflow:auto !important;
+    padding-right:3px !important;
+  }
+
+  .color-btn{
+    min-height:76px !important;
+    border-radius:13px !important;
+  }
+  .color-swatch{
+    height:34px !important;
+    border-radius:10px !important;
+  }
+
+  .right-workspace #savedSection{overflow:hidden !important;}
+  .right-workspace #savedSection .section-body,
+  .right-workspace #savedSection .combo-panel,
+  .right-workspace #savedSection .combo-panel.active,
+  .right-workspace #savedSection .saved-grid,
+  .right-workspace #digCombos,
+  .right-workspace #madeCombos{
+    position:relative !important;
+    inset:auto !important;
+    height:auto !important;
+    min-height:0 !important;
+    max-height:none !important;
+    overflow:visible !important;
+    background:transparent !important;
+  }
+
+  .right-workspace #savedSection .combo-panel{display:none !important;}
+  .right-workspace #savedSection .combo-panel.active{display:block !important;}
+  .right-workspace #savedSection .saved-grid,
+  .right-workspace #digCombos,
+  .right-workspace #madeCombos{
+    display:grid !important;
+    grid-template-columns:1fr !important;
+    align-content:start !important;
+    gap:8px !important;
+  }
+
+  .combo-tabs{
+    gap:7px !important;
+    margin:0 0 10px !important;
+  }
+  .combo-tab{
+    min-height:32px !important;
+    padding:7px 10px !important;
+    font-size:10px !important;
+  }
+
+  #savedSection .saved-card{
+    position:relative !important;
+    z-index:auto !important;
+    overflow:hidden !important;
+    border-radius:14px !important;
+  }
+  #savedSection .saved-card.dig-card{
+    min-height:48px !important;
+    padding:8px 9px !important;
+  }
+  #savedSection .saved-card.made-card{
+    min-height:112px !important;
+    padding:11px 168px 11px 11px !important;
+    border-radius:16px !important;
+  }
+  #savedSection .saved-title{
+    font-size:13px !important;
+    line-height:1.08 !important;
+  }
+  .made-card .saved-note{
+    white-space:normal !important;
+    display:-webkit-box !important;
+    -webkit-line-clamp:2 !important;
+    -webkit-box-orient:vertical !important;
+    line-height:1.18 !important;
+    font-size:10px !important;
+  }
+  .made-card-side{
+    top:10px !important;
+    right:10px !important;
+    grid-template-columns:118px 28px !important;
+    grid-template-rows:88px !important;
+    gap:8px !important;
+  }
+  .made-photo-slot{
+    width:118px !important;
+    height:88px !important;
+    border-radius:12px !important;
+  }
+  .made-card .made-card-actions .saved-note-edit{
+    width:28px !important;
+    height:28px !important;
+  }
+
+  body.chart-preview-on .chart-card,
+  body.chart-preview-on .pattern-section-title,
+  body.chart-preview-on .chart-card .actions,
+  body.chart-preview-on #rolesSection,
+  body.chart-preview-on #paletteSection,
+  body.chart-preview-on #readabilitySection{display:revert !important;}
+}
+
+@media (min-width:721px) and (max-height:820px){
+  .chart-scroll{
+    min-height:205px !important;
+    max-height:38vh !important;
+  }
+  .hero .logo{width:56px !important;height:56px !important;}
+  .hero{padding-top:9px !important;padding-bottom:9px !important;}
+}
+
+@media (min-width:980px){
+  .page{--hq-left:clamp(480px, calc((var(--hq-shell) - var(--hq-gap)) * .52), 620px);}
+  #chart{
+    transform:scale(.88) !important;
+    margin-bottom:-38px !important;
+  }
+}
+
+@media (min-width:1220px){
+  .chart-scroll{
+    min-height:315px !important;
+    max-height:min(50vh,440px) !important;
+  }
+  #chart{
+    transform:scale(.94) !important;
+    margin-bottom:-26px !important;
+  }
+}
+
+
+
+/* v90: desktop action button correction
+   Restore Randomize / Back / I Dig This / I Made This to proper button proportions on desktop.
+   Keep the small source selector pills separate. Mobile <=720px remains unchanged. */
+@media (min-width:721px){
+  .chart-card .actions{
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+    gap:8px !important;
+  }
+
+  .chart-card .actions > .btn{
+    min-height:44px !important;
+    padding:9px 10px !important;
+    border-radius:14px !important;
+    font-size:12px !important;
+    line-height:1.05 !important;
+    letter-spacing:.035em !important;
+  }
+
+  .chart-card .actions > .source-row{
+    grid-column:1 / -1 !important;
+    display:grid !important;
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+    gap:8px !important;
+    margin:0 !important;
+  }
+
+  .chart-card .actions > .source-row .source-btn{
+    min-height:31px !important;
+    padding:6px 9px !important;
+    border-radius:999px !important;
+    font-size:10px !important;
+    line-height:1 !important;
+    letter-spacing:.055em !important;
+  }
+}
+
+
+
+/* v91: desktop workbench proportionality repair
+   Correction after real laptop/monitor screenshots:
+   - no fixed left column; the page uses a real two-column grid again
+   - only the chart card sticks for comparison
+   - left workspace is allowed to participate in page height, so Chart Colors is not clipped
+   - palette height is reduced so Good Stuff appears without the page feeling like a stretched mobile stack
+   - main action buttons keep the normal rounded-button treatment from v90
+   Mobile <=720px remains unchanged. */
+@media (min-width:721px){
+  .page{
+    --hq-pad:clamp(14px,1.6vw,24px) !important;
+    width:100% !important;
+    max-width:1440px !important;
+    min-height:100vh !important;
+    margin:0 auto !important;
+    padding:16px var(--hq-pad) 34px !important;
+    overflow:visible !important;
+  }
+
+  .app-grid{
+    display:grid !important;
+    grid-template-columns:minmax(500px,.98fr) minmax(500px,1.02fr) !important;
+    gap:16px !important;
+    align-items:stretch !important;
+    min-height:0 !important;
+    height:auto !important;
+    max-height:none !important;
+    overflow:visible !important;
+  }
+
+  .left-workspace{
+    position:relative !important;
+    left:auto !important;
+    top:auto !important;
+    width:auto !important;
+    max-width:none !important;
+    height:auto !important;
+    min-height:100% !important;
+    max-height:none !important;
+    overflow:visible !important;
+    display:flex !important;
+    flex-direction:column !important;
+    gap:12px !important;
+    align-self:stretch !important;
+    z-index:2 !important;
+  }
+
+  .right-workspace{
+    width:auto !important;
+    max-width:none !important;
+    margin:0 !important;
+    padding:0 !important;
+    display:flex !important;
+    flex-direction:column !important;
+    gap:12px !important;
+    position:relative !important;
+    top:auto !important;
+    overflow:visible !important;
+    z-index:1 !important;
+  }
+
+  .hero{
+    padding:10px 17px 10px 13px !important;
+    border-radius:22px !important;
+  }
+  .hero .logo{width:60px !important;height:60px !important;}
+  .brand h1{font-size:clamp(36px,3vw,44px) !important;}
+
+  .chart-card{
+    position:sticky !important;
+    top:14px !important;
+    z-index:5 !important;
+    padding:11px !important;
+    gap:9px !important;
+    overflow:hidden !important;
+  }
+
+  .combo-strip{
+    min-height:56px !important;
+    padding:10px 12px !important;
+    border-radius:17px !important;
+  }
+
+  #comboName{font-size:clamp(20px,1.55vw,24px) !important;}
+
+  .chart-scroll{
+    height:clamp(225px,31vh,292px) !important;
+    min-height:0 !important;
+    max-height:292px !important;
+    border-radius:17px !important;
+    overflow:auto !important;
+  }
+
+  #chart{
+    transform:scale(.86) !important;
+    transform-origin:top left !important;
+    margin-bottom:-44px !important;
+  }
+
+  .chart-card .actions{
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+    gap:8px !important;
+  }
+  .chart-card .actions > .btn{
+    min-height:43px !important;
+    padding:9px 10px !important;
+    border-radius:14px !important;
+    font-size:12px !important;
+    line-height:1.05 !important;
+    letter-spacing:.035em !important;
+  }
+  .chart-card .actions > .source-row{
+    grid-column:1 / -1 !important;
+    display:grid !important;
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+    gap:8px !important;
+    margin:0 !important;
+  }
+  .chart-card .actions > .source-row .source-btn{
+    min-height:30px !important;
+    padding:6px 9px !important;
+    border-radius:999px !important;
+    font-size:10px !important;
+    line-height:1 !important;
+    letter-spacing:.055em !important;
+  }
+
+  #rolesSection .role-card{
+    min-height:96px !important;
+    padding:8px 5px !important;
+  }
+  #rolesSection .role-dot{width:32px !important;height:32px !important;}
+  #rolesSection .stripe-swap-icon{top:38px !important;}
+
+  .palette{
+    grid-template-columns:repeat(4,minmax(0,1fr)) !important;
+    gap:8px !important;
+    max-height:clamp(250px,34vh,330px) !important;
+    overflow:auto !important;
+    padding-right:3px !important;
+  }
+  .color-btn{min-height:74px !important;}
+  .color-swatch{height:32px !important;}
+
+  #savedSection .saved-card.made-card{
+    min-height:104px !important;
+    padding-right:158px !important;
+  }
+  .made-card-side{
+    grid-template-columns:108px 28px !important;
+    grid-template-rows:82px !important;
+  }
+  .made-photo-slot{width:108px !important;height:82px !important;}
+}
+
+@media (min-width:721px) and (max-height:820px){
+  .page{padding-top:12px !important;}
+  .left-workspace,.right-workspace{gap:10px !important;}
+  .hero{padding-top:8px !important;padding-bottom:8px !important;}
+  .hero .logo{width:52px !important;height:52px !important;}
+  .brand h1{font-size:clamp(32px,2.8vw,40px) !important;}
+  .tagline{font-size:9px !important;}
+  .chart-card{top:10px !important;gap:8px !important;}
+  .combo-strip{min-height:52px !important;}
+  .chart-scroll{height:clamp(198px,29vh,230px) !important;max-height:230px !important;}
+  #chart{transform:scale(.82) !important;margin-bottom:-52px !important;}
+  .chart-card .actions > .btn{min-height:40px !important;}
+  .chart-card .actions > .source-row .source-btn{min-height:28px !important;}
+  .palette{max-height:clamp(220px,32vh,280px) !important;}
+  #rolesSection .role-card{min-height:88px !important;}
+}
+
+@media (min-width:721px) and (max-width:1180px){
+  .app-grid{
+    grid-template-columns:minmax(460px,.96fr) minmax(420px,1.04fr) !important;
+    gap:14px !important;
+  }
+  #chart{transform:scale(.80) !important;margin-bottom:-58px !important;}
+}
+
+
+/* v92: real desktop chart pin repair
+   v91 used CSS sticky inside a short left-column parent, so the chart stopped sticking once that parent ended.
+   This repair uses a desktop-only JS-assisted fixed pin for the Knit Pattern card after it reaches the viewport top.
+   The placeholder preserves document flow; mobile <=720px is untouched. */
+@media (min-width:721px){
+  .desktop-chart-spacer{display:block !important;height:0 !important;min-height:0 !important;margin:0 !important;padding:0 !important;border:0 !important;overflow:hidden !important;}
+
+  .chart-card{
+    position:relative !important;
+    top:auto !important;
+  }
+
+  .chart-card.desktop-chart-fixed{
+    position:fixed !important;
+    top:var(--hq-fixed-top,10px) !important;
+    left:var(--hq-fixed-left,0px) !important;
+    width:var(--hq-fixed-width,520px) !important;
+    z-index:40 !important;
+    margin:0 !important;
+    box-shadow:0 16px 34px rgba(18,18,18,.15) !important;
+  }
+
+  .chart-card.desktop-chart-fixed .chart-scroll{
+    height:clamp(198px,29vh,230px) !important;
+    max-height:230px !important;
+  }
+}
+
+
+
+/* v93: fixed comparison column + equal desktop gaps
+   Desktop only. The full left comparison column stays visible: title, Knit Pattern, and Chart Colors.
+   The right browsing column remains normal page scroll to avoid nested Good Stuff scroll traps. */
+@media (min-width:721px){
+  .page{
+    --hq-pad:clamp(14px,2vw,28px) !important;
+    --hq-gap:14px !important;
+    --hq-shell:calc(min(100vw, 1360px) - (var(--hq-pad) * 2)) !important;
+    --hq-left:clamp(430px, calc((var(--hq-shell) - var(--hq-gap)) * .49), 620px) !important;
+    --hq-left-x:max(var(--hq-pad), calc((100vw - 1360px) / 2 + var(--hq-pad))) !important;
+    width:100% !important;
+    max-width:1360px !important;
+    min-height:100vh !important;
+    margin:0 auto !important;
+    padding:var(--hq-gap) var(--hq-pad) 36px !important;
+    overflow:visible !important;
+  }
+
+  .app-grid{
+    display:block !important;
+    min-height:100vh !important;
+    height:auto !important;
+    overflow:visible !important;
+  }
+
+  .left-workspace{
+    position:fixed !important;
+    left:var(--hq-left-x) !important;
+    top:var(--hq-gap) !important;
+    width:var(--hq-left) !important;
+    max-width:var(--hq-left) !important;
+    height:auto !important;
+    max-height:calc(100vh - (var(--hq-gap) * 2)) !important;
+    overflow:visible !important;
+    display:flex !important;
+    flex-direction:column !important;
+    gap:var(--hq-gap) !important;
+    z-index:20 !important;
+  }
+
+  .right-workspace{
+    width:calc(100% - var(--hq-left) - var(--hq-gap)) !important;
+    margin:0 0 0 calc(var(--hq-left) + var(--hq-gap)) !important;
+    padding:0 !important;
+    display:flex !important;
+    flex-direction:column !important;
+    gap:var(--hq-gap) !important;
+    position:relative !important;
+    top:auto !important;
+    overflow:visible !important;
+    background:transparent !important;
+    z-index:1 !important;
+  }
+
+  .hero,
+  .chart-card,
+  .left-workspace > #rolesSection,
+  .right-workspace > details.section{
+    width:100% !important;
+    margin:0 !important;
+    border-radius:20px !important;
+    background:rgba(255,253,248,.97) !important;
+    border:1px solid var(--line) !important;
+    box-shadow:0 8px 18px rgba(18,18,18,.07) !important;
+    overflow:hidden !important;
+  }
+
+  .hero{
+    padding:10px 16px 10px 13px !important;
+    min-height:72px !important;
+    position:relative !important;
+  }
+  .hero .brand{gap:13px !important;}
+  .hero .logo{width:58px !important;height:58px !important;}
+  .brand h1{
+    font-size:clamp(34px,3.1vw,44px) !important;
+    line-height:.86 !important;
+    letter-spacing:-.095em !important;
+  }
+  .tagline{
+    margin-top:4px !important;
+    font-size:clamp(8px,.76vw,10px) !important;
+    line-height:1.05 !important;
+    letter-spacing:.04em !important;
+    white-space:nowrap !important;
+  }
+
+  .chart-card{
+    position:relative !important;
+    top:auto !important;
+    left:auto !important;
+    max-width:100% !important;
+    max-height:none !important;
+    padding:10px !important;
+    gap:9px !important;
+    z-index:2 !important;
+    box-shadow:0 12px 24px rgba(18,18,18,.10) !important;
+  }
+  .chart-card.desktop-chart-fixed{
+    position:relative !important;
+    top:auto !important;
+    left:auto !important;
+    width:100% !important;
+    max-width:100% !important;
+    margin:0 !important;
+  }
+  .desktop-chart-spacer{display:none !important;}
+
+  .pattern-section-title{
+    margin:0 0 -1px 4px !important;
+    font-size:13px !important;
+    letter-spacing:.035em !important;
+  }
+  .combo-strip{
+    grid-template-columns:minmax(0,1fr) auto !important;
+    grid-template-areas:"combo name" !important;
+    align-items:center !important;
+    padding:10px 11px !important;
+    min-height:56px !important;
+    background:#101010 !important;
+    color:#fff !important;
+    border-radius:17px !important;
+  }
+  #comboName{
+    color:#fff !important;
+    font-size:clamp(19px,1.55vw,24px) !important;
+    letter-spacing:-.065em !important;
+  }
+  .combo-strip .dot{width:18px !important;height:18px !important;border-color:rgba(255,255,255,.34) !important;}
+  .name-tools{grid-area:name !important;align-self:center !important;justify-self:end !important;display:flex !important;gap:10px !important;}
+  .name-new-btn,.name-back-btn{color:rgba(255,255,255,.78) !important;background:transparent !important;border:0 !important;box-shadow:none !important;}
+
+  .chart-scroll{
+    min-height:0 !important;
+    height:clamp(220px,29vh,292px) !important;
+    max-height:292px !important;
+    border-radius:16px !important;
+    overflow:auto !important;
+    background:#f1e8dc !important;
+    border-color:#a99f91 !important;
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.55),0 7px 14px rgba(18,18,18,.05) !important;
+  }
+  #chart{
+    transform:scale(.80) !important;
+    transform-origin:top left !important;
+    margin-bottom:-60px !important;
+  }
+
+  .chart-card .actions{
+    grid-template-columns:1fr 1fr !important;
+    gap:7px !important;
+  }
+  .chart-card .actions .btn{
+    min-height:40px !important;
+    padding:9px 10px !important;
+    border-radius:15px !important;
+    font-size:11px !important;
+    line-height:1 !important;
+    letter-spacing:.045em !important;
+  }
+  .chart-card .actions .source-row{
+    grid-column:1 / -1 !important;
+    gap:7px !important;
+    margin:0 !important;
+  }
+  .chart-card .actions .source-btn{
+    min-height:31px !important;
+    padding:6px 8px !important;
+    border-radius:999px !important;
+    font-size:10px !important;
+    line-height:1 !important;
+    letter-spacing:.055em !important;
+  }
+
+  .left-workspace > #rolesSection{
+    position:relative !important;
+    top:auto !important;
+    max-height:none !important;
+  }
+  #rolesSection > summary{padding:13px 15px !important;font-size:13px !important;}
+  #rolesSection .section-body{padding:0 10px 11px !important;overflow:visible !important;}
+  #rolesSection .roles-row{gap:7px !important;}
+  #rolesSection .role-card{
+    min-height:92px !important;
+    padding:8px 5px !important;
+    border-radius:13px !important;
+  }
+  #rolesSection .role-dot{width:30px !important;height:30px !important;margin-bottom:4px !important;}
+  #rolesSection .role-label{font-size:7.5px !important;}
+  #rolesSection .role-num{font-size:7.5px !important;margin-top:2px !important;}
+  #rolesSection .role-name{font-size:6.5px !important;height:14px !important;}
+  #rolesSection .lock-wrap{margin-top:4px !important;}
+  #rolesSection .lock-check,
+  #rolesSection input[type="checkbox"]{width:22px !important;height:22px !important;min-width:22px !important;}
+  #rolesSection .stripe-swap-icon{top:35px !important;}
+
+  .right-workspace > details.section{
+    position:relative !important;
+    top:auto !important;
+    height:auto !important;
+    min-height:0 !important;
+    max-height:none !important;
+  }
+  .right-workspace > details.section > summary{padding:14px 15px !important;font-size:13px !important;}
+  .right-workspace .section-body{padding:0 12px 13px !important;overflow:visible !important;}
+  .palette-tools{display:grid !important;grid-template-columns:minmax(0,1fr) auto !important;align-items:center !important;gap:8px !important;}
+  .chart-preview-toggle,.palette-preview-toggle{display:none !important;}
+  .palette{grid-template-columns:repeat(4,minmax(0,1fr)) !important;gap:8px !important;max-height:min(38vh,360px) !important;overflow:auto !important;padding-right:3px !important;}
+  .color-btn{min-height:72px !important;border-radius:13px !important;}
+  .color-swatch{height:32px !important;border-radius:10px !important;}
+  .combo-tabs{gap:7px !important;margin:0 0 10px !important;}
+  .combo-tab{min-height:32px !important;padding:7px 10px !important;font-size:10px !important;}
+
+  .right-workspace #savedSection .section-body,
+  .right-workspace #savedSection .combo-panel,
+  .right-workspace #savedSection .combo-panel.active,
+  .right-workspace #savedSection .saved-grid,
+  .right-workspace #digCombos,
+  .right-workspace #madeCombos{
+    position:relative !important;
+    inset:auto !important;
+    height:auto !important;
+    min-height:0 !important;
+    max-height:none !important;
+    overflow:visible !important;
+  }
+  .right-workspace #savedSection .combo-panel{display:none !important;}
+  .right-workspace #savedSection .combo-panel.active{display:block !important;}
+  .right-workspace #savedSection .saved-grid,
+  .right-workspace #digCombos,
+  .right-workspace #madeCombos{display:grid !important;grid-template-columns:1fr !important;gap:8px !important;}
+
+  #savedSection .saved-card.made-card{min-height:104px !important;padding:10px 160px 10px 10px !important;border-radius:16px !important;}
+  .made-card-side{grid-template-columns:112px 28px !important;grid-template-rows:78px !important;gap:8px !important;top:10px !important;right:10px !important;}
+  .made-photo-slot{width:112px !important;height:78px !important;border-radius:11px !important;}
+  .made-card .made-card-actions .saved-note-edit{width:28px !important;height:28px !important;}
+
+  body.chart-preview-on .chart-card,
+  body.chart-preview-on .pattern-section-title,
+  body.chart-preview-on .chart-card .actions,
+  body.chart-preview-on #rolesSection,
+  body.chart-preview-on #paletteSection,
+  body.chart-preview-on #readabilitySection{display:revert !important;}
+}
+
+@media (min-width:721px) and (max-height:820px){
+  .page{--hq-gap:11px !important;}
+  .hero{padding-top:8px !important;padding-bottom:8px !important;min-height:64px !important;}
+  .hero .logo{width:50px !important;height:50px !important;}
+  .brand h1{font-size:clamp(30px,2.8vw,38px) !important;}
+  .tagline{font-size:8px !important;}
+  .chart-card{padding:9px !important;gap:7px !important;}
+  .combo-strip{min-height:50px !important;padding:8px 10px !important;}
+  #comboName{font-size:20px !important;}
+  .combo-strip .dot{width:16px !important;height:16px !important;}
+  .chart-scroll{height:clamp(190px,25vh,230px) !important;max-height:230px !important;}
+  #chart{transform:scale(.72) !important;margin-bottom:-82px !important;}
+  .chart-card .actions{gap:6px !important;}
+  .chart-card .actions .btn{min-height:36px !important;border-radius:14px !important;font-size:10px !important;}
+  .chart-card .actions .source-btn{min-height:28px !important;font-size:9px !important;}
+  #rolesSection > summary{padding:11px 14px !important;}
+  #rolesSection .section-body{padding-bottom:9px !important;}
+  #rolesSection .role-card{min-height:82px !important;padding:7px 4px !important;}
+  #rolesSection .role-dot{width:27px !important;height:27px !important;}
+  #rolesSection .lock-check,#rolesSection input[type="checkbox"]{width:20px !important;height:20px !important;min-width:20px !important;}
+  #rolesSection .stripe-swap-icon{top:31px !important;}
+}
+
+
+/* v94: smart desktop modes
+   Default desktop = color workbench mode: Palette + Readability open, Good Stuff collapsed.
+   Opening Good Stuff switches to review mode by collapsing Palette + Readability once.
+   Panels remain user-controlled after that; mobile <=720px is untouched. */
+@media (min-width:721px){
+  .right-workspace > details.section{
+    transition:box-shadow .16s ease, transform .16s ease;
+  }
+
+  .right-workspace > details.section[open]{
+    box-shadow:0 10px 22px rgba(18,18,18,.075) !important;
+  }
+
+  #savedSection:not([open]) > summary,
+  #paletteSection:not([open]) > summary,
+  #readabilitySection:not([open]) > summary{
+    border-radius:20px !important;
+  }
+
+  /* Slight default-mode proportionality tune so left Chart Colors bottom aligns better
+     with the right stack when Palette + Readability are open and Good Stuff is collapsed. */
+  .chart-scroll{
+    height:clamp(210px,27vh,276px) !important;
+    max-height:276px !important;
+  }
+
+  .palette{
+    max-height:clamp(260px,34vh,340px) !important;
+  }
+}
+
+@media (min-width:721px) and (max-height:820px){
+  .chart-scroll{
+    height:clamp(185px,24vh,218px) !important;
+    max-height:218px !important;
+  }
+
+  .palette{
+    max-height:clamp(220px,32vh,280px) !important;
+  }
+}
+
+
+
+/* v95: Good Stuff teaser + bottom alignment tune
+   Desktop-only: keep Good Stuff collapsed by default, but make the collapsed card feel intentional
+   and large enough to visually align with the left Chart Colors card. */
+@media (min-width:721px){
+  #savedSection:not([open]){
+    border-color:#b4aa9d !important;
+    box-shadow:0 10px 22px rgba(18,18,18,.075), inset 0 0 0 2px rgba(17,17,17,.025) !important;
+  }
+
+  #savedSection:not([open]) > summary{
+    min-height:92px !important;
+    padding:17px 18px !important;
+    display:grid !important;
+    grid-template-columns:minmax(0,1fr) auto !important;
+    grid-template-rows:auto auto !important;
+    align-content:center !important;
+    align-items:center !important;
+    justify-content:stretch !important;
+    column-gap:12px !important;
+    row-gap:5px !important;
+  }
+
+  #savedSection:not([open]) > summary:after{
+    grid-column:2 !important;
+    grid-row:1 / span 2 !important;
+    align-self:center !important;
+    justify-self:end !important;
+    width:34px !important;
+    height:34px !important;
+    display:grid !important;
+    place-items:center !important;
+    border:1px solid var(--line) !important;
+    border-radius:999px !important;
+    background:#101010 !important;
+    color:#fff !important;
+    font-size:18px !important;
+    line-height:1 !important;
+  }
+
+  #savedSection:not([open]) .good-stuff-summary-main{
+    grid-column:1 !important;
+    grid-row:1 !important;
+    display:flex !important;
+    align-items:center !important;
+    gap:9px !important;
+    min-width:0 !important;
+    font-size:15px !important;
+    line-height:1 !important;
+    letter-spacing:.045em !important;
+    text-transform:uppercase !important;
+  }
+
+  #savedSection:not([open]) .good-stuff-summary-main:after{
+    content:'gallery' !important;
+    display:inline-grid !important;
+    place-items:center !important;
+    min-height:21px !important;
+    padding:0 9px !important;
+    border-radius:999px !important;
+    background:#101010 !important;
+    color:#fff !important;
+    font-size:9px !important;
+    font-weight:900 !important;
+    letter-spacing:.055em !important;
+    text-transform:uppercase !important;
+  }
+
+  #savedSection:not([open]) .good-stuff-summary-sub{
+    grid-column:1 !important;
+    grid-row:2 !important;
+    display:block !important;
+    max-width:100% !important;
+    color:#6f665b !important;
+    font-size:11px !important;
+    line-height:1.15 !important;
+    font-weight:800 !important;
+    letter-spacing:.005em !important;
+    text-transform:none !important;
+  }
+
+  #savedSection[open] .good-stuff-summary-sub{display:none !important;}
+  #savedSection[open] .good-stuff-summary-main{display:inline !important;}
+}
+
+@media (min-width:721px) and (max-height:820px){
+  #savedSection:not([open]) > summary{
+    min-height:86px !important;
+    padding-top:15px !important;
+    padding-bottom:15px !important;
+  }
+
+  #savedSection:not([open]) .good-stuff-summary-main{font-size:14px !important;}
+  #savedSection:not([open]) .good-stuff-summary-sub{font-size:10px !important;}
+}
+
+
+/* v96: Good Stuff collapsed-card refinement
+   - remove "Open" from teaser copy via JS above
+   - make the chevron match normal section controls again
+   - rename the title pill to "view"; clicking it still opens the summary because it lives inside <summary>
+   - slightly reduce collapsed height to tighten the first-glance bottom alignment */
+@media (min-width:721px){
+  #savedSection:not([open]) > summary{
+    min-height:80px !important;
+    padding-top:14px !important;
+    padding-bottom:14px !important;
+    row-gap:4px !important;
+  }
+
+  #savedSection:not([open]) > summary:after{
+    width:auto !important;
+    height:auto !important;
+    min-width:0 !important;
+    border:0 !important;
+    border-radius:0 !important;
+    background:transparent !important;
+    color:#111 !important;
+    font-size:20px !important;
+    line-height:1 !important;
+    box-shadow:none !important;
+  }
+
+  #savedSection:not([open]) .good-stuff-summary-main:after{
+    content:'view' !important;
+  }
+
+  #savedSection:not([open]) .good-stuff-summary-sub{
+    font-size:10px !important;
+  }
+}
+
+@media (min-width:721px) and (max-height:820px){
+  #savedSection:not([open]) > summary{
+    min-height:76px !important;
+    padding-top:13px !important;
+    padding-bottom:13px !important;
+  }
+}
+
+
+
+/* v97: desktop-only compact MADE Combos grid
+   One conceptual change from v96: when the Made tab is active on roomy desktop widths,
+   finished projects use a denser two-column tile layout. Saved Combos, mobile, and app logic stay unchanged. */
+@media (min-width:1080px){
+  .right-workspace #savedSection #madePanel.active #madeCombos{
+    display:grid !important;
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+    gap:8px !important;
+    align-items:start !important;
+  }
+
+  .right-workspace #savedSection #madeCombos > .empty{
+    grid-column:1 / -1 !important;
+  }
+
+  .right-workspace #savedSection #madeCombos .saved-card.made-card{
+    min-height:84px !important;
+    padding:8px 116px 8px 9px !important;
+    border-radius:14px !important;
+  }
+
+  .right-workspace #savedSection #madeCombos .made-card-main{
+    min-width:0 !important;
+    overflow:hidden !important;
+  }
+
+  .right-workspace #savedSection #madeCombos .saved-colors{
+    gap:4px !important;
+    margin-bottom:5px !important;
+  }
+
+  .right-workspace #savedSection #madeCombos .mini{
+    width:14px !important;
+    height:14px !important;
+    border-radius:4px !important;
+  }
+
+  .right-workspace #savedSection #madeCombos .saved-title{
+    font-size:12px !important;
+    line-height:1.05 !important;
+    letter-spacing:-.045em !important;
+    white-space:nowrap !important;
+    overflow:hidden !important;
+    text-overflow:ellipsis !important;
+  }
+
+  .right-workspace #savedSection #madeCombos .saved-meta{
+    font-size:7px !important;
+    line-height:1 !important;
+    margin-top:2px !important;
+  }
+
+  .right-workspace #savedSection #madeCombos .saved-note{
+    margin-top:3px !important;
+    font-size:8px !important;
+    line-height:1.08 !important;
+    font-weight:800 !important;
+    white-space:normal !important;
+    display:-webkit-box !important;
+    -webkit-line-clamp:2 !important;
+    -webkit-box-orient:vertical !important;
+    overflow:hidden !important;
+    text-overflow:ellipsis !important;
+    max-width:100% !important;
+  }
+
+  .right-workspace #savedSection #madeCombos .made-card-side{
+    top:8px !important;
+    right:8px !important;
+    grid-template-columns:82px 24px !important;
+    grid-template-rows:64px !important;
+    gap:6px !important;
+    align-items:center !important;
+  }
+
+  .right-workspace #savedSection #madeCombos .made-photo-slot{
+    width:82px !important;
+    height:64px !important;
+    border-radius:10px !important;
+  }
+
+  .right-workspace #savedSection #madeCombos .made-card .made-card-actions .saved-note-edit{
+    width:24px !important;
+    height:24px !important;
+    border-radius:8px !important;
+  }
+}
+
+@media (min-width:1080px) and (max-height:820px){
+  .right-workspace #savedSection #madeCombos .saved-card.made-card{
+    min-height:78px !important;
+    padding-right:108px !important;
+  }
+
+  .right-workspace #savedSection #madeCombos .made-card-side{
+    grid-template-columns:76px 23px !important;
+    grid-template-rows:58px !important;
+    gap:5px !important;
+  }
+
+  .right-workspace #savedSection #madeCombos .made-photo-slot{
+    width:76px !important;
+    height:58px !important;
+  }
+
+  .right-workspace #savedSection #madeCombos .made-card .made-card-actions .saved-note-edit{
+    width:23px !important;
+    height:23px !important;
+  }
+}
+
+
+
+/* v98: desktop chart action button equalizer
+   One conceptual polish change from v97: make the six Knit Pattern action/source buttons
+   use the same button height and proportions on desktop. Mobile <=720px remains unchanged. */
+@media (min-width:721px){
+  .chart-card .actions{
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+    gap:7px !important;
+  }
+
+  .chart-card .actions > .source-row{
+    grid-column:1 / -1 !important;
+    display:grid !important;
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+    gap:7px !important;
+    margin:0 !important;
+  }
+
+  .chart-card .actions > .btn,
+  .chart-card .actions > .source-row .source-btn{
+    min-height:40px !important;
+    height:40px !important;
+    padding:9px 10px !important;
+    border-radius:15px !important;
+    font-size:11px !important;
+    line-height:1 !important;
+    letter-spacing:.045em !important;
+    display:grid !important;
+    place-items:center !important;
+  }
+}
+
+@media (min-width:721px) and (max-height:820px){
+  .chart-card .actions > .btn,
+  .chart-card .actions > .source-row .source-btn{
+    min-height:36px !important;
+    height:36px !important;
+    padding:8px 9px !important;
+    border-radius:14px !important;
+    font-size:10px !important;
+  }
+}
+
+
+/* v99: laptop desktop alignment pass
+   One conceptual polish change from v98: tune the default desktop workbench for laptop-height browsers.
+   - widen the gutter so the left/right columns breathe like the vertical section gaps
+   - give the logo/header more presence
+   - enlarge the chart viewport enough to remove the vertical chart scrollbar on laptop view
+   - keep mobile <=720px unchanged and preserve v96/v98 behavior. */
+@media (min-width:721px){
+  .page{
+    --hq-gap:18px !important;
+  }
+}
+
+@media (min-width:721px) and (max-height:900px){
+  .page{
+    --hq-gap:18px !important;
+  }
+
+  .hero{
+    min-height:88px !important;
+    padding:13px 18px 13px 15px !important;
+  }
+
+  .hero .brand{
+    gap:15px !important;
+  }
+
+  .hero .logo{
+    width:68px !important;
+    height:68px !important;
+  }
+
+  .brand h1{
+    font-size:clamp(38px,3.25vw,48px) !important;
+    line-height:.86 !important;
+  }
+
+  .tagline{
+    font-size:clamp(8px,.74vw,10px) !important;
+    letter-spacing:.04em !important;
+  }
+
+  .chart-card{
+    padding:10px !important;
+    gap:9px !important;
+  }
+
+  .combo-strip{
+    min-height:52px !important;
+    padding:9px 11px !important;
+  }
+
+  #comboName{
+    font-size:clamp(20px,1.5vw,23px) !important;
+  }
+
+  .combo-strip .dot{
+    width:17px !important;
+    height:17px !important;
+  }
+
+  .chart-scroll{
+    height:248px !important;
+    max-height:248px !important;
+    min-height:248px !important;
+    overflow-x:auto !important;
+    overflow-y:hidden !important;
+  }
+
+  #chart{
+    transform:scale(.80) !important;
+    transform-origin:top left !important;
+    margin-bottom:-58px !important;
+  }
+
+  .chart-card .actions{
+    gap:7px !important;
+  }
+
+  .chart-card .actions > .btn,
+  .chart-card .actions > .source-row .source-btn{
+    min-height:38px !important;
+    height:38px !important;
+    padding:8px 10px !important;
+    border-radius:15px !important;
+  }
+
+  #rolesSection > summary{
+    padding:12px 15px !important;
+  }
+
+  #rolesSection .section-body{
+    padding:0 10px 11px !important;
+  }
+
+  #rolesSection .role-card{
+    min-height:88px !important;
+    padding:7px 5px !important;
+  }
+
+  #rolesSection .role-dot{
+    width:29px !important;
+    height:29px !important;
+  }
+
+  #rolesSection .stripe-swap-icon{
+    top:34px !important;
+  }
+
+  .palette{
+    max-height:clamp(245px,32vh,300px) !important;
+  }
+}
+
+@media (min-width:721px) and (min-height:901px){
+  .hero .logo{
+    width:64px !important;
+    height:64px !important;
+  }
+
+  .hero{
+    min-height:82px !important;
+  }
+}
+
+
+/* v100: laptop spacing + bottom alignment correction
+   Desktop-only follow-up from v99.
+   - use one visible spacing rhythm for column gap and vertical stack gaps
+   - give the right desktop stack enough height so Good Stuff aligns with Chart Colors on laptop view
+   - keep the v99 no-vertical-scroll chart treatment and mobile <=720px unchanged. */
+@media (min-width:721px){
+  .page{
+    --hq-gap:22px !important;
+  }
+
+  .left-workspace,
+  .right-workspace{
+    gap:var(--hq-gap) !important;
+  }
+
+  .right-workspace{
+    width:calc(100% - var(--hq-left) - var(--hq-gap)) !important;
+    margin-left:calc(var(--hq-left) + var(--hq-gap)) !important;
+  }
+}
+
+@media (min-width:721px) and (max-height:900px){
+  .page{
+    --hq-gap:22px !important;
+  }
+
+  .palette{
+    max-height:clamp(315px,39vh,362px) !important;
+  }
+
+  #savedSection:not([open]) > summary{
+    min-height:92px !important;
+    padding-top:16px !important;
+    padding-bottom:16px !important;
+  }
+}
+
+@media (min-width:721px) and (max-height:820px){
+  .page{
+    --hq-gap:18px !important;
+  }
+
+  .palette{
+    max-height:clamp(280px,36vh,326px) !important;
+  }
+
+  #savedSection:not([open]) > summary{
+    min-height:86px !important;
+    padding-top:15px !important;
+    padding-bottom:15px !important;
+  }
+}
+
+
+
+/* v101: laptop gutter + fit pass
+   Desktop-only follow-up from v100.
+   - make the center gutter visibly match the vertical section rhythm
+   - give the right side a little more room by slightly narrowing the fixed left column on laptop view
+   - slim the six knit-pattern action buttons and tighten left-column vertical chrome so Chart Colors fits in laptop-height browsers
+   - preserve mobile and app logic. */
+@media (min-width:721px){
+  .page{
+    --hq-gap:24px !important;
+    --hq-left:clamp(408px, calc((var(--hq-shell) - var(--hq-gap)) * .468), 584px) !important;
+  }
+
+  .left-workspace,
+  .right-workspace{
+    gap:var(--hq-gap) !important;
+  }
+
+  .right-workspace{
+    width:calc(100% - var(--hq-left) - var(--hq-gap)) !important;
+    margin-left:calc(var(--hq-left) + var(--hq-gap)) !important;
+  }
+}
+
+@media (min-width:721px) and (max-height:900px){
+  .page{
+    --hq-gap:24px !important;
+    --hq-left:clamp(400px, calc((var(--hq-shell) - var(--hq-gap)) * .462), 574px) !important;
+  }
+
+  .left-workspace,
+  .right-workspace{
+    gap:var(--hq-gap) !important;
+  }
+
+  .hero{
+    min-height:84px !important;
+    padding:11px 16px 11px 13px !important;
+  }
+
+  .hero .logo{
+    width:64px !important;
+    height:64px !important;
+  }
+
+  .brand h1{
+    font-size:clamp(36px,3.05vw,45px) !important;
+  }
+
+  .tagline{
+    font-size:clamp(8px,.7vw,10px) !important;
+  }
+
+  .chart-card{
+    padding:9px !important;
+    gap:8px !important;
+  }
+
+  .combo-strip{
+    min-height:48px !important;
+    padding:8px 10px !important;
+  }
+
+  #comboName{
+    font-size:clamp(19px,1.42vw,22px) !important;
+  }
+
+  .chart-scroll{
+    height:242px !important;
+    min-height:242px !important;
+    max-height:242px !important;
+  }
+
+  #chart{
+    transform:scale(.79) !important;
+    margin-bottom:-58px !important;
+  }
+
+  .chart-card .actions{
+    gap:6px !important;
+  }
+
+  .chart-card .actions > .btn,
+  .chart-card .actions > .source-row .source-btn{
+    min-height:34px !important;
+    height:34px !important;
+    padding:6px 9px !important;
+    border-radius:14px !important;
+    font-size:11px !important;
+  }
+
+  #rolesSection > summary,
+  .right-workspace > details.section > summary{
+    padding-top:12px !important;
+    padding-bottom:12px !important;
+  }
+
+  #rolesSection .section-body{
+    padding:0 9px 10px !important;
+  }
+
+  #rolesSection .roles-row{
+    gap:5px !important;
+  }
+
+  #rolesSection .role-card{
+    min-height:82px !important;
+    padding:6px 4px !important;
+  }
+
+  #rolesSection .role-dot{
+    width:28px !important;
+    height:28px !important;
+    margin-bottom:4px !important;
+  }
+
+  #rolesSection .lock-wrap{
+    margin-top:4px !important;
+  }
+
+  #rolesSection .lock-check{
+    width:16px !important;
+    height:16px !important;
+  }
+
+  .palette{
+    max-height:clamp(300px,37vh,344px) !important;
+  }
+
+  #savedSection:not([open]) > summary{
+    min-height:82px !important;
+    padding-top:14px !important;
+    padding-bottom:14px !important;
+  }
+}
+
+@media (min-width:721px) and (max-height:820px){
+  .page{
+    --hq-gap:22px !important;
+    --hq-left:clamp(392px, calc((var(--hq-shell) - var(--hq-gap)) * .458), 562px) !important;
+  }
+
+  .chart-scroll{
+    height:236px !important;
+    min-height:236px !important;
+    max-height:236px !important;
+  }
+
+  .palette{
+    max-height:clamp(286px,35vh,326px) !important;
+  }
+}
+
+
+
+/* v102: laptop fit refine + smaller desktop palette cards
+   Desktop-only polish pass from v101.
+   Goals:
+   - prevent the desktop title from feeling crowded
+   - bring both bottom boxes farther onto the laptop screen
+   - reduce the visible height pressure on the right stack
+   - make palette color cards smaller so more are visible at once
+   - keep mobile unchanged and preserve app logic. */
+@media (min-width:721px){
+  .hero .brand{
+    gap:16px !important;
+  }
+
+  .brand h1{
+    letter-spacing:-.055em !important;
+  }
+}
+
+@media (min-width:721px) and (max-height:900px){
+  .page{
+    --hq-gap:22px !important;
+    --hq-left:clamp(396px, calc((var(--hq-shell) - var(--hq-gap)) * .458), 560px) !important;
+    padding-bottom:30px !important;
+  }
+
+  .left-workspace,
+  .right-workspace{
+    gap:20px !important;
+  }
+
+  .hero{
+    min-height:76px !important;
+    padding:10px 15px 10px 13px !important;
+  }
+
+  .hero .brand{
+    gap:15px !important;
+  }
+
+  .hero .logo{
+    width:60px !important;
+    height:60px !important;
+  }
+
+  .brand h1{
+    font-size:clamp(33px,2.75vw,41px) !important;
+    line-height:.90 !important;
+  }
+
+  .tagline{
+    font-size:clamp(8px,.66vw,9px) !important;
+  }
+
+  .chart-card{
+    padding:8px !important;
+    gap:7px !important;
+  }
+
+  .combo-strip{
+    min-height:46px !important;
+    padding:7px 9px !important;
+  }
+
+  #comboName{
+    font-size:clamp(18px,1.34vw,21px) !important;
+  }
+
+  .chart-scroll{
+    height:236px !important;
+    min-height:236px !important;
+    max-height:236px !important;
+  }
+
+  #chart{
+    transform:scale(.785) !important;
+    margin-bottom:-60px !important;
+  }
+
+  .chart-card .actions{
+    gap:6px !important;
+  }
+
+  .chart-card .actions > .btn,
+  .chart-card .actions > .source-row .source-btn{
+    min-height:32px !important;
+    height:32px !important;
+    padding:5px 8px !important;
+    border-radius:13px !important;
+    font-size:10px !important;
+  }
+
+  #rolesSection > summary{
+    padding:11px 14px !important;
+  }
+
+  #rolesSection .section-body{
+    padding:0 9px 9px !important;
+  }
+
+  #rolesSection .roles-row{
+    gap:5px !important;
+  }
+
+  #rolesSection .role-card{
+    min-height:76px !important;
+    padding:5px 4px !important;
+  }
+
+  #rolesSection .role-dot{
+    width:26px !important;
+    height:26px !important;
+    margin-bottom:4px !important;
+  }
+
+  #rolesSection .role-label{
+    font-size:7px !important;
+  }
+
+  #rolesSection .role-num{
+    font-size:8px !important;
+    margin-top:3px !important;
+  }
+
+  #rolesSection .role-name{
+    font-size:6px !important;
+    height:14px !important;
+  }
+
+  #rolesSection .lock-wrap{
+    margin-top:3px !important;
+  }
+
+  #rolesSection .lock-check{
+    width:15px !important;
+    height:15px !important;
+  }
+
+  .right-workspace > details.section > summary{
+    padding:12px 14px !important;
+    font-size:12px !important;
+  }
+
+  .right-workspace .section-body{
+    padding:0 10px 11px !important;
+  }
+
+  .palette-tools{
+    gap:6px !important;
+    margin-bottom:6px !important;
+  }
+
+  .search{
+    padding:8px 10px !important;
+    font-size:11px !important;
+  }
+
+  .active-pill{
+    padding:8px 9px !important;
+    font-size:9px !important;
+  }
+
+  .filters{
+    gap:5px !important;
+    margin-bottom:7px !important;
+  }
+
+  .filter{
+    padding:6px 9px !important;
+    font-size:9px !important;
+  }
+
+  .palette{
+    gap:6px !important;
+    max-height:258px !important;
+  }
+
+  .color-btn{
+    min-height:58px !important;
+    padding:4px !important;
+    border-radius:11px !important;
+  }
+
+  .color-swatch{
+    height:24px !important;
+    margin-bottom:3px !important;
+    border-radius:8px !important;
+  }
+
+  .color-num{
+    font-size:9px !important;
+  }
+
+  .color-name{
+    font-size:6px !important;
+    height:12px !important;
+  }
+
+  .metrics{
+    gap:6px !important;
+  }
+
+  .metric{
+    padding:7px !important;
+  }
+
+  .metric-top{
+    font-size:10px !important;
+  }
+
+  .bar{
+    margin-top:5px !important;
+  }
+
+  #savedSection:not([open]) > summary{
+    min-height:74px !important;
+    padding-top:12px !important;
+    padding-bottom:12px !important;
+  }
+}
+
+@media (min-width:721px) and (max-height:820px){
+  .page{
+    --hq-gap:20px !important;
+    --hq-left:clamp(388px, calc((var(--hq-shell) - var(--hq-gap)) * .452), 548px) !important;
+  }
+
+  .chart-scroll{
+    height:228px !important;
+    min-height:228px !important;
+    max-height:228px !important;
+  }
+
+  .palette{
+    max-height:242px !important;
+  }
+
+  #savedSection:not([open]) > summary{
+    min-height:70px !important;
+  }
+}
+
+
+
+/* v103: gutter match + right stack alignment
+   Desktop-only follow-up from v102.
+   - keep the left column as approved
+   - increase the center gutter so it visually matches the right-side vertical section rhythm
+   - push Good Stuff down to better align with Chart Colors by giving the right stack a bit more total height above it
+   - make the desktop palette cards a little more square while keeping them compact and easy to scan
+   - preserve mobile and app logic. */
+@media (min-width:721px) and (max-height:900px){
+  .page{
+    --hq-gap:28px !important;
+    --hq-left:clamp(396px, calc((var(--hq-shell) - var(--hq-gap)) * .458), 560px) !important;
+  }
+
+  /* keep approved left stack spacing intact */
+  .left-workspace{
+    gap:20px !important;
+  }
+
+  /* make the right stack rhythm match the center gutter */
+  .right-workspace{
+    gap:28px !important;
+    width:calc(100% - var(--hq-left) - var(--hq-gap)) !important;
+    margin-left:calc(var(--hq-left) + var(--hq-gap)) !important;
+  }
+
+  /* slightly taller palette area so Good Stuff drops into line with Chart Colors */
+  .palette{
+    gap:6px !important;
+    max-height:272px !important;
+  }
+
+  /* compact but more square color cards */
+  .color-btn{
+    min-height:64px !important;
+    padding:5px !important;
+    border-radius:11px !important;
+  }
+
+  .color-swatch{
+    height:28px !important;
+    margin-bottom:4px !important;
+    border-radius:8px !important;
+  }
+
+  .color-num{
+    font-size:9px !important;
+    margin-top:1px !important;
+  }
+
+  .color-name{
+    font-size:6px !important;
+    height:12px !important;
+  }
+}
+
+@media (min-width:721px) and (max-height:820px){
+  .page{
+    --hq-gap:26px !important;
+    --hq-left:clamp(388px, calc((var(--hq-shell) - var(--hq-gap)) * .452), 548px) !important;
+  }
+
+  .left-workspace{
+    gap:20px !important;
+  }
+
+  .right-workspace{
+    gap:26px !important;
+  }
+
+  .palette{
+    max-height:258px !important;
+  }
+
+  .color-btn{
+    min-height:62px !important;
+  }
+
+  .color-swatch{
+    height:27px !important;
+  }
+}
+
+
+
+/* v104: even spacing + bottom row alignment
+   Desktop-only follow-up from v103.
+   - keep the left column structure and sizing as approved
+   - make the center gutter visually match the right-stack vertical gaps
+   - let those matched gaps also push Good Stuff down so it lines up better with Chart Colors
+   - keep the desktop palette cards a touch more square without making them tiny
+   - preserve mobile and app logic. */
+@media (min-width:721px) and (max-height:900px){
+  .page{
+    --hq-gap:34px !important;
+    --hq-left:clamp(396px, calc((var(--hq-shell) - var(--hq-gap)) * .458), 560px) !important;
+  }
+
+  /* keep left side as-is; only tune the right stack rhythm + center gutter */
+  .right-workspace{
+    gap:34px !important;
+    width:calc(100% - var(--hq-left) - var(--hq-gap)) !important;
+    margin-left:calc(var(--hq-left) + var(--hq-gap)) !important;
+  }
+
+  .palette{
+    gap:6px !important;
+    max-height:276px !important;
+  }
+
+  .color-btn{
+    min-height:66px !important;
+    padding:5px !important;
+    border-radius:11px !important;
+  }
+
+  .color-swatch{
+    height:29px !important;
+    margin-bottom:4px !important;
+    border-radius:8px !important;
+  }
+
+  .color-num{
+    font-size:9px !important;
+    margin-top:1px !important;
+  }
+
+  .color-name{
+    font-size:6px !important;
+    height:12px !important;
+  }
+}
+
+@media (min-width:721px) and (max-height:820px){
+  .page{
+    --hq-gap:32px !important;
+    --hq-left:clamp(388px, calc((var(--hq-shell) - var(--hq-gap)) * .452), 548px) !important;
+  }
+
+  .right-workspace{
+    gap:32px !important;
+  }
+
+  .palette{
+    max-height:262px !important;
+  }
+
+  .color-btn{
+    min-height:64px !important;
+  }
+
+  .color-swatch{
+    height:28px !important;
+  }
+}
+
+
+
+/* v105: saved grid + chart centering + spacing tune
+   Desktop-only follow-up from v104.
+   - split Saved combos into the same 2-column desktop treatment as Made combos
+   - vertically center the chart design a bit better in the viewport
+   - unify desktop spacing rhythm a touch more and nudge the left stack down slightly for closer bottom-box alignment
+   - preserve mobile and app logic. */
+@media (min-width:721px) and (max-height:900px){
+  .page{
+    --hq-gap:30px !important;
+    --hq-left:clamp(396px, calc((var(--hq-shell) - var(--hq-gap)) * .458), 560px) !important;
+  }
+
+  .left-workspace,
+  .right-workspace{
+    gap:30px !important;
+  }
+
+  .right-workspace{
+    width:calc(100% - var(--hq-left) - var(--hq-gap)) !important;
+    margin-left:calc(var(--hq-left) + var(--hq-gap)) !important;
+  }
+
+  .chart-scroll{
+    display:flex !important;
+    align-items:center !important;
+  }
+
+  #chart{
+    margin-top:-6px !important;
+  }
+}
+
+@media (min-width:721px) and (max-height:820px){
+  .page{
+    --hq-gap:28px !important;
+    --hq-left:clamp(388px, calc((var(--hq-shell) - var(--hq-gap)) * .452), 548px) !important;
+  }
+
+  .left-workspace,
+  .right-workspace{
+    gap:28px !important;
+  }
+
+  #chart{
+    margin-top:-5px !important;
+  }
+}
+
+/* desktop compact SAVED grid to match MADE density */
+@media (min-width:1080px){
+  .right-workspace #savedSection #digPanel.active #digCombos{
+    display:grid !important;
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+    gap:8px !important;
+    align-items:start !important;
+  }
+
+  .right-workspace #savedSection #digCombos > .empty{
+    grid-column:1 / -1 !important;
+  }
+
+  .right-workspace #savedSection #digCombos .saved-card{
+    min-height:82px !important;
+    margin-bottom:0 !important;
+    padding:8px 8px 8px 8px !important;
+    border-radius:14px !important;
+  }
+
+  .right-workspace #savedSection #digCombos .saved-colors{
+    gap:4px !important;
+    margin-bottom:6px !important;
+  }
+
+  .right-workspace #savedSection #digCombos .mini{
+    width:14px !important;
+    height:14px !important;
+    border-radius:4px !important;
+  }
+
+  .right-workspace #savedSection #digCombos .saved-btn{
+    padding:8px !important;
+    border-radius:12px !important;
+    gap:6px !important;
+  }
+
+  .right-workspace #savedSection #digCombos .saved-label{
+    font-size:10px !important;
+  }
+
+  .right-workspace #savedSection #digCombos .saved-title{
+    font-size:12px !important;
+    line-height:1.05 !important;
+    letter-spacing:-.04em !important;
+  }
+
+  .right-workspace #savedSection #digCombos .saved-meta,
+  .right-workspace #savedSection #digCombos .saved-by,
+  .right-workspace #savedSection #digCombos .saved-note{
+    font-size:8px !important;
+    line-height:1.05 !important;
+  }
+
+  .right-workspace #savedSection #digCombos .delete{
+    width:24px !important;
+    height:24px !important;
+    top:7px !important;
+    right:7px !important;
+    border-radius:8px !important;
+  }
+}
+
+@media (min-width:1080px) and (max-height:820px){
+  .right-workspace #savedSection #digCombos .saved-card{
+    min-height:78px !important;
+  }
+}
+
+
+
+/* v106: gap scale reset
+   Desktop-only follow-up from v105.
+   - keep the saved grid and chart centering work from v105
+   - reduce the desktop spacing rhythm overall so the vertical section gaps feel closer to the center gutter again
+   - preserve mobile and app logic. */
+@media (min-width:721px) and (max-height:900px){
+  .page{
+    --hq-gap:22px !important;
+    --hq-left:clamp(396px, calc((var(--hq-shell) - var(--hq-gap)) * .458), 560px) !important;
+  }
+
+  .left-workspace,
+  .right-workspace{
+    gap:22px !important;
+  }
+
+  .right-workspace{
+    width:calc(100% - var(--hq-left) - var(--hq-gap)) !important;
+    margin-left:calc(var(--hq-left) + var(--hq-gap)) !important;
+  }
+}
+
+@media (min-width:721px) and (max-height:820px){
+  .page{
+    --hq-gap:20px !important;
+    --hq-left:clamp(388px, calc((var(--hq-shell) - var(--hq-gap)) * .452), 548px) !important;
+  }
+
+  .left-workspace,
+  .right-workspace{
+    gap:20px !important;
+  }
+}
+
+
+
+/* v107: desktop hierarchy rebalance
+   Desktop-only follow-up from v106.
+   - make the left/chart workbench the visual hero again by widening the left column and slightly narrowing the right side
+   - keep the current gap rhythm from v106
+   - increase desktop palette card text size for easier reading
+   - preserve mobile and app logic. */
+@media (min-width:721px) and (max-height:900px){
+  .page{
+    --hq-gap:22px !important;
+    --hq-left:clamp(430px, calc((var(--hq-shell) - var(--hq-gap)) * .50), 598px) !important;
+  }
+
+  .left-workspace,
+  .right-workspace{
+    gap:22px !important;
+  }
+
+  .right-workspace{
+    width:calc(100% - var(--hq-left) - var(--hq-gap)) !important;
+    margin-left:calc(var(--hq-left) + var(--hq-gap)) !important;
+  }
+
+  /* readable desktop palette labels */
+  .color-btn{
+    min-height:68px !important;
+  }
+
+  .color-num{
+    font-size:10px !important;
+    line-height:1.05 !important;
+  }
+
+  .color-name{
+    font-size:7px !important;
+    line-height:1.1 !important;
+    height:14px !important;
+  }
+}
+
+@media (min-width:721px) and (max-height:820px){
+  .page{
+    --hq-gap:20px !important;
+    --hq-left:clamp(420px, calc((var(--hq-shell) - var(--hq-gap)) * .495), 586px) !important;
+  }
+
+  .left-workspace,
+  .right-workspace{
+    gap:20px !important;
+  }
+
+  .right-workspace{
+    width:calc(100% - var(--hq-left) - var(--hq-gap)) !important;
+    margin-left:calc(var(--hq-left) + var(--hq-gap)) !important;
+  }
+
+  .color-btn{
+    min-height:66px !important;
+  }
+
+  .color-num{
+    font-size:10px !important;
+  }
+
+  .color-name{
+    font-size:7px !important;
+    height:14px !important;
+  }
+}
+
+
+
+/* v108: intentional chart-first desktop proportions
+   Desktop-only follow-up from v107.
+   - make the left/chart workbench clearly wider so the hierarchy reads as intentional
+   - make the right column clearly secondary instead of almost-equal
+   - keep the v106/v107 gap rhythm and readable palette text
+   - preserve mobile and app logic. */
+@media (min-width:721px) and (max-height:900px){
+  .page{
+    --hq-gap:22px !important;
+    --hq-left:clamp(560px, calc((var(--hq-shell) - var(--hq-gap)) * .56), 740px) !important;
+  }
+
+  .left-workspace,
+  .right-workspace{
+    gap:22px !important;
+  }
+
+  .right-workspace{
+    width:calc(100% - var(--hq-left) - var(--hq-gap)) !important;
+    margin-left:calc(var(--hq-left) + var(--hq-gap)) !important;
+  }
+
+  .palette{
+    grid-template-columns:repeat(4,minmax(0,1fr)) !important;
+    gap:7px !important;
+  }
+
+  .color-btn{
+    min-height:68px !important;
+    padding:5px !important;
+  }
+
+  .color-swatch{
+    height:30px !important;
+  }
+
+  .color-num{
+    font-size:10px !important;
+    line-height:1.05 !important;
+  }
+
+  .color-name{
+    font-size:7px !important;
+    line-height:1.1 !important;
+    height:14px !important;
+  }
+}
+
+@media (min-width:721px) and (max-height:820px){
+  .page{
+    --hq-gap:20px !important;
+    --hq-left:clamp(540px, calc((var(--hq-shell) - var(--hq-gap)) * .555), 720px) !important;
+  }
+
+  .left-workspace,
+  .right-workspace{
+    gap:20px !important;
+  }
+
+  .right-workspace{
+    width:calc(100% - var(--hq-left) - var(--hq-gap)) !important;
+    margin-left:calc(var(--hq-left) + var(--hq-gap)) !important;
+  }
+
+  .color-btn{
+    min-height:66px !important;
+  }
+
+  .color-swatch{
+    height:29px !important;
+  }
+
+  .color-num{
+    font-size:10px !important;
+  }
+
+  .color-name{
+    font-size:7px !important;
+    height:14px !important;
+  }
+}
+
+
+
+/* v109: Good Stuff height + Chart Colors text readability
+   Desktop-only follow-up from v108.
+   - increase the collapsed Good Stuff card height so its bottom aligns more closely with Chart Colors
+   - increase Chart Colors swatch text size without increasing the overall Chart Colors section size
+   - preserve mobile and app logic. */
+@media (min-width:721px) and (max-height:900px){
+  #savedSection:not([open]) > summary{
+    min-height:98px !important;
+    padding-top:17px !important;
+    padding-bottom:17px !important;
+    row-gap:5px !important;
+  }
+
+  #savedSection:not([open]) .good-stuff-summary-main{
+    font-size:15px !important;
+  }
+
+  #savedSection:not([open]) .good-stuff-summary-sub{
+    font-size:11px !important;
+    line-height:1.15 !important;
+  }
+
+  /* keep the section box size stable while making role text easier to read */
+  #rolesSection .role-card{
+    min-height:82px !important;
+    padding:6px 4px !important;
+  }
+
+  #rolesSection .role-dot{
+    width:27px !important;
+    height:27px !important;
+    margin-bottom:3px !important;
+  }
+
+  #rolesSection .role-label{
+    font-size:8.5px !important;
+    line-height:1.02 !important;
+  }
+
+  #rolesSection .role-num{
+    font-size:8.5px !important;
+    margin-top:2px !important;
+    line-height:1.02 !important;
+  }
+
+  #rolesSection .role-name{
+    font-size:7.25px !important;
+    height:14px !important;
+    margin-top:2px !important;
+    line-height:1.05 !important;
+  }
+
+  #rolesSection .lock-wrap{
+    margin-top:3px !important;
+  }
+}
+
+@media (min-width:721px) and (max-height:820px){
+  #savedSection:not([open]) > summary{
+    min-height:94px !important;
+    padding-top:16px !important;
+    padding-bottom:16px !important;
+  }
+
+  #rolesSection .role-card{
+    min-height:80px !important;
+  }
+
+  #rolesSection .role-label,
+  #rolesSection .role-num{
+    font-size:8px !important;
+  }
+
+  #rolesSection .role-name{
+    font-size:7px !important;
+    height:13px !important;
+  }
+}
+
+
+
+/* v110: compact card long-title handling
+   Desktop-only follow-up from v109.
+   - allow long combo names in compact Saved/Made cards to use up to 2 lines
+   - keep byline/note to 1 line so cards do not grow much
+   - preserve photo/edit placement, mobile, and app logic. */
+@media (min-width:1080px){
+  .right-workspace #savedSection #madeCombos .saved-card.made-card,
+  .right-workspace #savedSection #digCombos .saved-card{
+    min-height:88px !important;
+  }
+
+  .right-workspace #savedSection #madeCombos .saved-title,
+  .right-workspace #savedSection #digCombos .saved-title{
+    white-space:normal !important;
+    display:-webkit-box !important;
+    -webkit-line-clamp:2 !important;
+    -webkit-box-orient:vertical !important;
+    overflow:hidden !important;
+    text-overflow:ellipsis !important;
+    line-height:1.05 !important;
+    max-height:2.1em !important;
+  }
+
+  .right-workspace #savedSection #madeCombos .saved-meta,
+  .right-workspace #savedSection #digCombos .saved-meta,
+  .right-workspace #savedSection #digCombos .saved-by{
+    white-space:nowrap !important;
+    overflow:hidden !important;
+    text-overflow:ellipsis !important;
+  }
+
+  .right-workspace #savedSection #madeCombos .saved-note,
+  .right-workspace #savedSection #digCombos .saved-note{
+    white-space:nowrap !important;
+    display:block !important;
+    overflow:hidden !important;
+    text-overflow:ellipsis !important;
+    max-width:100% !important;
+    -webkit-line-clamp:unset !important;
+    -webkit-box-orient:unset !important;
+  }
+}
+
+@media (min-width:1080px) and (max-height:820px){
+  .right-workspace #savedSection #madeCombos .saved-card.made-card,
+  .right-workspace #savedSection #digCombos .saved-card{
+    min-height:84px !important;
+  }
+
+  .right-workspace #savedSection #madeCombos .saved-title,
+  .right-workspace #savedSection #digCombos .saved-title{
+    line-height:1.02 !important;
+    max-height:2.04em !important;
+  }
+}
+
+
+
+/* v111: compact Saved cards + fuller Made photos
+   Desktop-only follow-up from v110.
+   - Saved stays as a compact 2-column idea list instead of adopting Made card height
+   - Made photos use more of the existing card space without increasing card height
+   - preserve mobile and app logic. */
+@media (min-width:1080px){
+  /* Saved = compact bookmark rows */
+  .right-workspace #savedSection #digPanel.active #digCombos{
+    display:grid !important;
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+    gap:8px !important;
+    align-items:start !important;
+  }
+
+  .right-workspace #savedSection #digCombos .saved-card.dig-card{
+    display:grid !important;
+    grid-template-columns:auto minmax(0,1fr) 24px !important;
+    align-items:center !important;
+    column-gap:8px !important;
+    min-height:50px !important;
+    padding:6px 8px !important;
+    margin-bottom:0 !important;
+    border-radius:13px !important;
+  }
+
+  .right-workspace #savedSection #digCombos .saved-colors{
+    grid-column:1 !important;
+    display:flex !important;
+    align-items:center !important;
+    gap:4px !important;
+    margin:0 !important;
+  }
+
+  .right-workspace #savedSection #digCombos .mini{
+    width:15px !important;
+    height:15px !important;
+    border-radius:4px !important;
+  }
+
+  .right-workspace #savedSection #digCombos .dig-card-main{
+    grid-column:2 !important;
+    display:grid !important;
+    gap:2px !important;
+    min-width:0 !important;
+  }
+
+  .right-workspace #savedSection #digCombos .saved-title{
+    white-space:nowrap !important;
+    display:block !important;
+    overflow:hidden !important;
+    text-overflow:ellipsis !important;
+    -webkit-line-clamp:unset !important;
+    -webkit-box-orient:unset !important;
+    font-size:12px !important;
+    line-height:1.05 !important;
+    max-height:none !important;
+  }
+
+  .right-workspace #savedSection #digCombos .dig-card-sub{
+    display:flex !important;
+    align-items:center !important;
+    gap:12px !important;
+    min-width:0 !important;
+    white-space:nowrap !important;
+    overflow:hidden !important;
+  }
+
+  .right-workspace #savedSection #digCombos .saved-meta,
+  .right-workspace #savedSection #digCombos .saved-by,
+  .right-workspace #savedSection #digCombos .saved-note{
+    white-space:nowrap !important;
+    display:inline-block !important;
+    overflow:hidden !important;
+    text-overflow:ellipsis !important;
+    font-size:8px !important;
+    line-height:1 !important;
+    margin:0 !important;
+  }
+
+  .right-workspace #savedSection #digCombos .saved-note{
+    max-width:48% !important;
+  }
+
+  .right-workspace #savedSection #digCombos .delete{
+    grid-column:3 !important;
+    position:static !important;
+    width:22px !important;
+    height:22px !important;
+    justify-self:end !important;
+    align-self:center !important;
+    border-radius:8px !important;
+  }
+
+  /* Made = same card height, more photo */
+  .right-workspace #savedSection #madeCombos .saved-card.made-card{
+    min-height:88px !important;
+    padding:6px 128px 6px 9px !important;
+  }
+
+  .right-workspace #savedSection #madeCombos .made-card-side{
+    top:6px !important;
+    right:8px !important;
+    grid-template-columns:96px 24px !important;
+    grid-template-rows:76px !important;
+    gap:6px !important;
+    align-items:center !important;
+  }
+
+  .right-workspace #savedSection #madeCombos .made-photo-slot{
+    width:96px !important;
+    height:76px !important;
+    border-radius:10px !important;
+  }
+
+  .right-workspace #savedSection #madeCombos .made-card .made-card-actions .saved-note-edit{
+    width:24px !important;
+    height:24px !important;
+  }
+}
+
+@media (min-width:1080px) and (max-height:820px){
+  .right-workspace #savedSection #digCombos .saved-card.dig-card{
+    min-height:48px !important;
+    padding-top:5px !important;
+    padding-bottom:5px !important;
+  }
+
+  .right-workspace #savedSection #digCombos .mini{
+    width:14px !important;
+    height:14px !important;
+  }
+
+  .right-workspace #savedSection #madeCombos .saved-card.made-card{
+    min-height:84px !important;
+    padding:6px 120px 6px 9px !important;
+  }
+
+  .right-workspace #savedSection #madeCombos .made-card-side{
+    grid-template-columns:90px 23px !important;
+    grid-template-rows:72px !important;
+    gap:5px !important;
+  }
+
+  .right-workspace #savedSection #madeCombos .made-photo-slot{
+    width:90px !important;
+    height:72px !important;
+  }
+
+  .right-workspace #savedSection #madeCombos .made-card .made-card-actions .saved-note-edit{
+    width:23px !important;
+    height:23px !important;
+  }
+}
+
+
+
+/* v112: combo swatch consistency + Made title wrap guard
+   Desktop-only follow-up from v111.
+   - make Saved/Made mini swatches circles to match the rest of the app language
+   - tighten Made text column so longer names wrap before reaching the photo
+   - preserve card height, photo sizing, mobile, and app logic. */
+@media (min-width:1080px){
+  .right-workspace #savedSection .mini{
+    border-radius:50% !important;
+  }
+
+  .right-workspace #savedSection #madeCombos .made-card-main{
+    width:100% !important;
+    max-width:calc(100% - 10px) !important;
+    min-width:0 !important;
+    overflow:hidden !important;
+  }
+
+  .right-workspace #savedSection #madeCombos .saved-title{
+    max-width:17ch !important;
+    white-space:normal !important;
+    display:-webkit-box !important;
+    -webkit-line-clamp:2 !important;
+    -webkit-box-orient:vertical !important;
+    overflow:hidden !important;
+    text-overflow:ellipsis !important;
+    line-height:1.05 !important;
+    max-height:2.1em !important;
+  }
+
+  .right-workspace #savedSection #madeCombos .saved-meta,
+  .right-workspace #savedSection #madeCombos .saved-note{
+    max-width:17ch !important;
+  }
+}
+
+@media (min-width:1080px) and (max-height:820px){
+  .right-workspace #savedSection #madeCombos .saved-title,
+  .right-workspace #savedSection #madeCombos .saved-meta,
+  .right-workspace #savedSection #madeCombos .saved-note{
+    max-width:16ch !important;
+  }
+}
+
+
+
+/* v113: Made card note rows + photo balance
+   Desktop-only follow-up from v112.
+   - Made note can display as two controlled rows so gifted-to and emoji notes do not have to share one line
+   - no automatic arrow is inserted; whatever arrow/text is typed in the note is preserved
+   - Made photo is resized/positioned to fit evenly inside the taller card
+   - Saved compact cards and mobile stay unchanged; app logic stays unchanged. */
+@media (min-width:1080px){
+  .right-workspace #savedSection #madeCombos .saved-card.made-card{
+    min-height:104px !important;
+    padding:8px 122px 8px 9px !important;
+  }
+
+  .right-workspace #savedSection #madeCombos .made-card-main{
+    display:grid !important;
+    grid-template-rows:auto auto auto auto !important;
+    align-content:start !important;
+    row-gap:2px !important;
+    min-width:0 !important;
+    overflow:hidden !important;
+  }
+
+  .right-workspace #savedSection #madeCombos .saved-colors{
+    margin-bottom:3px !important;
+  }
+
+  .right-workspace #savedSection #madeCombos .saved-title{
+    max-width:16ch !important;
+    white-space:normal !important;
+    display:-webkit-box !important;
+    -webkit-line-clamp:2 !important;
+    -webkit-box-orient:vertical !important;
+    overflow:hidden !important;
+    text-overflow:ellipsis !important;
+    line-height:1.03 !important;
+    max-height:2.06em !important;
+  }
+
+  .right-workspace #savedSection #madeCombos .saved-meta{
+    max-width:16ch !important;
+    white-space:nowrap !important;
+    overflow:hidden !important;
+    text-overflow:ellipsis !important;
+    margin-top:1px !important;
+  }
+
+  .right-workspace #savedSection #madeCombos .saved-note{
+    max-width:16ch !important;
+    white-space:pre-line !important;
+    display:-webkit-box !important;
+    -webkit-line-clamp:2 !important;
+    -webkit-box-orient:vertical !important;
+    overflow:hidden !important;
+    text-overflow:ellipsis !important;
+    line-height:1.08 !important;
+    max-height:2.16em !important;
+    margin-top:1px !important;
+  }
+
+  .right-workspace #savedSection #madeCombos .made-card-side{
+    top:8px !important;
+    right:8px !important;
+    grid-template-columns:90px 24px !important;
+    grid-template-rows:88px !important;
+    gap:6px !important;
+    align-items:center !important;
+  }
+
+  .right-workspace #savedSection #madeCombos .made-photo-slot{
+    width:90px !important;
+    height:88px !important;
+    border-radius:10px !important;
+  }
+}
+
+@media (min-width:1080px) and (max-height:820px){
+  .right-workspace #savedSection #madeCombos .saved-card.made-card{
+    min-height:100px !important;
+    padding:7px 118px 7px 9px !important;
+  }
+
+  .right-workspace #savedSection #madeCombos .saved-title,
+  .right-workspace #savedSection #madeCombos .saved-meta,
+  .right-workspace #savedSection #madeCombos .saved-note{
+    max-width:15.5ch !important;
+  }
+
+  .right-workspace #savedSection #madeCombos .made-card-side{
+    grid-template-columns:86px 23px !important;
+    grid-template-rows:86px !important;
+    top:7px !important;
+    gap:5px !important;
+  }
+
+  .right-workspace #savedSection #madeCombos .made-photo-slot{
+    width:86px !important;
+    height:86px !important;
+  }
+
+  .right-workspace #savedSection #madeCombos .made-card .made-card-actions .saved-note-edit{
+    width:23px !important;
+    height:23px !important;
+  }
+}
+
+
+
+/* v116: Saved long-row reset + circle swatch fix
+   Desktop-only follow-up from v113.
+   - Saved combos return to one-column skinny long cards instead of 2-column cards
+   - Made combos keep the v113 note/photo treatment
+   - mini swatches are clipped to true circles without changing their existing size rules
+   - preserve mobile and app logic. */
+@media (min-width:1080px){
+  /* true-circle visual treatment, without adding new fixed sizing */
+  .right-workspace #savedSection #digCombos .saved-colors .mini,
+  .right-workspace #savedSection #madeCombos .saved-colors .mini{
+    border-radius:9999px !important;
+    clip-path:circle(50% at 50% 50%) !important;
+    overflow:hidden !important;
+  }
+
+  /* Saved = one-column long, skinny rows */
+  .right-workspace #savedSection #digPanel.active #digCombos{
+    display:grid !important;
+    grid-template-columns:1fr !important;
+    gap:7px !important;
+    align-items:start !important;
+  }
+
+  .right-workspace #savedSection #digCombos .saved-card.dig-card{
+    display:grid !important;
+    grid-template-columns:auto minmax(0,1fr) 24px !important;
+    align-items:center !important;
+    column-gap:10px !important;
+    min-height:44px !important;
+    padding:6px 8px !important;
+    margin-bottom:0 !important;
+    border-radius:12px !important;
+  }
+
+  .right-workspace #savedSection #digCombos .saved-colors{
+    grid-column:1 !important;
+    display:flex !important;
+    align-items:center !important;
+    gap:5px !important;
+    margin:0 !important;
+    min-width:0 !important;
+  }
+
+  .right-workspace #savedSection #digCombos .dig-card-main{
+    grid-column:2 !important;
+    min-width:0 !important;
+    display:grid !important;
+    gap:2px !important;
+  }
+
+  .right-workspace #savedSection #digCombos .saved-title{
+    white-space:nowrap !important;
+    display:block !important;
+    overflow:hidden !important;
+    text-overflow:ellipsis !important;
+    -webkit-line-clamp:unset !important;
+    -webkit-box-orient:unset !important;
+    font-size:12.5px !important;
+    line-height:1.05 !important;
+    letter-spacing:-.04em !important;
+    max-height:none !important;
+    max-width:100% !important;
+  }
+
+  .right-workspace #savedSection #digCombos .dig-card-sub{
+    display:flex !important;
+    align-items:center !important;
+    gap:18px !important;
+    min-width:0 !important;
+    white-space:nowrap !important;
+    overflow:hidden !important;
+  }
+
+  .right-workspace #savedSection #digCombos .saved-meta,
+  .right-workspace #savedSection #digCombos .saved-by,
+  .right-workspace #savedSection #digCombos .saved-note{
+    display:inline-block !important;
+    margin:0 !important;
+    font-size:8px !important;
+    line-height:1 !important;
+    color:var(--muted) !important;
+    white-space:nowrap !important;
+    overflow:hidden !important;
+    text-overflow:ellipsis !important;
+  }
+
+  .right-workspace #savedSection #digCombos .saved-note{
+    font-weight:700 !important;
+    max-width:58% !important;
+  }
+
+  .right-workspace #savedSection #digCombos .delete{
+    grid-column:3 !important;
+    position:static !important;
+    top:auto !important;
+    right:auto !important;
+    width:22px !important;
+    height:22px !important;
+    justify-self:end !important;
+    align-self:center !important;
+    border-radius:8px !important;
+  }
+}
+
+@media (min-width:1080px) and (max-height:820px){
+  .right-workspace #savedSection #digCombos .saved-card.dig-card{
+    min-height:42px !important;
+    padding-top:5px !important;
+    padding-bottom:5px !important;
+  }
+
+  .right-workspace #savedSection #digCombos .saved-title{
+    font-size:12px !important;
+  }
+}
+
+
+
+/* v117: Made card height trim
+   Desktop-only follow-up from v116.
+   - the apparent extra line under the emoji row was blank space created by the photo/card height
+   - reduce Made card height and photo height together so the card ends closer after the note/emoji rows
+   - keep the two-row Made note area, Saved long rows, mobile, and app logic unchanged. */
+@media (min-width:1080px){
+  .right-workspace #savedSection #madeCombos .saved-card.made-card{
+    min-height:96px !important;
+    padding:7px 114px 7px 9px !important;
+  }
+
+  .right-workspace #savedSection #madeCombos .made-card-main{
+    row-gap:2px !important;
+  }
+
+  .right-workspace #savedSection #madeCombos .saved-colors{
+    margin-bottom:2px !important;
+  }
+
+  .right-workspace #savedSection #madeCombos .saved-title{
+    max-width:16.5ch !important;
+  }
+
+  .right-workspace #savedSection #madeCombos .saved-meta,
+  .right-workspace #savedSection #madeCombos .saved-note{
+    max-width:16.5ch !important;
+  }
+
+  .right-workspace #savedSection #madeCombos .made-card-side{
+    top:7px !important;
+    right:8px !important;
+    grid-template-columns:82px 24px !important;
+    grid-template-rows:82px !important;
+    gap:6px !important;
+    align-items:center !important;
+  }
+
+  .right-workspace #savedSection #madeCombos .made-photo-slot{
+    width:82px !important;
+    height:82px !important;
+    border-radius:10px !important;
+  }
+}
+
+@media (min-width:1080px) and (max-height:820px){
+  .right-workspace #savedSection #madeCombos .saved-card.made-card{
+    min-height:92px !important;
+    padding:7px 110px 7px 9px !important;
+  }
+
+  .right-workspace #savedSection #madeCombos .saved-title,
+  .right-workspace #savedSection #madeCombos .saved-meta,
+  .right-workspace #savedSection #madeCombos .saved-note{
+    max-width:16ch !important;
+  }
+
+  .right-workspace #savedSection #madeCombos .made-card-side{
+    grid-template-columns:80px 23px !important;
+    grid-template-rows:78px !important;
+    top:7px !important;
+    gap:5px !important;
+  }
+
+  .right-workspace #savedSection #madeCombos .made-photo-slot{
+    width:80px !important;
+    height:78px !important;
+  }
+}
+
+
+
+/* v118: wide-screen stabilization
+   Desktop-only follow-up from v117.
+   Laptop/normal desktop layout is intentionally unchanged.
+   On wide external monitors only, let the whole shell grow slightly while preserving the chart-first proportions. */
+@media (min-width:1700px) and (min-height:820px){
+  .page{
+    --hq-pad:clamp(18px,1.8vw,30px) !important;
+    --hq-gap:22px !important;
+    --hq-shell:calc(min(100vw, 1540px) - (var(--hq-pad) * 2)) !important;
+    --hq-left:clamp(780px, calc((var(--hq-shell) - var(--hq-gap)) * .57), 850px) !important;
+    --hq-left-x:max(var(--hq-pad), calc((100vw - 1540px) / 2 + var(--hq-pad))) !important;
+    max-width:1540px !important;
+  }
+
+  .left-workspace{
+    left:var(--hq-left-x) !important;
+    width:var(--hq-left) !important;
+    max-width:var(--hq-left) !important;
+    gap:22px !important;
+  }
+
+  .right-workspace{
+    width:calc(100% - var(--hq-left) - var(--hq-gap)) !important;
+    margin-left:calc(var(--hq-left) + var(--hq-gap)) !important;
+    gap:22px !important;
+  }
+}
+
+/* extra-wide monitors: cap growth so the app stays composed instead of stretching endlessly */
+@media (min-width:1900px) and (min-height:820px){
+  .page{
+    --hq-shell:calc(min(100vw, 1580px) - (var(--hq-pad) * 2)) !important;
+    --hq-left:clamp(800px, calc((var(--hq-shell) - var(--hq-gap)) * .57), 875px) !important;
+    --hq-left-x:max(var(--hq-pad), calc((100vw - 1580px) / 2 + var(--hq-pad))) !important;
+    max-width:1580px !important;
+  }
+}
+
+
+
+/* v119: wide chart pattern fill
+   Wide-screen-only companion to v118.
+   The JS pattern width calculation now accounts for the chart scale on wide monitors,
+   so the knit motif keeps repeating across the widened chart viewport instead of leaving a blank strip. */
+
+
+
+/* v120: wide chart no-empty-scroll
+   Wide-screen-only follow-up from v119.
+   On wide monitors, use layout scaling instead of transform scaling for the chart grid.
+   That keeps the scrollbar tied to the actual visible pattern width, so users cannot scroll into the blank transformed area. */
+@media (min-width:1700px) and (min-height:820px){
+  .chart-scroll #chart{
+    transform:none !important;
+    zoom:.82 !important;
+    margin-bottom:0 !important;
+  }
+}
+
+@media (min-width:1900px) and (min-height:820px){
+  .chart-scroll #chart{
+    zoom:.82 !important;
+  }
+}
+
+
+
+/* v121: chart pattern fill across available width
+   Desktop/wide follow-up from v120.
+   The pattern width calculation now accounts for the chart's visual scale at all desktop widths,
+   so the motif continues across the available chart viewport instead of leaving a blank panel.
+   It is okay if the visible edge cuts off mid-repeat. */
+
+
+
+/* v122: chart no-empty-scroll on all desktop widths
+   Follow-up from v121.
+   The remaining blank area came from transform-based chart scaling: transforms shrink the visible grid
+   but leave the original unscaled scroll width behind. Desktop now uses layout-aware zoom instead,
+   so the scrollbar ends where the visible pattern ends. Mobile remains unchanged. */
+@media (min-width:721px){
+  .chart-scroll #chart{
+    transform:none !important;
+    zoom:.80 !important;
+    margin-bottom:0 !important;
+  }
+}
+
+@media (min-width:721px) and (max-height:820px){
+  .chart-scroll #chart{
+    transform:none !important;
+    zoom:.785 !important;
+    margin-bottom:0 !important;
+  }
+}
+
+@media (min-width:1700px) and (min-height:820px){
+  .chart-scroll #chart{
+    transform:none !important;
+    zoom:.82 !important;
+    margin-bottom:0 !important;
+  }
+}
+
+
+
+/* v123: subtle bottom-right signature tag
+   Adds a small permanent "blj 2026" mark at the bottom-right corner.
+   Pure presentation only; no app logic changes. */
+.hq-signature{
+  position:fixed;
+  right:12px;
+  bottom:10px;
+  z-index:9999;
+  font-family:'Space Mono',monospace;
+  font-size:11px;
+  line-height:1;
+  letter-spacing:.04em;
+  color:#5f5a54;
+  opacity:.9;
+  pointer-events:none;
+  user-select:none;
+}
+
+@media (max-width:720px){
+  .hq-signature{
+    right:10px;
+    bottom:8px;
+    font-size:10px;
+  }
+}
+
+
+
+/* v130: popcorn-only idle swatch mode
+   Presentation-only polish. Keep the noticeable randomized click/change shuffle,
+   and make the anchored individual popcorn pulse the only idle behavior.
+   The popcorn timing and scale still reshuffle whenever a new combo is selected.
+   Data, Supabase, chart logic, and layout behavior are unchanged. */
+#comboDots{
+  transform-origin:center;
+  will-change:transform;
+}
+
+#comboDots .dot{
+  position:relative;
+  overflow:visible;
+  will-change:transform;
+  transform:translate3d(0,0,0) scale(1);
+  transform-origin:center;
+  backface-visibility:hidden;
+}
+
+#comboDots .dot::after{
+  content:'';
+  position:absolute;
+  inset:-4px;
+  border:1px solid rgba(255,255,255,.22);
+  border-radius:999px;
+  opacity:0;
+  transform:scale(.86);
+  pointer-events:none;
+  animation:hqComboDotIdleHalo 7.6s ease-in-out infinite;
+}
+
+#comboDots .dot:nth-child(1)::after{animation-delay:.1s;}
+#comboDots .dot:nth-child(2)::after{animation-delay:.75s;}
+#comboDots .dot:nth-child(3)::after{animation-delay:1.4s;}
+#comboDots .dot:nth-child(4)::after{animation-delay:2.05s;}
+#comboDots .dot:nth-child(5)::after{animation-delay:2.7s;}
+
+#comboDots.hq-idle-drift{
+  animation:hqComboDotsIdleDrift 3.15s ease-in-out infinite;
+}
+
+#comboDots.hq-idle-bob{
+  animation:hqComboDotsIdleBob 2.75s ease-in-out infinite;
+}
+
+#comboDots.hq-idle-breathe{
+  animation:hqComboDotsIdleBreathe 2.95s ease-in-out infinite;
+}
+
+#comboDots.hq-idle-popcorn .dot{
+  animation:hqComboDotIdlePopcorn var(--idle-pop-duration,2.65s) ease-in-out infinite;
+  animation-delay:var(--idle-pop-delay,0s);
+}
+
+#comboDots.hq-idle-wave .dot{
+  animation:hqComboDotIdleWave 1.65s ease-in-out infinite;
+}
+#comboDots.hq-idle-wave .dot:nth-child(1){animation-delay:0s;}
+#comboDots.hq-idle-wave .dot:nth-child(2){animation-delay:.09s;}
+#comboDots.hq-idle-wave .dot:nth-child(3){animation-delay:.18s;}
+#comboDots.hq-idle-wave .dot:nth-child(4){animation-delay:.27s;}
+#comboDots.hq-idle-wave .dot:nth-child(5){animation-delay:.36s;}
+
+@keyframes hqComboDotsIdleDrift{
+  0%,100%{transform:translate3d(0,0,0);}
+  36%{transform:translate3d(5px,0,0);}
+  72%{transform:translate3d(-5px,0,0);}
+}
+
+@keyframes hqComboDotsIdleBob{
+  0%,100%{transform:translate3d(0,0,0);}
+  50%{transform:translate3d(0,-5px,0);}
+}
+
+@keyframes hqComboDotsIdleBreathe{
+  0%,100%{transform:scale(1);}
+  50%{transform:scale(1.11);}
+}
+
+@keyframes hqComboDotIdlePopcorn{
+  0%,100%{transform:translate3d(0,0,0) scale(1);}
+  34%{transform:translate3d(0,0,0) scale(var(--idle-pop-scale-a,1.16));}
+  66%{transform:translate3d(0,0,0) scale(var(--idle-pop-scale-b,.94));}
+}
+
+@keyframes hqComboDotIdleWave{
+  0%,100%{transform:translate3d(0,0,0) scale(1);}
+  35%{transform:translate3d(0,-6px,0) scale(1.08);}
+  70%{transform:translate3d(0,1px,0) scale(.98);}
+}
+
+@keyframes hqComboDotIdleHalo{
+  0%,58%,100%{opacity:0;transform:scale(.86);}
+  68%{opacity:.18;transform:scale(1.24);}
+  78%{opacity:.07;transform:scale(1.42);}
+}
+
+#comboDots.hq-swatch-shuffle{
+  animation:none !important;
+}
+
+#comboDots.hq-swatch-shuffle .dot{
+  animation-duration:.88s !important;
+  animation-timing-function:cubic-bezier(.16,.96,.18,1.14) !important;
+  animation-iteration-count:1 !important;
+  animation-fill-mode:both !important;
+  animation-delay:var(--shuffle-delay,0s) !important;
+}
+
+#comboDots.hq-swatch-shuffle .dot::after{
+  animation:hqComboDotShuffleRing .88s cubic-bezier(.16,.96,.18,1.14) 1 both !important;
+  animation-delay:var(--shuffle-delay,0s) !important;
+}
+
+#comboDots.hq-swatch-shuffle .dot.hq-dot-hop{animation-name:hqComboDotHop !important;}
+#comboDots.hq-swatch-shuffle .dot.hq-dot-twist{animation-name:hqComboDotTwist !important;}
+#comboDots.hq-swatch-shuffle .dot.hq-dot-slide{animation-name:hqComboDotSlide !important;}
+#comboDots.hq-swatch-shuffle .dot.hq-dot-squish{animation-name:hqComboDotSquish !important;}
+#comboDots.hq-swatch-shuffle .dot.hq-dot-arc{animation-name:hqComboDotArc !important;}
+#comboDots.hq-swatch-shuffle .dot.hq-dot-drop{animation-name:hqComboDotDrop !important;}
+#comboDots.hq-swatch-shuffle .dot.hq-dot-zigzag{animation-name:hqComboDotZigzag !important;}
+#comboDots.hq-swatch-shuffle .dot.hq-dot-burst{animation-name:hqComboDotBurst !important;}
+
+@keyframes hqComboDotShuffleRing{
+  0%{opacity:.45;transform:scale(.76);}
+  48%{opacity:.34;transform:scale(1.52);}
+  100%{opacity:0;transform:scale(1.78);}
+}
+
+@keyframes hqComboDotHop{
+  0%{transform:translate3d(0,0,0) scale(1);}
+  25%{transform:translate3d(0,-13px,0) scale(1.22);}
+  56%{transform:translate3d(0,4px,0) scale(.92);}
+  100%{transform:translate3d(0,0,0) scale(1);}
+}
+
+@keyframes hqComboDotTwist{
+  0%{transform:translate3d(0,0,0) rotate(0deg) scale(1);}
+  32%{transform:translate3d(0,-7px,0) rotate(-34deg) scale(1.22);}
+  66%{transform:translate3d(0,3px,0) rotate(22deg) scale(.95);}
+  100%{transform:translate3d(0,0,0) rotate(0deg) scale(1);}
+}
+
+@keyframes hqComboDotSlide{
+  0%{transform:translate3d(0,0,0) scale(1);}
+  25%{transform:translate3d(11px,-6px,0) scale(1.2);}
+  62%{transform:translate3d(-7px,3px,0) scale(.96);}
+  100%{transform:translate3d(0,0,0) scale(1);}
+}
+
+@keyframes hqComboDotSquish{
+  0%{transform:translate3d(0,0,0) scale(1);}
+  28%{transform:translate3d(0,-9px,0) scale(1.28,.86);}
+  60%{transform:translate3d(0,4px,0) scale(.88,1.22);}
+  100%{transform:translate3d(0,0,0) scale(1);}
+}
+
+@keyframes hqComboDotArc{
+  0%{transform:translate3d(0,0,0) rotate(0deg) scale(1);}
+  24%{transform:translate3d(-9px,-10px,0) rotate(-16deg) scale(1.18);}
+  58%{transform:translate3d(8px,-3px,0) rotate(20deg) scale(1.06);}
+  100%{transform:translate3d(0,0,0) rotate(0deg) scale(1);}
+}
+
+@keyframes hqComboDotDrop{
+  0%{transform:translate3d(0,-14px,0) scale(.82);opacity:.72;}
+  38%{transform:translate3d(0,4px,0) scale(1.22,.86);opacity:1;}
+  64%{transform:translate3d(0,-4px,0) scale(.96,1.12);}
+  100%{transform:translate3d(0,0,0) scale(1);opacity:1;}
+}
+
+@keyframes hqComboDotZigzag{
+  0%{transform:translate3d(0,0,0) scale(1);}
+  20%{transform:translate3d(-8px,-5px,0) scale(1.14);}
+  42%{transform:translate3d(9px,-8px,0) scale(1.2);}
+  66%{transform:translate3d(-4px,3px,0) scale(.96);}
+  100%{transform:translate3d(0,0,0) scale(1);}
+}
+
+@keyframes hqComboDotBurst{
+  0%{transform:translate3d(0,0,0) scale(.72);filter:saturate(1);}
+  26%{transform:translate3d(0,-6px,0) scale(1.38);filter:saturate(1.28);}
+  58%{transform:translate3d(0,2px,0) scale(.93);filter:saturate(1.08);}
+  100%{transform:translate3d(0,0,0) scale(1);filter:saturate(1);}
+}
+
+@media (hover:hover){
+  #comboDots:not(.hq-swatch-shuffle) .dot:hover{
+    transform:translate3d(0,-2px,0) scale(1.1);
+  }
+}
+
+@media (prefers-reduced-motion:reduce){
+  #comboDots,
+  #comboDots .dot,
+  #comboDots .dot::after,
+  #comboDots.hq-swatch-shuffle .dot,
+  #comboDots.hq-swatch-shuffle .dot::after{
+    animation:none !important;
+    transform:none !important;
+  }
+}
+
+
+/* v131: staggered pulse idle cleanup
+   Keep the combo-change shuffle, but make the idle behavior one consistent
+   individual staggered pulse from first load. Remove the leftover halo/alternate idle feel
+   so initial load and post-randomize idle match. Presentation-only. */
+#comboDots .dot::after{
+  animation:none !important;
+  opacity:0 !important;
+}
+
+#comboDots.hq-idle-popcorn .dot{
+  animation-name:hqComboDotIdleStaggeredPulse !important;
+  animation-duration:var(--idle-pop-duration,2.35s) !important;
+  animation-timing-function:ease-in-out !important;
+  animation-iteration-count:infinite !important;
+  animation-delay:var(--idle-pop-delay,-.2s) !important;
+}
+
+@keyframes hqComboDotIdleStaggeredPulse{
+  0%,100%{transform:translate3d(0,0,0) scale(1);}
+  38%{transform:translate3d(0,0,0) scale(var(--idle-pop-scale-a,1.18));}
+  72%{transform:translate3d(0,0,0) scale(var(--idle-pop-scale-b,.94));}
+}
+
+
+/* v132: restore clean combo-change shuffle while keeping staggered pulse idle
+   v131 made the idle pulse consistent from first load, but its later CSS also
+   overrode the shuffle duration/timing while both classes were present. This
+   block gives the transition animation priority again, then the staggered
+   pulse resumes after the shuffle class is removed. Presentation-only. */
+#comboDots.hq-swatch-shuffle.hq-idle-popcorn .dot{
+  animation-duration:.88s !important;
+  animation-timing-function:cubic-bezier(.16,.96,.18,1.14) !important;
+  animation-iteration-count:1 !important;
+  animation-fill-mode:both !important;
+  animation-delay:var(--shuffle-delay,0s) !important;
+}
+
+#comboDots.hq-swatch-shuffle.hq-idle-popcorn .dot.hq-dot-hop{animation-name:hqComboDotHop !important;}
+#comboDots.hq-swatch-shuffle.hq-idle-popcorn .dot.hq-dot-twist{animation-name:hqComboDotTwist !important;}
+#comboDots.hq-swatch-shuffle.hq-idle-popcorn .dot.hq-dot-slide{animation-name:hqComboDotSlide !important;}
+#comboDots.hq-swatch-shuffle.hq-idle-popcorn .dot.hq-dot-squish{animation-name:hqComboDotSquish !important;}
+#comboDots.hq-swatch-shuffle.hq-idle-popcorn .dot.hq-dot-arc{animation-name:hqComboDotArc !important;}
+#comboDots.hq-swatch-shuffle.hq-idle-popcorn .dot.hq-dot-drop{animation-name:hqComboDotDrop !important;}
+#comboDots.hq-swatch-shuffle.hq-idle-popcorn .dot.hq-dot-zigzag{animation-name:hqComboDotZigzag !important;}
+#comboDots.hq-swatch-shuffle.hq-idle-popcorn .dot.hq-dot-burst{animation-name:hqComboDotBurst !important;}
+
+
+
+
+/* v135: slower Good Stuff text cue
+   Keeps the v134 text-only approach, but makes the click-me pulse calmer:
+   slower cycle, smaller scale, long rest between pulses, and no will-change layer
+   so the text stays sharper than the prior transform-heavy version. */
+#savedSection:not([open]) > summary .good-stuff-summary-main{
+  display:inline-flex !important;
+  align-items:center !important;
+  gap:9px !important;
+  animation:hqGoodStuffTextPulse 7.2s ease-in-out infinite;
+  transform-origin:left center;
+  backface-visibility:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+
+@keyframes hqGoodStuffTextPulse{
+  0%,58%,100%{
+    transform:scale(1);
+  }
+  68%{
+    transform:scale(1.028);
+  }
+  78%{
+    transform:scale(1);
+  }
+}
+
+@media (prefers-reduced-motion:reduce){
+  #savedSection:not([open]) > summary .good-stuff-summary-main{
+    animation:none !important;
+    transform:none !important;
+  }
+}
+
+
+
+/* v139: header help popup + compact Chart Colors layout
+   Moves the guide copy out of the page flow and behind a small user-facing ? button in the title card.
+   Keeps the compact Chart Colors one-line yarn number/name treatment. */
+.hq-help-btn{
+  position:absolute;
+  right:14px;
+  top:50%;
+  transform:translateY(-50%);
+  width:31px;
+  height:31px;
+  border:1px solid rgba(17,17,17,.42);
+  border-radius:999px;
+  background:#fffaf2;
+  color:#111;
+  display:grid;
+  place-items:center;
+  font-family:var(--font);
+  font-size:15px;
+  line-height:1;
+  font-weight:900;
+  cursor:pointer;
+  box-shadow:0 2px 5px rgba(18,18,18,.08);
+  z-index:4;
+}
+.hq-help-btn:hover,
+.hq-help-btn:focus{
+  background:#111;
+  color:#fff;
+  border-color:#111;
+  outline:none;
+}
+.hero{
+  padding-right:56px !important;
+}
+.hq-help-backdrop{
+  position:fixed;
+  inset:0;
+  z-index:75;
+  display:none;
+  align-items:flex-start;
+  justify-content:center;
+  padding:92px 18px 18px;
+  background:rgba(18,18,18,.24);
+}
+.hq-help-backdrop.open{display:flex;}
+.hq-help-panel{
+  position:relative;
+  width:min(500px, calc(100vw - 36px));
+  border:1px solid var(--line);
+  border-radius:20px;
+  background:#fffdf8;
+  color:#111;
+  box-shadow:0 18px 42px rgba(18,18,18,.22);
+  padding:17px 18px 18px;
+}
+.hq-help-title{
+  margin:0 40px 8px 0;
+  font-size:13px;
+  font-weight:900;
+  line-height:1;
+  letter-spacing:.07em;
+  text-transform:uppercase;
+}
+.hq-help-copy{
+  margin:0;
+  color:#4f473f;
+  font-size:12px;
+  font-weight:700;
+  line-height:1.38;
+  letter-spacing:-.012em;
+}
+.hq-help-close{
+  position:absolute;
+  top:10px;
+  right:10px;
+  width:30px;
+  height:30px;
+  border:1px solid var(--line);
+  border-radius:10px;
+  background:#fffaf2;
+  color:#111;
+  font-size:20px;
+  line-height:1;
+  cursor:pointer;
+}
+.hq-help-close:hover,
+.hq-help-close:focus{
+  background:#111;
+  color:#fff;
+  border-color:#111;
+  outline:none;
+}
+@media (min-width:721px){
+  .page{
+    --hq-gap:18px !important;
+  }
+
+  .left-workspace,
+  .right-workspace{
+    gap:var(--hq-gap) !important;
+  }
+
+  .right-workspace{
+    width:calc(100% - var(--hq-left) - var(--hq-gap)) !important;
+    margin-left:calc(var(--hq-left) + var(--hq-gap)) !important;
+  }
+
+  /* Put yarn number + name on one line in Chart Colors and reduce the card height. */
+  #rolesSection .role-card{
+    min-height:67px !important;
+    padding:5px 4px !important;
+    display:block !important;
+  }
+
+  #rolesSection .role-dot{
+    width:24px !important;
+    height:24px !important;
+    margin-bottom:3px !important;
+  }
+
+  #rolesSection .role-label{
+    font-size:7.75px !important;
+    line-height:1 !important;
+  }
+
+  #rolesSection .role-num,
+  #rolesSection .role-name{
+    display:inline !important;
+    height:auto !important;
+    margin-top:2px !important;
+    line-height:1.05 !important;
+    vertical-align:baseline !important;
+  }
+
+  #rolesSection .role-num{
+    font-size:7.5px !important;
+    font-weight:800 !important;
+    color:#6f665b !important;
+  }
+
+  #rolesSection .role-name{
+    font-size:7.5px !important;
+    color:#6f665b !important;
+    overflow:visible !important;
+  }
+
+  #rolesSection .role-num:after{
+    content:' · ';
+    color:#9c9287;
+    font-weight:700;
+  }
+
+  #rolesSection .lock-wrap{
+    margin-top:3px !important;
+  }
+
+  #rolesSection .lock-check,
+  #rolesSection input[type="checkbox"]{
+    width:16px !important;
+    height:16px !important;
+    min-width:16px !important;
+    border-radius:5px !important;
+    background-size:11px 11px !important;
+  }
+
+  #rolesSection .stripe-swap-icon{
+    top:30px !important;
+  }
+
+  .chart-card{
+    padding:8px !important;
+    gap:7px !important;
+  }
+
+  .pattern-section-title{
+    margin-bottom:-2px !important;
+  }
+
+  .chart-scroll{
+    height:234px !important;
+    min-height:234px !important;
+    max-height:234px !important;
+  }
+
+  .chart-card .actions > .btn,
+  .chart-card .actions > .source-row .source-btn{
+    min-height:34px !important;
+    height:34px !important;
+  }
+
+  #savedSection:not([open]) > summary{
+    min-height:86px !important;
+  }
+}
+
+@media (min-width:721px) and (max-height:820px){
+  .page{
+    --hq-gap:16px !important;
+  }
+
+  .left-workspace,
+  .right-workspace{
+    gap:var(--hq-gap) !important;
+  }
+
+  .right-workspace{
+    width:calc(100% - var(--hq-left) - var(--hq-gap)) !important;
+    margin-left:calc(var(--hq-left) + var(--hq-gap)) !important;
+  }
+
+  .chart-scroll{
+    height:222px !important;
+    min-height:222px !important;
+    max-height:222px !important;
+  }
+
+  #rolesSection .role-card{
+    min-height:64px !important;
+  }
+
+  #rolesSection .role-dot{
+    width:23px !important;
+    height:23px !important;
+  }
+
+  #savedSection:not([open]) > summary{
+    min-height:82px !important;
+  }
+}
+
+@media (min-width:1700px) and (min-height:820px){
+  .page{
+    --hq-gap:20px !important;
+  }
+
+  .left-workspace,
+  .right-workspace{
+    gap:var(--hq-gap) !important;
+  }
+
+  .right-workspace{
+    width:calc(100% - var(--hq-left) - var(--hq-gap)) !important;
+    margin-left:calc(var(--hq-left) + var(--hq-gap)) !important;
+  }
+
+  .chart-scroll{
+    height:256px !important;
+    min-height:256px !important;
+    max-height:256px !important;
+  }
+}
+
+@media (max-width:720px){
+  .hero{
+    padding-right:54px !important;
+  }
+
+  .hq-help-btn{
+    right:12px;
+    width:30px;
+    height:30px;
+    font-size:14px;
+  }
+
+  .hq-help-backdrop{
+    align-items:flex-end;
+    padding:18px 12px 0;
+    background:rgba(18,18,18,.30);
+  }
+
+  .hq-help-panel{
+    width:100%;
+    max-width:430px;
+    border-bottom:0;
+    border-radius:24px 24px 0 0;
+    padding:18px 17px 22px;
+  }
+
+  .hq-help-title{
+    font-size:13px;
+  }
+
+  .hq-help-copy{
+    font-size:11px;
+    line-height:1.42;
+  }
+}
+
+@media (prefers-reduced-motion:reduce){
+  .hq-help-btn,
+  .hq-help-panel{
+    transition:none !important;
+  }
+}
+
+/* v138: relocate hidden admin name refresh trigger
+   Moves Bryant-only name refresh trigger out of the title card so the header can safely hold user-facing help UI later.
+   Pure placement/visibility change; no app/data logic changes. */
+.admin-name-refresh-btn{
+  position:fixed !important;
+  left:10px !important;
+  right:auto !important;
+  top:auto !important;
+  bottom:10px !important;
+  z-index:9998 !important;
+  width:15px !important;
+  height:15px !important;
+  opacity:.025 !important;
+  background:#111 !important;
+  border:0 !important;
+  border-radius:999px !important;
+  box-shadow:none !important;
+}
+.admin-name-refresh-btn:hover,
+.admin-name-refresh-btn:focus{
+  opacity:.22 !important;
+  outline:1px solid rgba(17,17,17,.35) !important;
+}
+.admin-name-refresh-btn.is-running{
+  opacity:.34 !important;
+}
+@media (max-width:720px){
+  .admin-name-refresh-btn{
+    left:8px !important;
+    bottom:8px !important;
+    width:14px !important;
+    height:14px !important;
+  }
+}
+
+
+/* v140: desktop bottom-box alignment tune
+   Keeps the v139 help-popup layout, then lets the collapsed Good Stuff card
+   stretch just enough to visually line up with the bottom of Chart Colors.
+   Presentation/layout only; no app data logic changes. */
+@media (min-width:721px){
+  #savedSection:not([open]) > summary{
+    min-height:var(--hq-good-stuff-align-height,86px) !important;
+  }
+}
+
+@media (min-width:721px) and (max-height:820px){
+  #savedSection:not([open]) > summary{
+    min-height:var(--hq-good-stuff-align-height,82px) !important;
+  }
+}
+
+
+
+/* v141: subtler header help button
+   Keeps the ? help affordance visible, but softens it so it does not compete with the logo/header. */
+.hq-help-btn{
+  border-color:rgba(95,90,84,.26) !important;
+  background:rgba(248,244,236,.54) !important;
+  color:#8b8378 !important;
+  box-shadow:0 1px 3px rgba(18,18,18,.045) !important;
+}
+.hq-help-btn:hover,
+.hq-help-btn:focus{
+  background:#f8f4ec !important;
+  color:#5f5a54 !important;
+  border-color:rgba(95,90,84,.45) !important;
+  box-shadow:0 2px 6px rgba(18,18,18,.07) !important;
+  outline:none !important;
+}
+
+
+/* v142: quieter help button + larger yarn logo + restored bottom alignment
+   - Makes the header ? smaller and lower-contrast so it does not grab the eye first.
+   - Gives the yarn logo more presence on desktop without changing app/data logic.
+   - Allows the collapsed Good Stuff alignment helper a little more range after header/logo tuning. */
+.hq-help-btn{
+  width:24px !important;
+  height:24px !important;
+  right:16px !important;
+  font-size:12px !important;
+  font-weight:800 !important;
+  border-color:rgba(95,90,84,.20) !important;
+  background:rgba(248,244,236,.42) !important;
+  color:#a49b91 !important;
+  box-shadow:none !important;
+  opacity:.82 !important;
+}
+.hq-help-btn:hover,
+.hq-help-btn:focus{
+  background:rgba(248,244,236,.82) !important;
+  color:#6f665b !important;
+  border-color:rgba(95,90,84,.36) !important;
+  box-shadow:0 1px 4px rgba(18,18,18,.055) !important;
+  opacity:1 !important;
+}
+.hero{
+  padding-right:50px !important;
+}
+
+@media (min-width:721px){
+  .hero .logo{
+    width:70px !important;
+    height:70px !important;
+  }
+
+  #savedSection:not([open]) > summary{
+    min-height:var(--hq-good-stuff-align-height,86px) !important;
+  }
+}
+
+@media (min-width:721px) and (max-height:820px){
+  .hero .logo{
+    width:66px !important;
+    height:66px !important;
+  }
+
+  #savedSection:not([open]) > summary{
+    min-height:var(--hq-good-stuff-align-height,82px) !important;
+  }
+}
+
+@media (max-width:720px){
+  .hq-help-btn{
+    width:24px !important;
+    height:24px !important;
+    right:12px !important;
+    font-size:11px !important;
+  }
+  .hero{
+    padding-right:48px !important;
+  }
+}
+
+
+
+/* v143: restore fixed signature visibility + tighten desktop bottom alignment
+   Presentation-only repair after v142: keep the smaller help button/larger logo, make the
+   blj mark unmistakably present again, and let the JS alignment target the collapsed summary precisely. */
+.hq-signature{
+  display:block !important;
+  position:fixed !important;
+  right:12px !important;
+  bottom:10px !important;
+  z-index:2147483000 !important;
+  font-family:var(--font) !important;
+  font-size:11px !important;
+  line-height:1 !important;
+  letter-spacing:.04em !important;
+  color:#4f4943 !important;
+  opacity:.82 !important;
+  pointer-events:none !important;
+  user-select:none !important;
+  transform:none !important;
+}
+
+@media (max-width:720px){
+  .hq-signature{
+    right:10px !important;
+    bottom:8px !important;
+    font-size:10px !important;
+  }
+}
+
+@media (min-width:721px){
+  #savedSection:not([open]) > summary{
+    min-height:var(--hq-good-stuff-align-height,86px) !important;
+  }
+}
+
+@media (min-width:721px) and (max-height:820px){
+  #savedSection:not([open]) > summary{
+    min-height:var(--hq-good-stuff-align-height,82px) !important;
+  }
+}
+
+
+/* v144: remove default desktop page scrollbar
+   The desktop shell previously kept an inner app-grid at min-height:100vh inside a padded page.
+   That created a page-level scrollbar even when all default content was already visible.
+   Let the desktop shell size to its real content; expanded panels can still create normal page scroll. */
+@media (min-width:721px){
+  .app-grid{
+    min-height:0 !important;
+  }
+
+  .page{
+    min-height:0 !important;
+  }
+}
+
+
+
+/* v145: mobile chart-preview stick + mobile signature safe inset
+   Keeps v144 desktop no-scroll behavior, then repairs mobile chart-preview pinning and
+   moves the fixed blj signature left/up slightly so it does not clip on mobile browser chrome.
+   Presentation-only; no Supabase/data logic changes. */
+@media (max-width:720px){
+  /* Let the chart card's sticky container be the full app flow, not only the short left workspace. */
+  body.chart-preview-on .left-workspace{
+    display:contents !important;
+  }
+
+  body.chart-preview-on .chart-card{
+    position:sticky !important;
+    top:0 !important;
+    z-index:60 !important;
+    margin-top:0 !important;
+    border-radius:0 0 20px 20px !important;
+    box-shadow:0 12px 24px rgba(18,18,18,.16) !important;
+  }
+
+  body.chart-preview-on .hq-signature,
+  .hq-signature{
+    right:calc(22px + env(safe-area-inset-right,0px)) !important;
+    bottom:calc(12px + env(safe-area-inset-bottom,0px)) !important;
+    font-size:10px !important;
+  }
+}
+
+
+/* v146: help button copy tune
+   Keeps v145 mobile chart-preview/signature fixes, changes the header help affordance
+   from ? to ?!, and removes the redundant Own it! title inside the help panel. */
+.hq-help-btn{
+  width:28px !important;
+  height:24px !important;
+  font-size:10.5px !important;
+  letter-spacing:-.06em !important;
+  padding:0 !important;
+}
+.hq-help-panel{
+  padding-top:18px !important;
+}
+.hq-help-title{
+  display:none !important;
+}
+@media (max-width:720px){
+  .hq-help-btn{
+    width:28px !important;
+    height:24px !important;
+    right:12px !important;
+    font-size:10px !important;
+  }
+  .hq-help-panel{
+    padding-top:18px !important;
+  }
+}
+
+
+/* v147: help popup clearance + background signature layer
+   Keeps v146 mobile/chart/help behavior, then gives the help copy room around the close button
+   and anchors the blj mark to the page background instead of floating over scrolled content. */
+body{
+  position:relative !important;
+}
+.page{
+  position:relative !important;
+  z-index:1 !important;
+}
+.hq-help-panel{
+  padding:20px 58px 20px 20px !important;
+}
+.hq-help-copy{
+  max-width:100% !important;
+}
+.hq-help-close{
+  top:12px !important;
+  right:12px !important;
+}
+.hq-signature{
+  position:absolute !important;
+  right:26px !important;
+  bottom:18px !important;
+  z-index:0 !important;
+  color:#5f5a54 !important;
+  opacity:.72 !important;
+}
+@media (max-width:720px){
+  .hq-help-backdrop{
+    padding:84px 12px 16px !important;
+  }
+  .hq-help-panel{
+    width:calc(100vw - 24px) !important;
+    padding:18px 50px 18px 16px !important;
+    border-radius:18px !important;
+  }
+  .hq-help-close{
+    top:10px !important;
+    right:10px !important;
+    width:28px !important;
+    height:28px !important;
+    border-radius:10px !important;
+    font-size:18px !important;
+  }
+  body.chart-preview-on .hq-signature,
+  .hq-signature{
+    position:absolute !important;
+    right:calc(34px + env(safe-area-inset-right,0px)) !important;
+    bottom:calc(18px + env(safe-area-inset-bottom,0px)) !important;
+    z-index:0 !important;
+    font-size:10px !important;
+  }
+}
+
+
+/* v148: desktop Good Stuff alignment guard
+   Only stretch the collapsed Good Stuff summary in the default desktop stack where Palette and
+   Readability are open. If those panels are collapsed, keep Good Stuff at its natural height
+   instead of turning into a large blank spacer. */
+
+
+/* v149: mobile signature nudge
+   Mobile-only placement tweak after v148: move the background blj mark slightly lower
+   so it sits in the grid margin instead of hiding behind the last mobile card. */
+@media (max-width:720px){
+  body.chart-preview-on .hq-signature,
+  .hq-signature{
+    right:calc(34px + env(safe-area-inset-right,0px)) !important;
+    bottom:calc(6px + env(safe-area-inset-bottom,0px)) !important;
+  }
+}
+
+
+/* v150: desktop signature split + Good Stuff wave cue
+   Desktop gets the blj mark fixed back to the viewport corner. Mobile keeps the background-layer
+   treatment so it does not sit over scrolled cards. The collapsed Good Stuff cue changes from
+   scale/zoom to a staggered letter wave; the view pill remains still. */
+@media (min-width:721px){
+  .hq-signature{
+    position:fixed !important;
+    right:14px !important;
+    bottom:10px !important;
+    z-index:12 !important;
+    font-size:11px !important;
+    color:#5f5a54 !important;
+    opacity:.82 !important;
+  }
+}
+
+@media (max-width:720px){
+  body.chart-preview-on .hq-signature,
+  .hq-signature{
+    position:absolute !important;
+    right:calc(34px + env(safe-area-inset-right,0px)) !important;
+    bottom:calc(6px + env(safe-area-inset-bottom,0px)) !important;
+    z-index:0 !important;
+  }
+}
+
+#savedSection:not([open]) > summary .good-stuff-summary-main{
+  animation:none !important;
+  transform:none !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  gap:0 !important;
+}
+
+#savedSection:not([open]) > summary .good-stuff-summary-main .hq-good-letter{
+  display:inline-block !important;
+  transform:translateY(0);
+  animation:hqGoodStuffLetterWave 6.8s ease-in-out infinite;
+  animation-delay:calc(var(--hq-letter-index) * .065s);
+  transform-origin:center bottom;
+}
+
+#savedSection:not([open]) > summary .good-stuff-summary-main .hq-good-space{
+  width:.42em;
+}
+
+#savedSection[open] > summary .good-stuff-summary-main .hq-good-letter{
+  animation:none !important;
+  transform:none !important;
+}
+
+@keyframes hqGoodStuffLetterWave{
+  0%,60%,100%{transform:translateY(0) rotate(0deg);}
+  66%{transform:translateY(-2px) rotate(-1deg);}
+  72%{transform:translateY(1px) rotate(1deg);}
+  78%{transform:translateY(0) rotate(0deg);}
+}
+
+@media (prefers-reduced-motion:reduce){
+  #savedSection:not([open]) > summary .good-stuff-summary-main .hq-good-letter{
+    animation:none !important;
+    transform:none !important;
+  }
+}
+
+
+
+/* v151: tiny Good Stuff view-pill spacing nudge
+   Presentation-only: move the collapsed Good Stuff "view" pill a hair to the right
+   so it breathes away from the waving title text. */
+#savedSection:not([open]) .good-stuff-summary-main:after{
+  margin-left:8px !important;
+}
+
+
+/* v153: mobile chart no-empty-scroll repair
+   Mobile follow-up to the v122 desktop fix: use layout-aware zoom instead of transform scaling
+   so the chart's horizontal scrollbar ends where the visible pattern ends. */
+@media (max-width:720px){
+  .chart-scroll #chart{
+    transform:none !important;
+    zoom:.74 !important;
+    margin-bottom:0 !important;
+  }
+}
+@media (max-width:360px){
+  .chart-scroll #chart{
+    transform:none !important;
+    zoom:.68 !important;
+    margin-bottom:0 !important;
+  }
+}
+
+
+/* v154: mobile signature fixed-background behavior
+   Keep desktop behavior as-is. On mobile, keep blj 2026 anchored to the viewport bottom like desktop,
+   but leave it behind the app cards so scrolling content covers it instead of text merging over cards. */
+@media (max-width:720px){
+  body.chart-preview-on .hq-signature,
+  .hq-signature{
+    position:fixed !important;
+    right:calc(34px + env(safe-area-inset-right,0px)) !important;
+    bottom:calc(8px + env(safe-area-inset-bottom,0px)) !important;
+    z-index:0 !important;
+    font-size:10px !important;
+    color:#5f5a54 !important;
+    opacity:.72 !important;
+    pointer-events:none !important;
+  }
+}
+
 </style>
 </head>
-<body data-hq-build="v155-meta-description-cleanup">
-  <div class="page">
-    <header class="hero">
-      <div class="brand"><div class="logo"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNzIgMjAwIiByb2xlPSJpbWciIGFyaWEtbGFiZWw9Illhcm4gYmFsbCBzdW5nbGFzc2VzIGxvZ28iPgogIDx0aXRsZT5ZYXJuIGJhbGwgc3VuZ2xhc3NlcyBsb2dvPC90aXRsZT4KICA8ZyBmaWxsPSIjMDAwMDAwIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPgogICAgPHBhdGggZD0iTSAyNjMgMTgwIEwgMjU5IDE3NyBMIDI1NCAxNzYgTCAyNDUgMTc3IEwgMjM1IDE4MSBMIDIyNiAxODEgTCAyMjEgMTc5IEwgMjE5IDE3NyBMIDIyOSAxNzEgTCAyMzYgMTYzIEwgMjM1IDE1NCBMIDIyOCAxNTAgTCAyMTkgMTUxIEwgMjExIDE1NyBMIDIwOSAxNjEgTCAyMDkgMTcyIEwgMjEwIDE3MyBMIDIwOSAxNzUgTCAxOTQgMTc0IEwgMTg4IDE3MSBMIDE4MyAxNjYgTCAxODEgMTU5IEwgMTkzIDE0MiBMIDE5OSAxMjkgTCAyMDIgMTE4IEwgMjAyIDExMyBMIDIwNCAxMDcgTCAyMDQgOTcgTCAyMDMgOTMgTCAyMDEgOTEgTCAyMDAgOTIgTCAyMDAgMTEyIEwgMTk4IDExNiBMIDE5OCAxMjAgTCAxOTIgMTMyIEwgMTkyIDEzNSBMIDE4NSAxNDggTCAxODAgMTUzIEwgMTc5IDE1MiBMIDE4MCAxMzMgTCAxNzggMTMzIEwgMTc2IDEzOSBMIDE3NiAxNTkgTCAxNjQgMTcwIEwgMTUzIDE3OCBMIDEzNSAxODUgTCAxMjUgMTg2IEwgMTI0IDE4NyBMIDExOSAxODcgTCAxMTggMTg2IEwgMTM0IDE3NiBMIDE0NSAxNjUgTCAxNTEgMTU3IEwgMTU4IDE0MyBMIDE1NyAxMzkgTCAxNDYgMTU4IEwgMTMyIDE3MyBMIDEyMyAxNzkgTCAxMDggMTg2IEwgMTAyIDE4NiBMIDEwMSAxODcgTCAxMDAgMTg2IEwgOTUgMTg2IEwgODYgMTgzIEwgODQgMTgwIEwgMTAwIDE3MiBMIDExMyAxNjMgTCAxMzUgMTQxIEwgMTM4IDEzNiBMIDEzNiAxMzQgTCAxMDggMTYyIEwgOTMgMTcxIEwgODkgMTc1IEwgNzkgMTc4IEwgNzMgMTc4IEwgNjggMTc0IEwgNjYgMTcwIEwgNjYgMTY1IEwgNjggMTYzIEwgNzAgMTYzIEwgNzkgMTU4IEwgOTYgMTQ2IEwgMTEwIDEzMiBMIDExNiAxMjIgTCAxMTMgMTIxIEwgMTA2IDEzMSBMIDg4IDE0OCBMIDc2IDE1NiBMIDY3IDE1OSBMIDY2IDE1OCBMIDY3IDE1MSBMIDcyIDE0MCBMIDc0IDEzOCBMIDc0IDEzNiBMIDcxIDEzNiBMIDY4IDE0MCBMIDY0IDE0OSBMIDYzIDE1NSBMIDYxIDE1NyBMIDU2IDE1NSBMIDQxIDE0NiBMIDQyIDE0MiBMIDQ2IDEzOCBMIDQ1IDEzNSBMIDM3IDE0MyBMIDM1IDE0MyBMIDI5IDEzOSBMIDIxIDEzMSBMIDE4IDEyNSBMIDE4IDEwNyBMIDE3IDEwNiBMIDE2IDEwNyBMIDE0IDExNiBMIDEyIDExMyBMIDEzIDEwMyBMIDEwIDEwMiBMIDggMTA4IEwgOSAxMTggTCAxNSAxMjkgTCAxNiAxMzcgTCAyMCAxNDYgTCAzMiAxNTkgTCAzNCAxNzAgTCA0MSAxNzcgTCA1NyAxODMgTCA3NiAxODIgTCA4MyAxODYgTCA5MiAxODkgTCAxMDkgMTg5IEwgMTE4IDE5MSBMIDExOSAxOTAgTCAxMjkgMTkwIEwgMTQ0IDE4NiBMIDE1NSAxODEgTCAxNzAgMTcwIEwgMTc2IDE2NCBMIDE3OCAxNjQgTCAxODIgMTcxIEwgMTg5IDE3NiBMIDIwMiAxNzkgTCAyMTMgMTc4IEwgMjIzIDE4NCBMIDIzOCAxODQgTCAyNDggMTgwIEwgMjU3IDE4MCBMIDI2MSAxODIgWiBNIDM3IDE2MyBMIDM5IDE2MiBMIDQ2IDE2NSBMIDYxIDE2NSBMIDYzIDE2NyBMIDY0IDE3NCBMIDY3IDE3OSBMIDY2IDE4MCBMIDYwIDE4MCBMIDUxIDE3OCBMIDQ2IDE3NSBMIDQyIDE3NSBMIDM3IDE2NyBaIE0gMjI5IDE1NSBMIDIzMiAxNTggTCAyMzIgMTYzIEwgMjI0IDE3MSBMIDIxNiAxNzQgTCAyMTMgMTcwIEwgMjEzIDE2MyBMIDIxNSAxNTkgTCAyMTggMTU2IEwgMjIzIDE1NCBaIE0gMzcgMTUzIEwgMzkgMTUwIEwgNDEgMTUwIEwgNDMgMTUyIEwgNTYgMTU4IEwgNTkgMTYxIEwgNTggMTYyIEwgNDMgMTYxIEwgMzcgMTU3IFogTSAyMiAxMzcgTCAzNSAxNDcgTCAzNCAxNTIgTCAzMiAxNTQgTCAyNCAxNDUgTCAyMSAxMzkgWiBNIDE5NSA4NCBMIDE5MCA4MSBMIDE4MSA4MSBMIDE4MCA4MCBMIDE0NyA4MCBMIDEyNCA4NSBMIDExNCA5MCBMIDk3IDkwIEwgOTIgODcgTCA3NSA4MyBMIDQ0IDgyIEwgNDMgODMgTCAzNSA4MyBMIDM0IDg0IEwgMTcgODYgTCAxNSA4OCBMIDE1IDkzIEwgMjAgOTUgTCAyMyA5OCBMIDIzIDEwMSBMIDI5IDExNCBMIDM2IDEyMyBMIDQ5IDEzMSBMIDY4IDEzMiBMIDgwIDEyOCBMIDg5IDEyMSBMIDk0IDExNCBMIDk5IDEwMSBMIDEwNCA5OCBMIDExMSA5OSBMIDExMyAxMDEgTCAxMjAgMTE2IEwgMTI4IDEyNCBMIDEzNCAxMjggTCAxNDIgMTMxIEwgMTYwIDEzMSBMIDE3MCAxMjcgTCAxODAgMTE4IEwgMTg2IDEwNiBMIDE4OSA5NCBMIDE5NSA4OSBaIE0gMTI2IDkyIEwgMTIxIDk2IEwgMTE4IDk1IEwgMTIxIDkyIEwgMTI0IDkxIFogTSA3MiA5MCBMIDczIDg5IEwgNzYgOTAgTCA3NSA5MSBaIE0gMTgyIDg4IEwgMTg0IDkwIEwgMTgyIDEwMyBMIDE3NyAxMTMgTCAxNzIgMTE4IEwgMTcxIDExNiBMIDE3NiAxMDggTCAxNzkgOTkgTCAxODAgOTAgWiBNIDE3OCA3MiBMIDE3NSA2NyBMIDE2NiA1OCBMIDE1NCA1MSBMIDE0NiA0OSBMIDE0NCA1MSBMIDE1MSA1NSBMIDEzOCA2MCBMIDEyNyA2NyBMIDExNiA3OSBMIDExOSA4MCBMIDEzMSA2OSBMIDE0NSA2MSBMIDE1MiA1OSBMIDE1NCA1NiBMIDE1OSA1NyBMIDE2NyA2MyBMIDE3NSA3NCBMIDE3NyA3NCBaIE0gMTQgNjkgTCAxNCA3NCBMIDE3IDc4IEwgMTggNzcgTCAxOCA3MCBMIDIzIDYyIEwgMjkgNjcgTCAzOSA2NyBMIDQ1IDY1IEwgNTUgNjAgTCA2MCA1NiBMIDcxIDUxIEwgOTEgMzcgTCAxMDMgMzIgTCAxMTMgMjYgTCAxNDEgMTkgTCAxNTAgMjAgTCAxNjAgMjUgTCAxNzAgMzQgTCAxNzIgMzggTCAxNzAgMzkgTCAxNjUgMzcgTCAxNTIgMzYgTCAxNTEgMzcgTCAxNDQgMzcgTCAxMzAgNDAgTCAxMTAgNTAgTCAxMDYgNTAgTCA3NCA2NiBMIDUwIDc0IEwgNDcgNzcgTCA1MiA3OCBMIDEwMyA1NiBMIDEwNCA1NyBMIDg5IDczIEwgODggNzYgTCA5MCA3NyBMIDk5IDY2IEwgMTEwIDU3IEwgMTEwIDUzIEwgMTEzIDUwIEwgMTQ4IDQwIEwgMTYzIDQwIEwgMTc4IDQ2IEwgMTg2IDU2IEwgMTkyIDczIEwgMTk0IDcyIEwgMTk0IDY0IEwgMTkxIDU2IEwgMTc4IDQzIEwgMTc4IDQwIEwgMTczIDMyIEwgMTYwIDIxIEwgMTUwIDE3IEwgMTQwIDE3IEwgMTMxIDEyIEwgMTE3IDggTCA5NSA4IEwgOTAgMTAgTCA3OCAxMiBMIDcyIDE1IEwgNjMgMjMgTCA0OSAyNyBMIDM4IDM0IEwgMzEgNDEgTCAyNiA1MCBMIDI1IDU1IEwgMTggNjEgWiBNIDU1IDMxIEwgNDMgNDQgTCAzNSA0OSBMIDMyIDQ4IEwgMzUgNDIgTCA0MiAzNSBMIDUyIDMwIFogTSAxMzAgMTYgTCAxMjcgMTkgTCAxMTggMjEgTCAxMDYgMjcgTCA5OSAyNyBMIDk1IDI1IEwgODUgMjQgTCA4NCAyMyBMIDc0IDIzIEwgNzEgMjYgTCA4MSAyNiBMIDgyIDI3IEwgOTMgMjggTCA5NiAzMSBMIDkwIDM1IEwgODIgMzggTCA3MiA0NiBMIDU2IDU2IEwgMzMgNjQgTCAzMSA2NCBMIDI4IDYxIEwgMjggNTggTCAzNCA1MiBMIDUwIDQzIEwgNzEgMjEgTCA3NyAxNyBMIDg0IDE0IEwgMTAwIDEyIEwgMTAxIDExIEwgMTE5IDEyIFoiLz4KICA8L2c+Cjwvc3ZnPgo=" alt="" /></div><div><h1>hue queue</h1><div class="tagline">see the yarn hit the chart before you hit the sticks</div></div></div>
-      <button class="admin-name-refresh-btn" id="adminNameRefreshBtn" type="button" title="Admin name refresh" aria-label="Admin name refresh">name refresh</button>
-    </header>
-    <main class="app-grid">
-      <section class="card chart-card" data-panel="chart">
-        <div class="pattern-section-title">KNIT PATTERN</div>
-        <div class="combo-strip"><div class="combo-left"><strong id="comboName">starter mix</strong><div class="dots" id="comboDots"></div></div><div class="name-tools"><button class="icon-btn name-back-btn" id="nameBackBtn" type="button" title="Back to previous combo name" disabled>↶</button><button class="icon-btn name-new-btn" id="newNameBtn" type="button" title="Generate a new combo name">new name ↺</button></div><label class="toggle">Grid <input id="gridToggle" type="checkbox" checked /></label></div>
-        <div class="chart-scroll"><div id="chart"></div></div><p id="chartInfo" style="display:none"></p>
-        <div class="actions" data-panel="actions"><button class="btn primary" id="randomBtn">Randomize</button><button class="btn" id="backBtn" disabled>Back</button><div class="source-row"><button class="source-btn active" id="sourceFullBtn" type="button">Full Palette</button><button class="source-btn" id="sourceStashBtn" type="button">Current Stash</button><div class="source-warning" id="stashWarning">Add at least 5 colors to Current Stash before randomizing from it.</div></div><button class="btn save-action" id="saveBtn">I Dig This!</button><button class="btn save-action" id="madeBtn">I Made This!</button></div>
-        
-      </section>
-      <div class="below">
-        <details class="section" id="rolesSection"><summary>Chart Colors</summary><div class="section-body"><div class="roles-row" id="roleCards"></div><button class="stripe-swap-icon" id="swapStripesBtn" type="button" title="Swap Stripe A and Stripe B" aria-label="Swap Stripe A and Stripe B">↔</button></div></details>
-        <details class="section" id="paletteSection"><summary>Palette</summary><div class="section-body"><div class="palette-tools"><input class="search" id="search" placeholder="Search number, name, hex"/><div class="active-pill" id="activeRoleLabel">Main</div><button class="chart-preview-toggle palette-preview-toggle" id="paletteChartPreviewToggle" type="button" aria-pressed="false" title="Chart preview"><span class="preview-eye" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2.75 12s3.25-5.5 9.25-5.5S21.25 12 21.25 12 18 17.5 12 17.5 2.75 12 2.75 12Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="2.75" stroke-width="2"/></svg></span><span class="preview-label">chart preview</span></button></div><div class="palette-source-note">Cascade 220® wool yarn · 175 colors</div><div class="filters" id="filters"></div><div class="palette" id="palette"></div></div></details>
-        <details class="section" id="readabilitySection"><summary>Readability Check</summary><div class="section-body"><div class="metrics" id="metrics"></div></div></details>
-        <details class="section" id="savedSection" open><summary>The Good Stuff</summary><div class="section-body"><div class="combo-tabs" role="tablist" aria-label="Saved and made combos"><button class="combo-tab" id="digTab" type="button" role="tab" aria-selected="false" aria-controls="digPanel" data-tab="dig">Saved <span id="digCount">0</span></button><button class="combo-tab" id="madeTab" type="button" role="tab" aria-selected="false" aria-controls="madePanel" data-tab="made">Made <span id="madeCount">0</span></button></div><div class="my-combos-head is-hidden" id="savedTabHead"><div class="my-combos-text"><div class="my-combos-title" id="savedTabTitle"></div><div class="my-combos-copy" id="savedTabCopy"></div></div><button class="chart-preview-toggle" id="chartPreviewToggle" type="button" aria-pressed="false" title="Chart preview"><span class="preview-eye" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2.75 12s3.25-5.5 9.25-5.5S21.25 12 21.25 12 18 17.5 12 17.5 2.75 12 2.75 12Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="2.75" stroke-width="2"/></svg></span><span class="preview-label">chart preview</span></button></div><div class="combo-panel" id="digPanel" role="tabpanel" aria-labelledby="digTab"><div class="saved-grid" id="digCombos"></div></div><div class="combo-panel" id="madePanel" role="tabpanel" aria-labelledby="madeTab"><div class="saved-grid" id="madeCombos"></div></div></div></details>
-      </div>
+<body data-hq-build="v155-chart-first-metadata">
+<div class="page">
+
+<main class="app-grid">
+      <div class="left-workspace"><header class="hero">
+<div class="brand"><div class="logo"><img alt="" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNzIgMjAwIiByb2xlPSJpbWciIGFyaWEtbGFiZWw9Illhcm4gYmFsbCBzdW5nbGFzc2VzIGxvZ28iPgogIDx0aXRsZT5ZYXJuIGJhbGwgc3VuZ2xhc3NlcyBsb2dvPC90aXRsZT4KICA8ZyBmaWxsPSIjMDAwMDAwIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPgogICAgPHBhdGggZD0iTSAyNjMgMTgwIEwgMjU5IDE3NyBMIDI1NCAxNzYgTCAyNDUgMTc3IEwgMjM1IDE4MSBMIDIyNiAxODEgTCAyMjEgMTc5IEwgMjE5IDE3NyBMIDIyOSAxNzEgTCAyMzYgMTYzIEwgMjM1IDE1NCBMIDIyOCAxNTAgTCAyMTkgMTUxIEwgMjExIDE1NyBMIDIwOSAxNjEgTCAyMDkgMTcyIEwgMjEwIDE3MyBMIDIwOSAxNzUgTCAxOTQgMTc0IEwgMTg4IDE3MSBMIDE4MyAxNjYgTCAxODEgMTU5IEwgMTkzIDE0MiBMIDE5OSAxMjkgTCAyMDIgMTE4IEwgMjAyIDExMyBMIDIwNCAxMDcgTCAyMDQgOTcgTCAyMDMgOTMgTCAyMDEgOTEgTCAyMDAgOTIgTCAyMDAgMTEyIEwgMTk4IDExNiBMIDE5OCAxMjAgTCAxOTIgMTMyIEwgMTkyIDEzNSBMIDE4NSAxNDggTCAxODAgMTUzIEwgMTc5IDE1MiBMIDE4MCAxMzMgTCAxNzggMTMzIEwgMTc2IDEzOSBMIDE3NiAxNTkgTCAxNjQgMTcwIEwgMTUzIDE3OCBMIDEzNSAxODUgTCAxMjUgMTg2IEwgMTI0IDE4NyBMIDExOSAxODcgTCAxMTggMTg2IEwgMTM0IDE3NiBMIDE0NSAxNjUgTCAxNTEgMTU3IEwgMTU4IDE0MyBMIDE1NyAxMzkgTCAxNDYgMTU4IEwgMTMyIDE3MyBMIDEyMyAxNzkgTCAxMDggMTg2IEwgMTAyIDE4NiBMIDEwMSAxODcgTCAxMDAgMTg2IEwgOTUgMTg2IEwgODYgMTgzIEwgODQgMTgwIEwgMTAwIDE3MiBMIDExMyAxNjMgTCAxMzUgMTQxIEwgMTM4IDEzNiBMIDEzNiAxMzQgTCAxMDggMTYyIEwgOTMgMTcxIEwgODkgMTc1IEwgNzkgMTc4IEwgNzMgMTc4IEwgNjggMTc0IEwgNjYgMTcwIEwgNjYgMTY1IEwgNjggMTYzIEwgNzAgMTYzIEwgNzkgMTU4IEwgOTYgMTQ2IEwgMTEwIDEzMiBMIDExNiAxMjIgTCAxMTMgMTIxIEwgMTA2IDEzMSBMIDg4IDE0OCBMIDc2IDE1NiBMIDY3IDE1OSBMIDY2IDE1OCBMIDY3IDE1MSBMIDcyIDE0MCBMIDc0IDEzOCBMIDc0IDEzNiBMIDcxIDEzNiBMIDY4IDE0MCBMIDY0IDE0OSBMIDYzIDE1NSBMIDYxIDE1NyBMIDU2IDE1NSBMIDQxIDE0NiBMIDQyIDE0MiBMIDQ2IDEzOCBMIDQ1IDEzNSBMIDM3IDE0MyBMIDM1IDE0MyBMIDI5IDEzOSBMIDIxIDEzMSBMIDE4IDEyNSBMIDE4IDEwNyBMIDE3IDEwNiBMIDE2IDEwNyBMIDE0IDExNiBMIDEyIDExMyBMIDEzIDEwMyBMIDEwIDEwMiBMIDggMTA4IEwgOSAxMTggTCAxNSAxMjkgTCAxNiAxMzcgTCAyMCAxNDYgTCAzMiAxNTkgTCAzNCAxNzAgTCA0MSAxNzcgTCA1NyAxODMgTCA3NiAxODIgTCA4MyAxODYgTCA5MiAxODkgTCAxMDkgMTg5IEwgMTE4IDE5MSBMIDExOSAxOTAgTCAxMjkgMTkwIEwgMTQ0IDE4NiBMIDE1NSAxODEgTCAxNzAgMTcwIEwgMTc2IDE2NCBMIDE3OCAxNjQgTCAxODIgMTcxIEwgMTg5IDE3NiBMIDIwMiAxNzkgTCAyMTMgMTc4IEwgMjIzIDE4NCBMIDIzOCAxODQgTCAyNDggMTgwIEwgMjU3IDE4MCBMIDI2MSAxODIgWiBNIDM3IDE2MyBMIDM5IDE2MiBMIDQ2IDE2NSBMIDYxIDE2NSBMIDYzIDE2NyBMIDY0IDE3NCBMIDY3IDE3OSBMIDY2IDE4MCBMIDYwIDE4MCBMIDUxIDE3OCBMIDQ2IDE3NSBMIDQyIDE3NSBMIDM3IDE2NyBaIE0gMjI5IDE1NSBMIDIzMiAxNTggTCAyMzIgMTYzIEwgMjI0IDE3MSBMIDIxNiAxNzQgTCAyMTMgMTcwIEwgMjEzIDE2MyBMIDIxNSAxNTkgTCAyMTggMTU2IEwgMjIzIDE1NCBaIE0gMzcgMTUzIEwgMzkgMTUwIEwgNDEgMTUwIEwgNDMgMTUyIEwgNTYgMTU4IEwgNTkgMTYxIEwgNTggMTYyIEwgNDMgMTYxIEwgMzcgMTU3IFogTSAyMiAxMzcgTCAzNSAxNDcgTCAzNCAxNTIgTCAzMiAxNTQgTCAyNCAxNDUgTCAyMSAxMzkgWiBNIDE5NSA4NCBMIDE5MCA4MSBMIDE4MSA4MSBMIDE4MCA4MCBMIDE0NyA4MCBMIDEyNCA4NSBMIDExNCA5MCBMIDk3IDkwIEwgOTIgODcgTCA3NSA4MyBMIDQ0IDgyIEwgNDMgODMgTCAzNSA4MyBMIDM0IDg0IEwgMTcgODYgTCAxNSA4OCBMIDE1IDkzIEwgMjAgOTUgTCAyMyA5OCBMIDIzIDEwMSBMIDI5IDExNCBMIDM2IDEyMyBMIDQ5IDEzMSBMIDY4IDEzMiBMIDgwIDEyOCBMIDg5IDEyMSBMIDk0IDExNCBMIDk5IDEwMSBMIDEwNCA5OCBMIDExMSA5OSBMIDExMyAxMDEgTCAxMjAgMTE2IEwgMTI4IDEyNCBMIDEzNCAxMjggTCAxNDIgMTMxIEwgMTYwIDEzMSBMIDE3MCAxMjcgTCAxODAgMTE4IEwgMTg2IDEwNiBMIDE4OSA5NCBMIDE5NSA4OSBaIE0gMTI2IDkyIEwgMTIxIDk2IEwgMTE4IDk1IEwgMTIxIDkyIEwgMTI0IDkxIFogTSA3MiA5MCBMIDczIDg5IEwgNzYgOTAgTCA3NSA5MSBaIE0gMTgyIDg4IEwgMTg0IDkwIEwgMTgyIDEwMyBMIDE3NyAxMTMgTCAxNzIgMTE4IEwgMTcxIDExNiBMIDE3NiAxMDggTCAxNzkgOTkgTCAxODAgOTAgWiBNIDE3OCA3MiBMIDE3NSA2NyBMIDE2NiA1OCBMIDE1NCA1MSBMIDE0NiA0OSBMIDE0NCA1MSBMIDE1MSA1NSBMIDEzOCA2MCBMIDEyNyA2NyBMIDExNiA3OSBMIDExOSA4MCBMIDEzMSA2OSBMIDE0NSA2MSBMIDE1MiA1OSBMIDE1NCA1NiBMIDE1OSA1NyBMIDE2NyA2MyBMIDE3NSA3NCBMIDE3NyA3NCBaIE0gMTQgNjkgTCAxNCA3NCBMIDE3IDc4IEwgMTggNzcgTCAxOCA3MCBMIDIzIDYyIEwgMjkgNjcgTCAzOSA2NyBMIDQ1IDY1IEwgNTUgNjAgTCA2MCA1NiBMIDcxIDUxIEwgOTEgMzcgTCAxMDMgMzIgTCAxMTMgMjYgTCAxNDEgMTkgTCAxNTAgMjAgTCAxNjAgMjUgTCAxNzAgMzQgTCAxNzIgMzggTCAxNzAgMzkgTCAxNjUgMzcgTCAxNTIgMzYgTCAxNTEgMzcgTCAxNDQgMzcgTCAxMzAgNDAgTCAxMTAgNTAgTCAxMDYgNTAgTCA3NCA2NiBMIDUwIDc0IEwgNDcgNzcgTCA1MiA3OCBMIDEwMyA1NiBMIDEwNCA1NyBMIDg5IDczIEwgODggNzYgTCA5MCA3NyBMIDk5IDY2IEwgMTEwIDU3IEwgMTEwIDUzIEwgMTEzIDUwIEwgMTQ4IDQwIEwgMTYzIDQwIEwgMTc4IDQ2IEwgMTg2IDU2IEwgMTkyIDczIEwgMTk0IDcyIEwgMTk0IDY0IEwgMTkxIDU2IEwgMTc4IDQzIEwgMTc4IDQwIEwgMTczIDMyIEwgMTYwIDIxIEwgMTUwIDE3IEwgMTQwIDE3IEwgMTMxIDEyIEwgMTE3IDggTCA5NSA4IEwgOTAgMTAgTCA3OCAxMiBMIDcyIDE1IEwgNjMgMjMgTCA0OSAyNyBMIDM4IDM0IEwgMzEgNDEgTCAyNiA1MCBMIDI1IDU1IEwgMTggNjEgWiBNIDU1IDMxIEwgNDMgNDQgTCAzNSA0OSBMIDMyIDQ4IEwgMzUgNDIgTCA0MiAzNSBMIDUyIDMwIFogTSAxMzAgMTYgTCAxMjcgMTkgTCAxMTggMjEgTCAxMDYgMjcgTCA5OSAyNyBMIDk1IDI1IEwgODUgMjQgTCA4NCAyMyBMIDc0IDIzIEwgNzEgMjYgTCA4MSAyNiBMIDgyIDI3IEwgOTMgMjggTCA5NiAzMSBMIDkwIDM1IEwgODIgMzggTCA3MiA0NiBMIDU2IDU2IEwgMzMgNjQgTCAzMSA2NCBMIDI4IDYxIEwgMjggNTggTCAzNCA1MiBMIDUwIDQzIEwgNzEgMjEgTCA3NyAxNyBMIDg0IDE0IEwgMTAwIDEyIEwgMTAxIDExIEwgMTE5IDEyIFoiLz4KICA8L2c+Cjwvc3ZnPgo="/></div><div><h1>hue queue</h1><div class="tagline">see the yarn hit the chart before you hit the sticks</div></div></div>
+<button aria-label="How Hue Queue works" aria-controls="hqHelpBackdrop" aria-expanded="false" class="hq-help-btn" id="hqHelpBtn" title="How this works" type="button">?!</button>
+<button aria-label="Admin name refresh" class="admin-name-refresh-btn" id="adminNameRefreshBtn" title="Admin name refresh" type="button">name refresh</button>
+</header><section class="card chart-card" data-panel="chart">
+<div class="pattern-section-title">KNIT PATTERN</div>
+<div class="combo-strip"><div class="combo-left"><strong id="comboName">starter mix</strong><div class="dots" id="comboDots"></div></div><div class="name-tools"><button class="icon-btn name-back-btn" disabled="" id="nameBackBtn" title="Back to previous combo name" type="button">↶</button><button class="icon-btn name-new-btn" id="newNameBtn" title="Generate a new combo name" type="button">new name ↺</button></div><label class="toggle">Grid <input checked="" id="gridToggle" type="checkbox"/></label></div>
+<div class="chart-scroll"><div id="chart"></div></div><p id="chartInfo" style="display:none"></p>
+<div class="actions" data-panel="actions"><button class="btn primary" id="randomBtn">Randomize</button><button class="btn" disabled="" id="backBtn">Back</button><div class="source-row"><button class="source-btn active" id="sourceFullBtn" type="button">Full Palette</button><button class="source-btn" id="sourceStashBtn" type="button">Current Stash</button><div class="source-warning" id="stashWarning">Add at least 5 colors to Current Stash before randomizing from it.</div></div><button class="btn save-action" id="saveBtn">I Dig This!</button><button class="btn save-action" id="madeBtn">I Made This!</button></div>
+</section><details class="section" id="rolesSection"><summary>Chart Colors</summary><div class="section-body"><div class="roles-row" id="roleCards"></div><button aria-label="Swap Stripe A and Stripe B" class="stripe-swap-icon" id="swapStripesBtn" title="Swap Stripe A and Stripe B" type="button">↔</button></div></details></div>
+      <div class="below right-workspace"><details class="section" id="paletteSection"><summary>Palette</summary><div class="section-body"><div class="palette-tools"><input class="search" id="search" placeholder="Search number, name, hex"/><div class="active-pill" id="activeRoleLabel">Main</div><button aria-pressed="false" class="chart-preview-toggle palette-preview-toggle" id="paletteChartPreviewToggle" title="Chart preview" type="button"><span aria-hidden="true" class="preview-eye"><svg fill="none" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M2.75 12s3.25-5.5 9.25-5.5S21.25 12 21.25 12 18 17.5 12 17.5 2.75 12 2.75 12Z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path><circle cx="12" cy="12" r="2.75" stroke-width="2"></circle></svg></span><span class="preview-label">chart preview</span></button></div><div class="palette-source-note">Cascade 220® wool yarn · 175 colors</div><div class="filters" id="filters"></div><div class="palette" id="palette"></div></div></details><details class="section" id="readabilitySection"><summary>Readability Check</summary><div class="section-body"><div class="metrics" id="metrics"></div></div></details><details class="section" id="savedSection" open=""><summary><span class="good-stuff-summary-main" aria-label="The Good Stuff"><span class="hq-good-letter" style="--hq-letter-index:0">T</span><span class="hq-good-letter" style="--hq-letter-index:1">h</span><span class="hq-good-letter" style="--hq-letter-index:2">e</span><span class="hq-good-letter hq-good-space" style="--hq-letter-index:3">&nbsp;</span><span class="hq-good-letter" style="--hq-letter-index:4">G</span><span class="hq-good-letter" style="--hq-letter-index:5">o</span><span class="hq-good-letter" style="--hq-letter-index:6">o</span><span class="hq-good-letter" style="--hq-letter-index:7">d</span><span class="hq-good-letter hq-good-space" style="--hq-letter-index:8">&nbsp;</span><span class="hq-good-letter" style="--hq-letter-index:9">S</span><span class="hq-good-letter" style="--hq-letter-index:10">t</span><span class="hq-good-letter" style="--hq-letter-index:11">u</span><span class="hq-good-letter" style="--hq-letter-index:12">f</span><span class="hq-good-letter" style="--hq-letter-index:13">f</span></span><span class="good-stuff-summary-sub" id="goodStuffTeaser">Saved + Made combos</span></summary><div class="section-body"><div aria-label="Saved and made combos" class="combo-tabs" role="tablist"><button aria-controls="digPanel" aria-selected="false" class="combo-tab" data-tab="dig" id="digTab" role="tab" type="button">Saved <span id="digCount">0</span></button><button aria-controls="madePanel" aria-selected="false" class="combo-tab" data-tab="made" id="madeTab" role="tab" type="button">Made <span id="madeCount">0</span></button></div><div class="my-combos-head is-hidden" id="savedTabHead"><div class="my-combos-text"><div class="my-combos-title" id="savedTabTitle"></div><div class="my-combos-copy" id="savedTabCopy"></div></div><button aria-pressed="false" class="chart-preview-toggle" id="chartPreviewToggle" title="Chart preview" type="button"><span aria-hidden="true" class="preview-eye"><svg fill="none" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M2.75 12s3.25-5.5 9.25-5.5S21.25 12 21.25 12 18 17.5 12 17.5 2.75 12 2.75 12Z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path><circle cx="12" cy="12" r="2.75" stroke-width="2"></circle></svg></span><span class="preview-label">chart preview</span></button></div><div aria-labelledby="digTab" class="combo-panel" id="digPanel" role="tabpanel"><div class="saved-grid" id="digCombos"></div></div><div aria-labelledby="madeTab" class="combo-panel" id="madePanel" role="tabpanel"><div class="saved-grid" id="madeCombos"></div></div></div></details></div>
     </main>
-  </div>
-
-  <div class="admin-refresh-status" id="adminRefreshStatus" role="status" aria-live="polite" hidden>
-    <div class="admin-refresh-status-title">Name refresh running</div>
-    <div class="admin-refresh-status-copy" id="adminRefreshStatusCopy">Generating names…</div>
-    <div class="admin-refresh-status-bar" aria-hidden="true"></div>
-  </div>
-
-  <div class="drawer-backdrop" id="saveDrawer" aria-hidden="true">
-    <div class="save-panel" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
-      <div class="drawer-grab"></div>
-      <div class="drawer-head">
-        <div><div class="drawer-title" id="drawerTitle">Save this combo</div><div class="drawer-sub" id="drawerSub"></div></div>
-        <button class="drawer-close" id="closeSaveDrawer" type="button" aria-label="Close">×</button>
-      </div>
-      <div class="save-body">
-        <label><span class="field-label">Saved by</span><input id="saveName" placeholder="Who are you??" autocomplete="name" maxlength="40" /></label>
-        <label><span class="field-label">Note (optional)</span><textarea id="saveNote" placeholder="" maxlength="120"></textarea></label>
-      </div>
-      <div class="drawer-actions">
-        <button class="btn" id="cancelSave" type="button">Cancel</button>
-        <button class="btn primary drawer-save" id="confirmSave" type="button" disabled>Save</button>
-      </div>
-    </div>
-  </div>
-
-
-  <div class="drawer-backdrop" id="madeEditDrawer" aria-hidden="true">
-    <div class="save-panel made-edit-panel" role="dialog" aria-modal="true" aria-labelledby="madeEditTitle">
-      <div class="drawer-grab"></div>
-      <div class="drawer-head">
-        <div><div class="drawer-title" id="madeEditTitle">Edit Made Combo</div><div class="drawer-sub" id="madeEditSub"></div></div>
-        <button class="drawer-close" id="closeMadeEditDrawer" type="button" aria-label="Close">×</button>
-      </div>
-      <div class="save-body">
-        <label><span class="field-label">Note</span><textarea id="madeEditNote" placeholder="Optional project note" maxlength="120"></textarea></label>
-        <div>
-          <span class="field-label">Project photo</span>
-          <div class="made-edit-photo-row">
-            <div class="made-edit-photo-preview" id="madeEditPhotoPreview"></div>
-            <div class="made-edit-photo-actions">
-              <button class="btn" id="madeEditPhotoUpload" type="button">Add / Replace Photo</button>
-              <button class="btn" id="madeEditPhotoRemove" type="button">Remove Photo</button>
-            </div>
-          </div>
-        </div>
-        <div class="made-edit-delete-row">
-          <button class="btn made-edit-delete-btn" id="madeEditDelete" type="button">Delete Made Combo</button>
-        </div>
-      </div>
-      <div class="drawer-actions">
-        <button class="btn" id="cancelMadeEdit" type="button">Cancel</button>
-        <button class="btn primary drawer-save" id="saveMadeEdit" type="button">Save</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="photo-lightbox" id="photoLightbox" aria-hidden="true">
-    <button class="photo-lightbox-close" id="photoLightboxClose" type="button" aria-label="Close photo">×</button>
-    <img class="photo-lightbox-img" id="photoLightboxImg" alt="Made combo project photo" />
-  </div>
-
+</div>
+<div aria-hidden="true" class="hq-help-backdrop" id="hqHelpBackdrop">
+<div aria-label="How Hue Queue works" aria-modal="true" class="hq-help-panel" role="dialog">
+<button aria-label="Close" class="hq-help-close" id="hqHelpClose" type="button">×</button>
+<p class="hq-help-copy">Mix the five chart colors with yarn from the Palette. Browse all colors or stick to the Current Stash on hand, randomize the chart if you’re feeling fun, refresh the name if you’re feeling wild, and save the keepers to The Good Stuff. Have at it!</p>
+</div>
+</div>
+<div aria-live="polite" class="admin-refresh-status" hidden="" id="adminRefreshStatus" role="status">
+<div class="admin-refresh-status-title">Name refresh running</div>
+<div class="admin-refresh-status-copy" id="adminRefreshStatusCopy">Generating names…</div>
+<div aria-hidden="true" class="admin-refresh-status-bar"></div>
+</div>
+<div aria-hidden="true" class="drawer-backdrop" id="saveDrawer">
+<div aria-labelledby="drawerTitle" aria-modal="true" class="save-panel" role="dialog">
+<div class="drawer-grab"></div>
+<div class="drawer-head">
+<div><div class="drawer-title" id="drawerTitle">Save this combo</div><div class="drawer-sub" id="drawerSub"></div></div>
+<button aria-label="Close" class="drawer-close" id="closeSaveDrawer" type="button">×</button>
+</div>
+<div class="save-body">
+<label><span class="field-label">Saved by</span><input autocomplete="name" id="saveName" maxlength="40" placeholder="Who are you??"/></label>
+<label><span class="field-label">Note (optional)</span><textarea id="saveNote" maxlength="120" placeholder=""></textarea></label>
+</div>
+<div class="drawer-actions">
+<button class="btn" id="cancelSave" type="button">Cancel</button>
+<button class="btn primary drawer-save" disabled="" id="confirmSave" type="button">Save</button>
+</div>
+</div>
+</div>
+<div aria-hidden="true" class="drawer-backdrop" id="madeEditDrawer">
+<div aria-labelledby="madeEditTitle" aria-modal="true" class="save-panel made-edit-panel" role="dialog">
+<div class="drawer-grab"></div>
+<div class="drawer-head">
+<div><div class="drawer-title" id="madeEditTitle">Edit Made Combo</div><div class="drawer-sub" id="madeEditSub"></div></div>
+<button aria-label="Close" class="drawer-close" id="closeMadeEditDrawer" type="button">×</button>
+</div>
+<div class="save-body">
+<label><span class="field-label">Note</span><textarea id="madeEditNote" maxlength="120" placeholder="Optional project note"></textarea></label>
+<div>
+<span class="field-label">Project photo</span>
+<div class="made-edit-photo-row">
+<div class="made-edit-photo-preview" id="madeEditPhotoPreview"></div>
+<div class="made-edit-photo-actions">
+<button class="btn" id="madeEditPhotoUpload" type="button">Add / Replace Photo</button>
+<button class="btn" id="madeEditPhotoRemove" type="button">Remove Photo</button>
+</div>
+</div>
+</div>
+<div class="made-edit-delete-row">
+<button class="btn made-edit-delete-btn" id="madeEditDelete" type="button">Delete Made Combo</button>
+</div>
+</div>
+<div class="drawer-actions">
+<button class="btn" id="cancelMadeEdit" type="button">Cancel</button>
+<button class="btn primary drawer-save" id="saveMadeEdit" type="button">Save</button>
+</div>
+</div>
+</div>
+<div aria-hidden="true" class="photo-lightbox" id="photoLightbox">
+<button aria-label="Close photo" class="photo-lightbox-close" id="photoLightboxClose" type="button">×</button>
+<img alt="Made combo project photo" class="photo-lightbox-img" id="photoLightboxImg"/>
+</div>
 <script>
 const COLORS = [{"hex":"#440C17","number":"2401","name":"Burgundy"},{"hex":"#470E1D","number":"9489","name":"Red Wine Heather"},{"hex":"#660D16","number":"1095","name":"Red Marl"},{"hex":"#7D1417","number":"2413","name":"Red"},{"hex":"#2D0104","number":"9404","name":"Ruby"},{"hex":"#7C0511","number":"8895","name":"Christmas Red"},{"hex":"#811C1C","number":"8414","name":"Bright Red"},{"hex":"#992927","number":"9668","name":"Paprika"},{"hex":"#CF4A34","number":"1048","name":"Camelia"},{"hex":"#FA9079","number":"9682","name":"Desert Flower"},{"hex":"#D7B0A2","number":"1049","name":"Peach Dust"},{"hex":"#BB8A7C","number":"1065","name":"Rose Cloud"},{"hex":"#9E5A4F","number":"9681","name":"Crabapple"},{"hex":"#2D1C17","number":"9656","name":"Burnt Sienna Heather"},{"hex":"#1E161F","number":"4006","name":"Galaxy"},{"hex":"#A97F69","number":"1084","name":"Blush Heather"},{"hex":"#B38E77","number":"1033","name":"Nectarine"},{"hex":"#B54E38","number":"7824","name":"Jack O Lantern"},{"hex":"#AC361B","number":"9465B","name":"Burnt Orange"},{"hex":"#4B1A0A","number":"2414","name":"Ginger"},{"hex":"#9E4E2F","number":"1068","name":"Copper"},{"hex":"#5A180A","number":"2435","name":"Japanese Maple"},{"hex":"#A03226","number":"1097","name":"Pumpkin Marl"},{"hex":"#802A21","number":"2425","name":"Provence"},{"hex":"#C8320F","number":"9605","name":"Tiger Lily"},{"hex":"#E64405","number":"9542","name":"Blaze"},{"hex":"#E7B53D","number":"9463B","name":"Gold"},{"hex":"#FDAD00","number":"9669","name":"Gold Fusion"},{"hex":"#BF8F19","number":"7827","name":"Goldenrod"},{"hex":"#C5BD71","number":"4147","name":"Lemon Yellow"},{"hex":"#BFBA8F","number":"1069","name":"Anise Flower"},{"hex":"#EEE3A7","number":"8687","name":"Butter"},{"hex":"#E3DE09","number":"7828","name":"Neon Yellow"},{"hex":"#C3C13C","number":"1070","name":"Golden Kiwi"},{"hex":"#8FB450","number":"8910","name":"Citron"},{"hex":"#8B933E","number":"1002","name":"Leaf Green"},{"hex":"#355B2A","number":"1035","name":"Fern Heather"},{"hex":"#12642A","number":"2409","name":"Palm"},{"hex":"#192320","number":"8267","name":"Forest Green"},{"hex":"#0E230F","number":"9430","name":"Highland Green"},{"hex":"#445944","number":"9684","name":"Green Tea"},{"hex":"#13281A","number":"2445","name":"Shire"},{"hex":"#2F401F","number":"1093","name":"Shire Marl"},{"hex":"#47592A","number":"2429","name":"Irelande"},{"hex":"#798736","number":"1051","name":"Fern"},{"hex":"#434F1A","number":"1052","name":"Calla Green"},{"hex":"#1B1E10","number":"1036","name":"Chive"},{"hex":"#1C1F1C","number":"1089","name":"Lichen Twist"},{"hex":"#5D602C","number":"2452","name":"Turtle"},{"hex":"#87845E","number":"1082","name":"Savannah Heather"},{"hex":"#9FB68E","number":"1034","name":"Tender Greens"},{"hex":"#7F9580","number":"1090","name":"Fluorite Heather"},{"hex":"#034E39","number":"8894","name":"Christmas Green"},{"hex":"#081C15","number":"9447","name":"Forest Heather"},{"hex":"#132C2C","number":"1087","name":"Rainforest Heather"},{"hex":"#002F2D","number":"8893","name":"Hunter Green"},{"hex":"#224038","number":"1104","name":"Forest Marl"},{"hex":"#2A4A48","number":"9322","name":"Silver Spruce Heather"},{"hex":"#2C605C","number":"9451","name":"Lake Chelan Heather"},{"hex":"#5CB298","number":"1072","name":"Key West"},{"hex":"#009180","number":"7812","name":"Lagoon"},{"hex":"#004D4D","number":"9687","name":"Deep Blue Grass"},{"hex":"#86C6C5","number":"9634","name":"Aqua Haze"},{"hex":"#336172","number":"1054","name":"Mallard Blue"},{"hex":"#222E34","number":"8836","name":"Stonewash"},{"hex":"#507584","number":"9452","name":"Summer Sky Heather"},{"hex":"#7DC2C4","number":"1073","name":"Water Spout"},{"hex":"#4B9297","number":"1004","name":"Bristol Blue"},{"hex":"#0B4858","number":"2433","name":"Pacific"},{"hex":"#023D5A","number":"8891","name":"Cyan Blue"},{"hex":"#010712","number":"8892","name":"Azure"},{"hex":"#01030B","number":"4009","name":"Aporto"},{"hex":"#0B111E","number":"2448","name":"Mallard"},{"hex":"#08080E","number":"9449","name":"Midnight Heather"},{"hex":"#0B0D4F","number":"9484","name":"Stratosphere"},{"hex":"#06113B","number":"9568","name":"Twilight Blue"},{"hex":"#617386","number":"1005","name":"Blue Quartz Heather"},{"hex":"#0E264D","number":"9689","name":"Lapis Heather"},{"hex":"#28282C","number":"1091","name":"Stormy Seas Heather"},{"hex":"#5A6063","number":"1081","name":"Coast Heather"},{"hex":"#0F2244","number":"2404","name":"Atlantic"},{"hex":"#6A9AAF","number":"7815","name":"Summer Sky"},{"hex":"#0E1518","number":"9567","name":"Smoke Blue"},{"hex":"#6B7B87","number":"1037","name":"Faded Denim Heather"},{"hex":"#0D1621","number":"9332","name":"Sapphire"},{"hex":"#222D3E","number":"1100","name":"Sapphire Marl"},{"hex":"#181D28","number":"8393","name":"Navy"},{"hex":"#2F3E5B","number":"9326","name":"Colonial Blue Heather"},{"hex":"#56637B","number":"9325","name":"West Point Blue Heather"},{"hex":"#7F8F98","number":"1006","name":"Sky Blue"},{"hex":"#5982AE","number":"8905","name":"Robin Egg Blue"},{"hex":"#101E4B","number":"7818","name":"Blue Velvet"},{"hex":"#101018","number":"9543","name":"Midnight Blue"},{"hex":"#2C3B6D","number":"9655","name":"Blueberry Heather"},{"hex":"#5D6193","number":"2423","name":"Montmartre"},{"hex":"#3E3D4D","number":"1038","name":"Dusky Violet"},{"hex":"#7F7996","number":"2422","name":"Lavender Heather"},{"hex":"#6B5B7D","number":"1102","name":"Lavender Marl"},{"hex":"#45395D","number":"2450","name":"Mystic Purple"},{"hex":"#110E1C","number":"8886","name":"Italian Plum"},{"hex":"#3D1755","number":"9570","name":"Concord Grape"},{"hex":"#785BC8","number":"8762","name":"Deep Lavender"},{"hex":"#867382","number":"1083","name":"Sweet Pea Heather"},{"hex":"#442FA0","number":"7808","name":"Purple Hyacinth"},{"hex":"#A24297","number":"1056","name":"Orchid"},{"hex":"#831977","number":"7803","name":"Magenta"},{"hex":"#813AA0","number":"2420","name":"Heather"},{"hex":"#281B34","number":"7807","name":"Regal"},{"hex":"#783F6E","number":"1075","name":"Raspberry Coulis"},{"hex":"#280C1A","number":"9572","name":"Cabernet"},{"hex":"#997385","number":"1039","name":"Helleborus Heather"},{"hex":"#2E1929","number":"9642","name":"Crushed Grapes"},{"hex":"#482034","number":"1103","name":"Razzleberry Marl"},{"hex":"#613853","number":"9692","name":"Razzleberry Heather"},{"hex":"#B57D9A","number":"8114","name":"Dusty Rose"},{"hex":"#806971","number":"1007","name":"Lepidolite Heather"},{"hex":"#200B1A","number":"8418","name":"Eggplant"},{"hex":"#84757C","number":"8872","name":"Iridescense"},{"hex":"#AD8698","number":"1076","name":"Antique Lilac"},{"hex":"#963239","number":"1008","name":"Flamingo Heather"},{"hex":"#DE7D88","number":"1057","name":"Peony"},{"hex":"#EEDFE9","number":"4192","name":"Soft Pink"},{"hex":"#D0819B","number":"9477","name":"Tutu"},{"hex":"#CA5A84","number":"9478","name":"Cotton Candy"},{"hex":"#B32F64","number":"9469","name":"Hot Pink"},{"hex":"#942A69","number":"7802","name":"Cerise"},{"hex":"#6C6D6B","number":"1009","name":"Storm Cloud Heather"},{"hex":"#4D617B","number":"1101","name":"Faded Denim Marl"},{"hex":"#7C8091","number":"9559","name":"Indigo Frost Heather"},{"hex":"#E5E5DB","number":"8505","name":"White"},{"hex":"#AEAEB1","number":"1058","name":"Nimbus Cloud"},{"hex":"#868588","number":"1050","name":"Harbor Mist"},{"hex":"#6D6F71","number":"8509","name":"Grey"},{"hex":"#2D3443","number":"9473","name":"Gris"},{"hex":"#101114","number":"8555","name":"Black"},{"hex":"#1E1F21","number":"4002","name":"Jet"},{"hex":"#363939","number":"8400","name":"Charcoal Grey"},{"hex":"#5E5D59","number":"1094","name":"Charcoal Marl"},{"hex":"#5B5C53","number":"8401","name":"Silver Grey"},{"hex":"#ABA597","number":"8011","name":"Aspen Heather"},{"hex":"#52545D","number":"9491","name":"Greystone Heather"},{"hex":"#3C2128","number":"1077","name":"Oxblood Red"},{"hex":"#110E0F","number":"7822","name":"Van Dyke Brown"},{"hex":"#322217","number":"2431","name":"Chocolate Heather"},{"hex":"#846651","number":"9695","name":"Praline"},{"hex":"#794A33","number":"1010","name":"Carob Brown"},{"hex":"#1B110C","number":"8686","name":"Brown"},{"hex":"#623F1F","number":"8622","name":"Camel"},{"hex":"#DFC9AB","number":"8021","name":"Beige"},{"hex":"#EEE9D3","number":"8010","name":"Natural"},{"hex":"#B5A564","number":"8412","name":"Pear"},{"hex":"#653A16","number":"2415","name":"Sunflower"},{"hex":"#A66129","number":"1096","name":"Spice Marl"},{"hex":"#613B2F","number":"2453","name":"Pumpkin Spice"},{"hex":"#806627","number":"4010","name":"Straw"},{"hex":"#A08527","number":"9564","name":"Birch Heather"},{"hex":"#826A02","number":"9566","name":"Olive Oil"},{"hex":"#B98E4A","number":"1088","name":"Wheat Heather"},{"hex":"#71705B","number":"4011","name":"Sparrow"},{"hex":"#1E2316","number":"9448","name":"Olive Heather"},{"hex":"#302E2D","number":"9465","name":"Vashon Island Heather"},{"hex":"#513F31","number":"9748","name":"Mocha Heather"},{"hex":"#806E5B","number":"8013","name":"Walnut Heather"},{"hex":"#6F5D4D","number":"1092","name":"Walnut Marl"},{"hex":"#7E7771","number":"8012","name":"Doeskin Heather"},{"hex":"#9A8F7D","number":"2442","name":"Fog Hatt"},{"hex":"#8E7E6F","number":"2441","name":"River Rock"},{"hex":"#E2D6B7","number":"9600","name":"Antiqued Heather"},{"hex":"#B19772","number":"1099","name":"Antique Marl"},{"hex":"#716252","number":"2440","name":"Vinci"},{"hex":"#B18F74","number":"9499","name":"Sand"},{"hex":"#564C3F","number":"9696","name":"Copper Heather"},{"hex":"#5A6862","number":"9450","name":"Smoke Heather"},{"hex":"#798878","number":"1059","name":"Seagrass"},{"hex":"#07070B","number":"9674","name":"Pine Grove"}];
 const PATTERN = ["LDDDLDLDDLLLLLLLDDLDLDDDLD","LDDLDLDDLLLDDDLLLDDLDLDDLD","LDLDLDDLLLLDDDLLLLDDLDLDLD","LLDLDDLLLLLDDDLLLLLDDLDLLD","MDMDDMMMDDDMMMDDDMMMDDMDMD","MMDDMMMMDDDMMMDDDMMMMDDMMD","MDDMMMMMDDDMMMDDDMMMMMDDMD","STTSSTTTSSSTTTSSSTTTSSTTST","STTSSTTTSSSTTTSSSTTTSSTTST","STTSSTTTSSSTTTSSSTTTSSTTST","MDDMMMMMDDDMMMDDDMMMMMDDMD","MMDDMMMMDDDMMMDDDMMMMDDMMD","MDMDDMMMDDDMMMDDDMMMDDMDMD","LLDLDDLLLLLDDDLLLLLDDLDLLD","LDLDLDDLLLLDDDLLLLDDLDLDLD","LDDLDLDDLLLDDDLLLDDLDLDDLD","LDDDLDLDDLLLLLLLDDLDLDDDLD"];
@@ -1415,8 +5517,9 @@ function normalizeSavedItem(item){
   if(item?.selections) item.selections=normalizeComboSelections(item.selections);
   return item;
 }
-let selections={...DEFAULT_SELECTIONS}, activeRole='D', lockedRoles=Object.fromEntries(ROLES.map(r=>[r.key,false])), history=[], nameHistoryStack=[], saved=[], pendingSaveKind='dig', activeSavedTab=null, savedContextMode=false, chartPreviewMode=null;
+let selections={...DEFAULT_SELECTIONS}, activeRole='D', lockedRoles=Object.fromEntries(ROLES.map(r=>[r.key,false])), history=[], nameHistoryStack=[], saved=[], pendingSaveKind='dig', activeSavedTab=(window.matchMedia&&window.matchMedia('(min-width:721px)').matches?'made':null), savedContextMode=false, chartPreviewMode=null;
 let currentComboName='starter mix', currentNameSeed=0, filter='Full Palette', randomSource='full', stashInventory={};
+let hqLastComboDotSignature='', hqSwatchShuffleTimer=null, hqLastSwatchMoveKey='', hqLastSwatchIdleKey='';
 const STORAGE='skeinSchemeSavedCombosLocalBackupV1';
 const STASH_STORAGE='skeinSchemeCurrentStashCacheV1';
 const CHART_PREVIEW_STORAGE='skeinSchemeChartPreviewPinnedV1';
@@ -2206,9 +6309,79 @@ window.skeinNameStats=function(count=100,options={strictColorFit:true}){
 window.skeinNameSnapshot=skeinNameSnapshot;
 currentComboName=generateComboName();
 
-function getPattern(){const base=PATTERN.map(r=>r.repeat(3));let width=base[0].length;const sc=document.querySelector('.chart-scroll');if(sc){const inner=sc.clientWidth-14;width=Math.max(width,Math.floor(inner/12));}const body=base.map((row,i)=>row+PATTERN[i].repeat(Math.ceil((width-row.length)/PATTERN[i].length)).slice(0,Math.max(0,width-row.length)));const pad='D'.repeat(body[0].length);return [...Array(4).fill(pad),...body,...Array(4).fill(pad)];}
+function getPattern(){const base=PATTERN.map(r=>r.repeat(3));let width=base[0].length;const sc=document.querySelector('.chart-scroll');if(sc){const inner=sc.clientWidth-10;let scale=1;const chartEl=document.getElementById('chart');if(chartEl){const cs=getComputedStyle(chartEl);const z=parseFloat(cs.zoom);if(Number.isFinite(z)&&z>0&&z!==1){scale=z;}else{const t=cs.transform;if(t&&t!=='none'){const matrix=t.match(/^matrix\(([^,]+)/);if(matrix){const n=parseFloat(matrix[1]);if(Number.isFinite(n)&&n>0)scale=n;}}}}const visualCell=12*scale;width=Math.max(width,Math.ceil(inner/visualCell)+4);}const body=base.map((row,i)=>row+PATTERN[i].repeat(Math.ceil((width-row.length)/PATTERN[i].length)).slice(0,Math.max(0,width-row.length)));const pad='D'.repeat(body[0].length);return [...Array(4).fill(pad),...body,...Array(4).fill(pad)];}
 function drawChart(){const chart=el('chart'),pat=getPattern(),show=el('gridToggle').checked;chart.innerHTML='';chart.style.gridTemplateColumns=`repeat(${pat[0].length},12px)`;chart.style.borderRight=show?'1px solid #56524d':'1px solid transparent';chart.style.borderBottom=show?'1px solid #56524d':'1px solid transparent';pat.forEach(row=>row.split('').forEach(k=>{const d=document.createElement('div');d.className='cell';d.style.background=(selections[k]||selections.D).hex;d.style.borderLeft=show?'1px solid #56524d':'1px solid transparent';d.style.borderTop=show?'1px solid #56524d':'1px solid transparent';chart.appendChild(d);}));}
-function renderDots(){el('comboDots').innerHTML=ROLES.map(r=>`<span class="dot" style="background:${selections[r.key].hex}"></span>`).join(''); el('comboName').textContent=currentComboName;}
+function getComboDotSignature(src=selections){return ROLES.map(r=>`${r.key}:${src[r.key]?.number||''}:${src[r.key]?.hex||''}`).join('|');}
+const HQ_SWATCH_MOVE_CLASSES=['hq-dot-hop','hq-dot-twist','hq-dot-slide','hq-dot-squish','hq-dot-arc','hq-dot-drop','hq-dot-zigzag','hq-dot-burst'];
+const HQ_SWATCH_IDLE_CLASSES=['hq-idle-popcorn'];
+function chooseSwatchIdleMode(){
+  const dots=el('comboDots');
+  if(!dots) return;
+  const dotEls=Array.from(dots.querySelectorAll('.dot'));
+  dots.classList.remove(...HQ_SWATCH_IDLE_CLASSES);
+  dotEls.forEach(dot=>{
+    dot.style.removeProperty('--idle-pop-duration');
+    dot.style.removeProperty('--idle-pop-delay');
+    dot.style.removeProperty('--idle-pop-scale-a');
+    dot.style.removeProperty('--idle-pop-scale-b');
+  });
+  let next=HQ_SWATCH_IDLE_CLASSES[Math.floor(Math.random()*HQ_SWATCH_IDLE_CLASSES.length)]||HQ_SWATCH_IDLE_CLASSES[0];
+  if(next===hqLastSwatchIdleKey&&HQ_SWATCH_IDLE_CLASSES.length>1){
+    const options=HQ_SWATCH_IDLE_CLASSES.filter(mode=>mode!==hqLastSwatchIdleKey);
+    next=options[Math.floor(Math.random()*options.length)]||next;
+  }
+  if(next==='hq-idle-popcorn'){
+    // v131: use negative, varied delays so the staggered pulse is already active on first paint.
+    // This keeps all dots anchored in place, but avoids the initial synchronized/all-at-once feel.
+    dotEls.forEach((dot,index)=>{
+      const duration=2.05+Math.random()*.70;
+      const phase=((index/dotEls.length)*duration)+(Math.random()*.38);
+      dot.style.setProperty('--idle-pop-duration',`${duration.toFixed(2)}s`);
+      dot.style.setProperty('--idle-pop-delay',`${(-phase).toFixed(2)}s`);
+      dot.style.setProperty('--idle-pop-scale-a',(1.13+Math.random()*.13).toFixed(2));
+      dot.style.setProperty('--idle-pop-scale-b',(.90+Math.random()*.06).toFixed(2));
+    });
+  }
+  hqLastSwatchIdleKey=next;
+  dots.classList.add(next);
+}
+function shuffledSwatchMoves(count){
+  const pool=[...HQ_SWATCH_MOVE_CLASSES];
+  for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]];}
+  let chosen=pool.slice(0,count);
+  if(chosen.join('|')===hqLastSwatchMoveKey&&pool.length>count){
+    chosen=[...pool.slice(1,count),pool[0]];
+  }
+  hqLastSwatchMoveKey=chosen.join('|');
+  return chosen;
+}
+function triggerComboDotShuffle(){
+  const dots=el('comboDots');
+  if(!dots) return;
+  const dotEls=Array.from(dots.querySelectorAll('.dot'));
+  if(!dotEls.length) return;
+  const moves=shuffledSwatchMoves(dotEls.length);
+  dots.classList.remove('hq-swatch-shuffle');
+  dotEls.forEach(dot=>{
+    dot.classList.remove(...HQ_SWATCH_MOVE_CLASSES);
+    dot.style.removeProperty('--shuffle-delay');
+  });
+  void dots.offsetWidth;
+  dotEls.forEach((dot,index)=>{
+    dot.classList.add(moves[index]||HQ_SWATCH_MOVE_CLASSES[index%HQ_SWATCH_MOVE_CLASSES.length]);
+    dot.style.setProperty('--shuffle-delay',`${(index*.055)+(Math.random()*.035)}s`);
+  });
+  dots.classList.add('hq-swatch-shuffle');
+  window.clearTimeout(hqSwatchShuffleTimer);
+  hqSwatchShuffleTimer=window.setTimeout(()=>{
+    dots.classList.remove('hq-swatch-shuffle');
+    dotEls.forEach(dot=>{
+      dot.classList.remove(...HQ_SWATCH_MOVE_CLASSES);
+      dot.style.removeProperty('--shuffle-delay');
+    });
+  },1250);
+}
+function renderDots(){const nextSignature=getComboDotSignature();const dots=el('comboDots');dots.innerHTML=ROLES.map(r=>`<span class="dot" style="background:${selections[r.key].hex}"></span>`).join(''); el('comboName').textContent=currentComboName;if(!hqLastComboDotSignature){chooseSwatchIdleMode();}else if(nextSignature!==hqLastComboDotSignature){chooseSwatchIdleMode();triggerComboDotShuffle();}hqLastComboDotSignature=nextSignature;}
 function renderRoles(){el('activeRoleLabel').textContent=ROLE_LABELS[activeRole];el('roleCards').innerHTML='';ROLES.forEach(r=>{const c=selections[r.key];const card=document.createElement('button');card.className='role-card'+(activeRole===r.key?' active':'')+(lockedRoles[r.key]?' locked':'');card.innerHTML=`<div class="role-dot" style="background:${c.hex}"></div><div class="role-label">${r.label}</div><div class="role-num">${c.number}</div><div class="role-name">${c.name}</div><label class="lock-wrap"><input class="lock-check" type="checkbox" ${lockedRoles[r.key]?'checked':''}> lock</label>`;card.addEventListener('click',()=>{activeRole=r.key;leaveSavedContext();renderAll();});card.querySelector('.lock-check').addEventListener('click',e=>{e.stopPropagation();lockedRoles[r.key]=e.target.checked;renderAll();});el('roleCards').appendChild(card);});}
 function renderFilters(){const items=['Full Palette','Current Stash'];el('filters').innerHTML=items.map(x=>`<button class="filter ${filter===x?'active':''}" data-filter="${x}">${x}</button>`).join('');document.querySelectorAll('.filter').forEach(b=>b.onclick=()=>{filter=b.dataset.filter;randomSource=(filter==='Current Stash')?'stash':'full';renderSourceButtons();renderPalette();renderFilters();});}
 function renderPalette(){const q=el('search').value.trim().toLowerCase();const p=el('palette');p.innerHTML='';COLORS.filter(c=>(filter==='Full Palette'||isInStash(c))&&(!q||c.name.toLowerCase().includes(q)||c.number.toLowerCase().includes(q)||c.hex.toLowerCase().includes(q))).forEach(c=>{const used=ROLES.some(r=>selections[r.key].number===c.number);const inStash=isInStash(c);const b=document.createElement('button');b.className='color-btn'+(used?' selected':'')+(inStash?' in-stash':'');b.innerHTML=`<span class="stash-check" title="Toggle Current Stash" aria-label="Toggle Current Stash">✓</span><div class="color-swatch" style="background:${c.hex}"></div><div class="color-num">${c.number}</div><div class="color-name">${c.name}</div>`;b.onclick=()=>{selections[activeRole]=c;currentNameSeed=0;nameHistoryStack=[];leaveSavedContext();renderAll();};b.querySelector('.stash-check').onclick=e=>{e.stopPropagation();toggleStash(c);};p.appendChild(b);});}
@@ -2828,7 +7001,18 @@ async function deleteSavedItem(item,providedCode=null){
     await loadSharedCombos();
   }
 }
-function renderSaved(){renderSavedList('digCombos','dig');renderSavedList('madeCombos','made');updateSavedTabs();}
+function updateGoodStuffTeaser(){
+  const teaser=el('goodStuffTeaser');
+  if(!teaser) return;
+  const digTotal=(saved||[]).filter(x=>x.kind==='dig').length;
+  const madeTotal=(saved||[]).filter(x=>x.kind==='made').length;
+  if(digTotal||madeTotal){
+    teaser.textContent=`${digTotal} saved + ${madeTotal} made combos`;
+  }else{
+    teaser.textContent='Saved + Made combos';
+  }
+}
+function renderSaved(){renderSavedList('digCombos','dig');renderSavedList('madeCombos','made');updateSavedTabs();updateGoodStuffTeaser();}
 function updateSaveState(){const ok=!!el('saveName').value.trim();el('confirmSave').disabled=!ok;el('saveBtn').classList.toggle('active-save',pendingSaveKind==='dig'&&el('saveDrawer').classList.contains('open'));el('madeBtn').classList.toggle('active-save',pendingSaveKind==='made'&&el('saveDrawer').classList.contains('open'));}
 function swapStripeColors(){
   const a=selections.S;
@@ -2985,28 +7169,181 @@ ${err?.message || err}`);
   }
 }
 
+
+let desktopWorkbenchDefaultsApplied=false;
+
+function isDesktopWorkbench(){
+  return !!(window.matchMedia && window.matchMedia('(min-width:721px)').matches);
+}
+
+function applyDesktopWorkbenchDefaults(){
+  if(!isDesktopWorkbench() || desktopWorkbenchDefaultsApplied) return;
+  const guide=el('ownItSection');
+  const roles=el('rolesSection');
+  const palette=el('paletteSection');
+  const readability=el('readabilitySection');
+  const good=el('savedSection');
+  if(guide) guide.open=true;
+  if(roles) roles.open=true;
+  if(palette) palette.open=true;
+  if(readability) readability.open=true;
+  if(good) good.open=false;
+  desktopWorkbenchDefaultsApplied=true;
+}
+
+function applyGuideDefaultForViewport(){
+  const guide=el('ownItSection');
+  if(!guide) return;
+  if(isDesktopWorkbench()){
+    guide.open=true;
+  }else{
+    guide.open=false;
+  }
+}
+
+function handleDesktopGoodStuffToggle(){
+  const good=el('savedSection');
+  if(!good) return;
+  if(!isDesktopWorkbench()){
+    good.style.removeProperty('--hq-good-stuff-align-height');
+    return;
+  }
+  if(!good.open){
+    scheduleGoodStuffBottomAlign(40);
+    return;
+  }
+  good.style.removeProperty('--hq-good-stuff-align-height');
+  const palette=el('paletteSection');
+  const readability=el('readabilitySection');
+  if(palette && palette.open) palette.open=false;
+  if(readability && readability.open) readability.open=false;
+}
+
+function scheduleGoodStuffBottomAlign(delay=0){
+  const good=el('savedSection');
+  if(!good) return;
+  if(!isDesktopWorkbench()){
+    good.style.removeProperty('--hq-good-stuff-align-height');
+    return;
+  }
+  window.setTimeout(alignCollapsedGoodStuffToChartColors, delay);
+}
+
+function alignCollapsedGoodStuffToChartColors(){
+  const good=el('savedSection');
+  const roles=el('rolesSection');
+  const palette=el('paletteSection');
+  const readability=el('readabilitySection');
+  if(!good || !roles) return;
+  const defaultRightStackOpen=!!(palette?.open && readability?.open);
+  if(!isDesktopWorkbench() || good.open || !roles.open || !defaultRightStackOpen){
+    good.style.removeProperty('--hq-good-stuff-align-height');
+    return;
+  }
+  requestAnimationFrame(()=>{
+    const stillDefaultRightStackOpen=!!(palette?.open && readability?.open);
+    if(!isDesktopWorkbench() || good.open || !roles.open || !stillDefaultRightStackOpen){
+      good.style.removeProperty('--hq-good-stuff-align-height');
+      return;
+    }
+    const summary=good.querySelector(':scope > summary');
+    const rolesRect=roles.getBoundingClientRect();
+    const goodRect=good.getBoundingClientRect();
+    const summaryRect=summary?summary.getBoundingClientRect():goodRect;
+    const nonSummaryHeight=Math.max(0,goodRect.height-summaryRect.height);
+    const target=(rolesRect.bottom-goodRect.top)-nonSummaryHeight;
+    if(!Number.isFinite(target) || target<70){
+      good.style.removeProperty('--hq-good-stuff-align-height');
+      return;
+    }
+    const clamped=Math.max(78,Math.min(260,Math.round(target)));
+    good.style.setProperty('--hq-good-stuff-align-height',`${clamped}px`);
+  });
+}
+
 async function init(){
+  applyGuideDefaultForViewport();
+  applyDesktopWorkbenchDefaults();
   loadChartPreviewPreference();
   updateChartPreviewToggle();
   // Render the chart immediately. Do not let a slow CDN/Supabase load leave the page half-built.
   renderFilters();
   renderAll();
+  scheduleGoodStuffBottomAlign(120);
   await loadSupabaseClient();
   await loadStashInventory();
   await loadAINameRefreshBank();
   renderAll();
   await loadSharedCombos();
   maybeRefreshVisibleSavedName();
+  scheduleGoodStuffBottomAlign(160);
 }
-el('gridToggle').onchange=drawChart;el('randomBtn').onclick=randomize;el('backBtn').onclick=back;el('sourceFullBtn').onclick=()=>setRandomSource('full');el('sourceStashBtn').onclick=()=>setRandomSource('stash');el('newNameBtn').onclick=newName;if(el('nameBackBtn')) el('nameBackBtn').onclick=backName;if(el('adminNameRefreshBtn')) el('adminNameRefreshBtn').onclick=adminRefreshNameBank;el('saveBtn').onclick=()=>openSaveDrawer('dig');el('madeBtn').onclick=()=>openSaveDrawer('made');if(el('digTab')) el('digTab').onclick=()=>setSavedTab('dig');if(el('madeTab')) el('madeTab').onclick=()=>setSavedTab('made');if(el('chartPreviewToggle')) el('chartPreviewToggle').onclick=()=>setChartPreviewPinned(!(chartPreviewPinned&&chartPreviewMode==='good'),{scroll:true,mode:'good'});if(el('paletteChartPreviewToggle')) el('paletteChartPreviewToggle').onclick=()=>setChartPreviewPinned(!(chartPreviewPinned&&chartPreviewMode==='palette'),{scroll:true,mode:'palette'});if(el('swapStripesBtn')) el('swapStripesBtn').onclick=swapStripeColors;if(el('rolesSection')) el('rolesSection').addEventListener('toggle',()=>{if(el('rolesSection').open) leaveSavedContext();});if(el('paletteSection')) el('paletteSection').addEventListener('toggle',()=>{if(el('paletteSection').open) leaveSavedContext();});el('confirmSave').onclick=savePending;el('cancelSave').onclick=closeSaveDrawer;el('closeSaveDrawer').onclick=closeSaveDrawer;el('saveDrawer').addEventListener('click',e=>{if(e.target.id==='saveDrawer')closeSaveDrawer();});if(el('closeMadeEditDrawer')) el('closeMadeEditDrawer').onclick=closeMadeEditDrawer;if(el('cancelMadeEdit')) el('cancelMadeEdit').onclick=closeMadeEditDrawer;if(el('saveMadeEdit')) el('saveMadeEdit').onclick=saveMadeEdit;if(el('madeEditDrawer')) el('madeEditDrawer').addEventListener('click',e=>{if(e.target.id==='madeEditDrawer')closeMadeEditDrawer();});if(el('madeEditPhotoUpload')) el('madeEditPhotoUpload').onclick=()=>uploadMadePhoto(editingMadeItem,madeEditAdminCode);if(el('madeEditPhotoRemove')) el('madeEditPhotoRemove').onclick=()=>removeMadePhoto(editingMadeItem,madeEditAdminCode);if(el('madeEditDelete')) el('madeEditDelete').onclick=deleteMadeFromEdit;if(el('photoLightboxClose')) el('photoLightboxClose').onclick=closePhotoLightbox;if(el('photoLightbox')) el('photoLightbox').addEventListener('click',e=>{if(e.target.id==='photoLightbox')closePhotoLightbox();});window.addEventListener('keydown',e=>{if(e.key==='Escape'&&el('photoLightbox')?.classList.contains('open'))closePhotoLightbox();});el('search').oninput=renderPalette;el('saveName').oninput=updateSaveState;window.addEventListener('resize',drawChart);init();
+el('gridToggle').onchange=drawChart;el('randomBtn').onclick=randomize;el('backBtn').onclick=back;el('sourceFullBtn').onclick=()=>setRandomSource('full');el('sourceStashBtn').onclick=()=>setRandomSource('stash');el('newNameBtn').onclick=newName;if(el('nameBackBtn')) el('nameBackBtn').onclick=backName;if(el('adminNameRefreshBtn')) el('adminNameRefreshBtn').onclick=adminRefreshNameBank;el('saveBtn').onclick=()=>openSaveDrawer('dig');el('madeBtn').onclick=()=>openSaveDrawer('made');if(el('digTab')) el('digTab').onclick=()=>setSavedTab('dig');if(el('madeTab')) el('madeTab').onclick=()=>setSavedTab('made');if(el('chartPreviewToggle')) el('chartPreviewToggle').onclick=()=>setChartPreviewPinned(!(chartPreviewPinned&&chartPreviewMode==='good'),{scroll:true,mode:'good'});if(el('paletteChartPreviewToggle')) el('paletteChartPreviewToggle').onclick=()=>setChartPreviewPinned(!(chartPreviewPinned&&chartPreviewMode==='palette'),{scroll:true,mode:'palette'});if(el('swapStripesBtn')) el('swapStripesBtn').onclick=swapStripeColors;if(el('rolesSection')) el('rolesSection').addEventListener('toggle',()=>{if(el('rolesSection').open) leaveSavedContext();});if(el('paletteSection')) el('paletteSection').addEventListener('toggle',()=>{if(el('paletteSection').open) leaveSavedContext();});if(el('readabilitySection')) el('readabilitySection').addEventListener('toggle',()=>{if(el('readabilitySection').open) leaveSavedContext();});if(el('savedSection')) el('savedSection').addEventListener('toggle',handleDesktopGoodStuffToggle);el('confirmSave').onclick=savePending;el('cancelSave').onclick=closeSaveDrawer;el('closeSaveDrawer').onclick=closeSaveDrawer;el('saveDrawer').addEventListener('click',e=>{if(e.target.id==='saveDrawer')closeSaveDrawer();});if(el('closeMadeEditDrawer')) el('closeMadeEditDrawer').onclick=closeMadeEditDrawer;if(el('cancelMadeEdit')) el('cancelMadeEdit').onclick=closeMadeEditDrawer;if(el('saveMadeEdit')) el('saveMadeEdit').onclick=saveMadeEdit;if(el('madeEditDrawer')) el('madeEditDrawer').addEventListener('click',e=>{if(e.target.id==='madeEditDrawer')closeMadeEditDrawer();});if(el('madeEditPhotoUpload')) el('madeEditPhotoUpload').onclick=()=>uploadMadePhoto(editingMadeItem,madeEditAdminCode);if(el('madeEditPhotoRemove')) el('madeEditPhotoRemove').onclick=()=>removeMadePhoto(editingMadeItem,madeEditAdminCode);if(el('madeEditDelete')) el('madeEditDelete').onclick=deleteMadeFromEdit;if(el('photoLightboxClose')) el('photoLightboxClose').onclick=closePhotoLightbox;if(el('photoLightbox')) el('photoLightbox').addEventListener('click',e=>{if(e.target.id==='photoLightbox')closePhotoLightbox();});window.addEventListener('keydown',e=>{if(e.key==='Escape'&&el('photoLightbox')?.classList.contains('open'))closePhotoLightbox();});el('search').oninput=renderPalette;el('saveName').oninput=updateSaveState;window.addEventListener('resize',()=>{drawChart();applyGuideDefaultForViewport();applyDesktopWorkbenchDefaults();scheduleGoodStuffBottomAlign(80);});window.addEventListener('load',()=>{scheduleGoodStuffBottomAlign(180);scheduleGoodStuffBottomAlign(420);scheduleGoodStuffBottomAlign(800);});if(document.fonts&&document.fonts.ready){document.fonts.ready.then(()=>scheduleGoodStuffBottomAlign(80)).catch(()=>{});}document.addEventListener('toggle',event=>{
+  if(event.target && ['rolesSection','paletteSection','readabilitySection','savedSection'].includes(event.target.id)){
+    scheduleGoodStuffBottomAlign(90);
+  }
+},true);
+if(window.ResizeObserver){
+  const alignObserver=new ResizeObserver(()=>scheduleGoodStuffBottomAlign(80));
+  ['rolesSection','savedSection','paletteSection','readabilitySection'].forEach(id=>{
+    const node=el(id);
+    if(node) alignObserver.observe(node);
+  });
+}
+init();
+</script>
+<script>
+(function(){
+  const helpBtn=document.getElementById('hqHelpBtn');
+  const helpBackdrop=document.getElementById('hqHelpBackdrop');
+  const helpClose=document.getElementById('hqHelpClose');
+  if(!helpBtn || !helpBackdrop || !helpClose) return;
+  function openHelp(){
+    helpBackdrop.classList.add('open');
+    helpBackdrop.setAttribute('aria-hidden','false');
+    helpBtn.setAttribute('aria-expanded','true');
+    helpClose.focus({preventScroll:true});
+  }
+  function closeHelp(){
+    helpBackdrop.classList.remove('open');
+    helpBackdrop.setAttribute('aria-hidden','true');
+    helpBtn.setAttribute('aria-expanded','false');
+    helpBtn.focus({preventScroll:true});
+  }
+  helpBtn.addEventListener('click',openHelp);
+  helpClose.addEventListener('click',closeHelp);
+  helpBackdrop.addEventListener('click',event=>{
+    if(event.target===helpBackdrop) closeHelp();
+  });
+  window.addEventListener('keydown',event=>{
+    if(event.key==='Escape' && helpBackdrop.classList.contains('open')) closeHelp();
+  });
+})();
 </script>
 
 <script>
-const HQ_APP_BUILD = 'v155-meta-description-cleanup';
+/* v152: mobile header reset backup
+   Mobile-only: tapping the top Hue Queue header acts like turning off the chart-preview eyeball.
+   It preserves the current chart/colors/name and simply restores the normal browsing view
+   when someone gets stuck inside the Good Stuff chart-preview state. */
+(function(){
+  const heroHeader=document.querySelector('.hero');
+  if(!heroHeader) return;
+  heroHeader.addEventListener('click',event=>{
+    if(window.matchMedia('(min-width: 721px)').matches) return;
+    if(event.target.closest('button,a,input,label,summary,[role="button"]')) return;
+    if(typeof chartPreviewPinned==='undefined' || !chartPreviewPinned) return;
+    if(typeof setChartPreviewPinned!=='function') return;
+    setChartPreviewPinned(false,{scroll:false});
+  });
+})();
+</script>
+<script>
+const HQ_APP_BUILD = 'v155-chart-first-metadata';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', async () => {
     try {
-      const registration = await navigator.serviceWorker.register('./service-worker.js?v=155', { updateViaCache: 'none' });
+      const registration = await navigator.serviceWorker.register('./service-worker.js?v=143', { updateViaCache: 'none' });
       await registration.update();
       if (navigator.serviceWorker.controller && registration.waiting) {
         registration.waiting.postMessage({ type: 'SKIP_WAITING' });
@@ -3015,5 +7352,7 @@ if ('serviceWorker' in navigator) {
   });
 }
 </script>
+
+<div class="hq-signature" aria-hidden="true">blj 2026</div>
 </body>
 </html>
