@@ -5673,7 +5673,7 @@ body{
 }
 
 
-/* v164: static signature admin button fix
+/* v165: delete admin prompt copy
    The blj mark is no longer fixed/absolute, so it cannot float over cards.
    It lives at the actual bottom of the document and remains a real tappable admin entry. */
 .hq-signature,
@@ -5741,7 +5741,7 @@ button.hq-signature:focus{
 
 </style>
 </head>
-<body data-hq-build="v164-signature-static-button-fix">
+<body data-hq-build="v165-delete-prompt-copy">
 <div class="page">
 
 <main class="app-grid">
@@ -8547,7 +8547,7 @@ async function deleteSavedItem(item,providedCode=null){
   let code=providedCode;
   if(code===null){
     code=prompt(
-      "Whoops, did you accidentally save an ugly one? Embarrassing! Text Bryant and he\'ll delete it.\n\n" +
+      "Ditching this one? Text Bryant!\n\n" +
       'Admin code:'
     );
   }
@@ -9050,11 +9050,11 @@ init();
 })();
 </script>
 <script>
-const HQ_APP_BUILD = 'v164-signature-static-button-fix';
+const HQ_APP_BUILD = 'v165-delete-prompt-copy';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', async () => {
     try {
-      const registration = await navigator.serviceWorker.register('./service-worker.js?v=164', { updateViaCache: 'none' });
+      const registration = await navigator.serviceWorker.register('./service-worker.js?v=165', { updateViaCache: 'none' });
       await registration.update();
       if (navigator.serviceWorker.controller && registration.waiting) {
         registration.waiting.postMessage({ type: 'SKIP_WAITING' });
