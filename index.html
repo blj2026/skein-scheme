@@ -5757,7 +5757,7 @@ button.hq-signature:focus{
 
 </style>
 </head>
-<body data-hq-build="v170_good_stuff_apostrophe_fix">
+<body data-hq-build="v171_randomize_speed_fix">
 <div class="page">
 
 <main class="app-grid">
@@ -6868,9 +6868,10 @@ function recentNameConflict(candidate,recentNames=[]){
 }
 function generateFreshComboName(combo=selections,offset=0,options={},extraAvoid=[]){
   const avoid=unique([...sessionNameMemory(80),...extraAvoid].map(name=>String(name||'').toLowerCase()));
+  const maxTries=options.fastName?6:18;
   let fallback='';
   let nonExactFallback='';
-  for(let tries=0;tries<18;tries++){
+  for(let tries=0;tries<maxTries;tries++){
     const candidate=generateComboName(combo,offset+tries,{...options,avoidNames:avoid});
     if(!fallback)fallback=candidate;
     const exactConflict=avoid.some(old=>editorialKey(candidate)===editorialKey(old));
@@ -7630,12 +7631,14 @@ function renderRoles(){el('activeRoleLabel').textContent=ROLE_LABELS[activeRole]
 function renderFilters(){const items=['Full Palette','Current Stash'];el('filters').innerHTML=items.map(x=>`<button class="filter ${filter===x?'active':''}" data-filter="${x}">${x}</button>`).join('');document.querySelectorAll('.filter').forEach(b=>b.onclick=()=>{filter=b.dataset.filter;randomSource=(filter==='Current Stash')?'stash':'full';renderSourceButtons();renderPalette();renderFilters();});}
 function renderPalette(){const q=el('search').value.trim().toLowerCase();const p=el('palette');p.innerHTML='';COLORS.filter(c=>(filter==='Full Palette'||isInStash(c))&&(!q||c.name.toLowerCase().includes(q)||c.number.toLowerCase().includes(q)||c.hex.toLowerCase().includes(q))).forEach(c=>{const used=ROLES.some(r=>selections[r.key].number===c.number);const inStash=isInStash(c);const b=document.createElement('button');b.className='color-btn'+(used?' selected':'')+(inStash?' in-stash':'');b.innerHTML=`<span class="stash-check" title="Toggle Current Stash" aria-label="Toggle Current Stash">&#10003;</span><div class="color-swatch" style="background:${c.hex}"></div><div class="color-num">${c.number}</div><div class="color-name">${c.name}</div>`;b.onclick=()=>{selections[activeRole]=c;currentNameSeed=0;nameHistoryStack=[];leaveSavedContext();renderAll();};b.querySelector('.stash-check').onclick=e=>{e.stopPropagation();toggleStash(c);};p.appendChild(b);});}
 function metrics(){const pairs=[['Main vs Contrast',selections.D,selections.L,3],['Main vs Accent',selections.D,selections.M,1.6],['Stripe A vs B',selections.S,selections.T,1.6]];el('metrics').innerHTML=pairs.map(([t,a,b,target])=>{const r=contrastRatio(a.hex,b.hex),w=Math.min(100,Math.round(r/7*100));return `<div class="metric"><div class="metric-top"><span>${t}</span><strong>${r.toFixed(1)}:1</strong></div><div class="bar"><div class="fill" style="width:${w}%"></div></div></div>`;}).join('');}
-/* v160 randomizer rescue: choose the best-looking combo from many attempts instead of accepting
-   the first combo that merely passes a few contrast checks. The goal is to restore the older
-   chart-first feel: distinct yarns, enough contrast, a useful neutral/color balance, and fewer
-   chaotic five-random-color piles. */
+/* v171 randomizer speed fix: keep the v160 quality guardrails, but do the heavy work on a
+   much smaller candidate set and let the chart repaint before the name engine runs.
+   Randomize should feel instant again, especially on mobile. */
 const RANDOMIZER_HISTORY_LIMIT=36;
 let recentRandomComboSignatures=[];
+let pendingRandomNameTimer=null;
+let pendingRandomNameSignature='';
+let deferredPaletteRenderTimer=null;
 function clamp01(value){return Math.max(0,Math.min(1,Number(value)||0));}
 function smoothBandScore(value,low,idealLow,idealHigh,high){
   value=Number(value)||0;
@@ -7851,6 +7854,56 @@ function pickWeightedCombo(scored){
   }
   return finalists[0];
 }
+function randomizerAttemptCount(pool,lockedCount){
+  const isMobile=!!(window.matchMedia&&window.matchMedia('(max-width:720px)').matches);
+  if(pool.length<=12) return isMobile?42:72;
+  if(lockedCount>=3) return isMobile?44:78;
+  return isMobile?58:96;
+}
+function keepTopRandomizerRow(rows,row,limit=12){
+  if(!row) return;
+  if(rows.length<limit || row.quality.score>rows[rows.length-1].quality.score){
+    rows.push(row);
+    rows.sort((a,b)=>b.quality.score-a.quality.score);
+    if(rows.length>limit) rows.length=limit;
+  }
+}
+function scheduleDeferredPaletteRender(delay=70){
+  window.clearTimeout(deferredPaletteRenderTimer);
+  deferredPaletteRenderTimer=window.setTimeout(()=>{
+    deferredPaletteRenderTimer=null;
+    renderPalette();
+  },delay);
+}
+function renderRandomizedComboFast(){
+  drawChart();
+  renderDots();
+  renderRoles();
+  metrics();
+  renderSourceButtons();
+  el('backBtn').disabled=!history.length;
+  updateSaveState();
+  updateChartPreviewToggle();
+  updateNameControls();
+  scheduleDeferredPaletteRender();
+}
+function finalizeRandomizedName(signature){
+  if(signature!==comboSignature(selections)) return;
+  currentComboName=generateFreshComboName(selections,currentNameSeed,{strictColorFit:true,fastName:true});
+  renderDots();
+  updateSaveState();
+  updateNameControls();
+}
+function scheduleRandomizedName(signature){
+  window.clearTimeout(pendingRandomNameTimer);
+  pendingRandomNameSignature=signature;
+  pendingRandomNameTimer=window.setTimeout(()=>{
+    pendingRandomNameTimer=null;
+    const run=()=>finalizeRandomizedName(signature);
+    if(window.requestAnimationFrame) window.requestAnimationFrame(run);
+    else run();
+  },24);
+}
 function randomize(){
   leaveSavedContext();
   nameHistoryStack=[];
@@ -7859,31 +7912,36 @@ function randomize(){
     renderSourceButtons();
     return;
   }
+
+  window.clearTimeout(pendingRandomNameTimer);
+  pendingRandomNameTimer=null;
+
   history.push({selections:cloneSelections(),name:currentComboName,seed:currentNameSeed});
 
   const lockedCount=ROLES.filter(r=>lockedRoles[r.key]).length;
-  const attempts=pool.length<=12?2600:(lockedCount>=3?2200:5200);
-  const scored=[];
+  const attempts=randomizerAttemptCount(pool,lockedCount);
+  const viableTop=[];
+  const backupTop=[];
   let bestAny=null;
+
   for(let tries=0;tries<attempts;tries++){
     const combo=buildRandomCandidate(pool);
     const quality=comboQualityScore(combo);
     const row={combo,quality};
     if(!bestAny || quality.score>bestAny.quality.score) bestAny=row;
-    if(!quality.hardFail || quality.score>120) scored.push(row);
+    if(!quality.hardFail) keepTopRandomizerRow(viableTop,row,12);
+    if(!quality.hardFail || quality.score>120) keepTopRandomizerRow(backupTop,row,12);
   }
 
-  const viable=scored.filter(row=>!row.quality.hardFail).sort((a,b)=>b.quality.score-a.quality.score);
-  const backup=scored.sort((a,b)=>b.quality.score-a.quality.score);
-  const chosen=pickWeightedCombo(viable.length?viable:backup) || bestAny;
-  const combo=chosen?.combo || cloneSelections();
-
-  selections=combo;
+  const chosen=pickWeightedCombo(viableTop.length?viableTop:backupTop) || bestAny;
+  selections=chosen?.combo || cloneSelections();
   recentRandomComboSignatures.push(comboSignature(selections));
   recentRandomComboSignatures=recentRandomComboSignatures.slice(-RANDOMIZER_HISTORY_LIMIT);
   currentNameSeed=0;
-  currentComboName=generateFreshComboName(selections,currentNameSeed,{strictColorFit:true});
-  renderAll();
+
+  const signature=comboSignature(selections);
+  renderRandomizedComboFast();
+  scheduleRandomizedName(signature);
 }
 function back(){const prev=history.pop();if(!prev)return;leaveSavedContext();selections=cloneSelections(prev.selections);currentComboName=prev.name;currentNameSeed=prev.seed;nameHistoryStack=[];renderAll();}
 function newName() {
@@ -9117,11 +9175,11 @@ init();
 })();
 </script>
 <script>
-const HQ_APP_BUILD = 'v170_good_stuff_apostrophe_fix';
+const HQ_APP_BUILD = 'v171_randomize_speed_fix';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', async () => {
     try {
-      const registration = await navigator.serviceWorker.register('./service-worker.js?v=170', { updateViaCache: 'none' });
+      const registration = await navigator.serviceWorker.register('./service-worker.js?v=171', { updateViaCache: 'none' });
       await registration.update();
       if (navigator.serviceWorker.controller && registration.waiting) {
         registration.waiting.postMessage({ type: 'SKIP_WAITING' });
