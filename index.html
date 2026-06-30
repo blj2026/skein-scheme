@@ -5673,7 +5673,7 @@ body{
 }
 
 
-/* v167: single-tap admin entry + admin session reuse
+/* v168: admin menu order + single-tap admin entry + admin session reuse
    The blj mark stays in normal page flow and opens the admin menu with one click/tap.
    Mobile no longer binds touchend + pointerup + click at the same time, which caused duplicate code prompts. */
 .hq-signature,
@@ -5741,7 +5741,7 @@ button.hq-signature:focus{
 
 </style>
 </head>
-<body data-hq-build="v167-single-tap-admin-entry">
+<body data-hq-build="v168-admin-menu-order">
 <div class="page">
 
 <main class="app-grid">
@@ -5772,8 +5772,8 @@ button.hq-signature:focus{
 <div class="admin-menu-title">Bryant Admin</div>
 <p class="admin-menu-copy">Choose the hidden tool you want to use.</p>
 <div class="admin-menu-actions">
-<button class="admin-menu-action" id="adminMenuNameRefresh" type="button"><strong>Name Bank Refresh</strong><span>Generate a new batch of colorway names.</span></button>
 <button class="admin-menu-action" id="adminMenuVisibility" type="button"><strong>Hide / Show Mode</strong><span id="adminMenuVisibilityState">Turn on card eyeballs for Saved + Made combos.</span></button>
+<button class="admin-menu-action" id="adminMenuNameRefresh" type="button"><strong>Name Bank Refresh</strong><span>Generate a new batch of colorway names.</span></button>
 </div>
 </div>
 </div>
@@ -9089,7 +9089,7 @@ init();
 })();
 </script>
 <script>
-const HQ_APP_BUILD = 'v167-single-tap-admin-entry';
+const HQ_APP_BUILD = 'v168-admin-menu-order';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', async () => {
     try {
@@ -9105,7 +9105,7 @@ if ('serviceWorker' in navigator) {
 
 <button class="hq-signature" id="hqAdminEntry" type="button" aria-label="Bryant admin menu" title="Bryant admin menu">blj 2026</button>
 <script>
-/* v167: bind after the signature exists. Use ONE activation path for mobile.
+/* v168: bind after the signature exists. Use ONE activation path for mobile.
    A mobile tap can emit pointer/touch events plus a delayed synthetic click; because the
    admin code prompt blocks the event loop, the old time-based debounce could expire
    before the synthetic click arrived, causing two admin-code prompts. A real button
