@@ -5673,7 +5673,7 @@ body{
 }
 
 
-/* v165: delete admin prompt copy
+/* v166: admin session reuse + delete admin prompt copy
    The blj mark is no longer fixed/absolute, so it cannot float over cards.
    It lives at the actual bottom of the document and remains a real tappable admin entry. */
 .hq-signature,
@@ -5741,7 +5741,7 @@ button.hq-signature:focus{
 
 </style>
 </head>
-<body data-hq-build="v165-delete-prompt-copy">
+<body data-hq-build="v166-admin-session-reuse">
 <div class="page">
 
 <main class="app-grid">
@@ -5919,7 +5919,7 @@ function normalizeSavedItem(item){
 }
 let selections={...DEFAULT_SELECTIONS}, activeRole='D', lockedRoles=Object.fromEntries(ROLES.map(r=>[r.key,false])), history=[], nameHistoryStack=[], saved=[], pendingSaveKind='dig', activeSavedTab=(window.matchMedia&&window.matchMedia('(min-width:721px)').matches?'made':null), savedContextMode=false, chartPreviewMode=null;
 let allSavedComboNamesCache=[]; // v162: duplicate guard includes hidden Saved/Made names too.
-let adminVisibilityMode=false, comboVisibilityAdminCode='', comboVisibilityUpdateInProgress=false, adminMenuCode='';
+let adminVisibilityMode=false, comboVisibilityAdminCode='', comboVisibilityUpdateInProgress=false, adminMenuCode='', adminSessionCode='';
 let currentComboName='starter mix', currentNameSeed=0, filter='Full Palette', randomSource='full', stashInventory={};
 let hqLastComboDotSignature='', hqSwatchShuffleTimer=null, hqLastSwatchMoveKey='', hqLastSwatchIdleKey='';
 const STORAGE='skeinSchemeSavedCombosLocalBackupV1';
@@ -7941,6 +7941,39 @@ function escapeHTML(s=''){return String(s).replace(/[&<>'"]/g,ch=>({'&':'&amp;',
 
 function escapeAttr(s=''){return escapeHTML(s).replace(/`/g,'&#96;');}
 function validateAdminCode(code){return String(code||'').trim()===ADMIN_CODE;}
+function storeAdminCode(code){
+  const clean=String(code||'').trim();
+  if(validateAdminCode(clean)){
+    adminSessionCode=clean;
+    return clean;
+  }
+  return '';
+}
+function getActiveAdminCode(){
+  const candidates=[comboVisibilityAdminCode,madeEditAdminCode,adminMenuCode,adminSessionCode];
+  for(const candidate of candidates){
+    const clean=String(candidate||'').trim();
+    if(validateAdminCode(clean)) return clean;
+  }
+  return '';
+}
+function clearAdminCodeSession(){
+  adminSessionCode='';
+  adminMenuCode='';
+  comboVisibilityAdminCode='';
+  madeEditAdminCode='';
+}
+function promptForAdminCode(message='Admin code:'){
+  const existing=getActiveAdminCode();
+  if(existing) return existing;
+  const code=prompt(message);
+  if(code===null) return null;
+  if(!validateAdminCode(code)){
+    alert('Nice try.');
+    return null;
+  }
+  return storeAdminCode(code);
+}
 function isComboHidden(item){return !!(item && (item.hidden || item.is_hidden));}
 function visibleSavedItems(kind=null){
   return (saved||[]).filter(item=>{
@@ -7950,7 +7983,11 @@ function visibleSavedItems(kind=null){
 }
 function setComboVisibilityAdminMode(next,code=''){
   adminVisibilityMode=!!next;
-  comboVisibilityAdminCode=adminVisibilityMode?String(code||'').trim():'';
+  if(adminVisibilityMode){
+    comboVisibilityAdminCode=storeAdminCode(code) || getActiveAdminCode();
+  }else{
+    clearAdminCodeSession();
+  }
   document.body.classList.toggle('combo-visibility-admin-on',adminVisibilityMode);
   const button=el('adminComboVisibilityBtn');
   if(button){
@@ -7968,8 +8005,8 @@ async function toggleComboVisibilityAdmin(adminCode=null,{quiet=false}={}){
     if(!quiet) alert('Visibility admin is off. Hidden cards are removed from the normal public view again.');
     return;
   }
-  let code=adminCode;
-  if(code===null){
+  let code=adminCode || getActiveAdminCode();
+  if(!code){
     code=prompt('Admin code to manage hidden Saved/Made cards:');
   }
   if(code===null) return;
@@ -7977,6 +8014,7 @@ async function toggleComboVisibilityAdmin(adminCode=null,{quiet=false}={}){
     alert('Nice try.');
     return;
   }
+  code=storeAdminCode(code);
   setComboVisibilityAdminMode(true,code);
   await loadSharedCombos();
   if(!activeSavedTab) activeSavedTab='made';
@@ -8261,7 +8299,7 @@ async function handleMadePhotoSlotClick(item){
     openPhotoLightbox(url);
     return;
   }
-  const code=prompt('Admin code to add a photo:');
+  const code=promptForAdminCode('Admin code to add a photo:');
   if(code===null) return;
   await uploadMadePhoto(item,code);
 }
@@ -8283,9 +8321,8 @@ function closeMadeEditDrawer(){
 }
 async function openMadeEdit(item){
   if(!item || item.kind!=='made') return;
-  const code=prompt('Admin code to edit this Made Combo:');
+  const code=promptForAdminCode('Admin code to edit this Made Combo:');
   if(code===null) return;
-  if(!validateAdminCode(code)){alert('Nice try.');return;}
   editingMadeItem=item;
   madeEditAdminCode=code.trim();
   if(el('madeEditSub')) el('madeEditSub').textContent=item.comboName||'';
@@ -8544,20 +8581,21 @@ async function editMadeNote(item){return openMadeEdit(item);}
 async function deleteSavedItem(item,providedCode=null){
   if(!item) return;
 
-  let code=providedCode;
-  if(code===null){
+  let code=providedCode || getActiveAdminCode();
+  if(!code){
     code=prompt(
       "Ditching this one? Text Bryant!\n\n" +
       'Admin code:'
     );
   }
 
-  if(!code) return;
+  if(code===null || !code) return;
 
   if(!validateAdminCode(code)){
     alert('Nice try.');
     return;
   }
+  code=storeAdminCode(code);
 
   const photoPath=comboPhotoPath(item);
 
@@ -8687,7 +8725,7 @@ function updateAdminMenuState(){
   }
 }
 function openAdminMenu(code){
-  adminMenuCode=String(code||'').trim();
+  adminMenuCode=storeAdminCode(code) || getActiveAdminCode();
   updateAdminMenuState();
   const backdrop=el('adminMenuBackdrop');
   if(!backdrop) return;
@@ -8702,18 +8740,18 @@ function closeAdminMenu(){
   if(!backdrop) return;
   backdrop.classList.remove('open');
   backdrop.setAttribute('aria-hidden','true');
+  if(!adminVisibilityMode){
+    adminMenuCode='';
+    adminSessionCode='';
+  }
   const entry=el('hqAdminEntry');
   window.requestAnimationFrame(()=>{
     try{entry?.focus({preventScroll:true});}catch(e){}
   });
 }
 function openSignatureAdminMenu(){
-  const code=prompt('Admin code:');
+  const code=promptForAdminCode('Admin code:');
   if(code===null) return;
-  if(!validateAdminCode(code)){
-    alert('Nice try.');
-    return;
-  }
   openAdminMenu(code);
 }
 if(typeof window!=='undefined') window.openSignatureAdminMenu=openSignatureAdminMenu;
@@ -8757,6 +8795,7 @@ async function adminRefreshNameBank(adminCode=null){
     alert('Nice try.');
     return;
   }
+  code=storeAdminCode(code);
 
   const modeInput=prompt('Refresh type: balanced, earthy, bright, moody, weird', 'balanced');
   if(modeInput===null)return;
@@ -9050,11 +9089,11 @@ init();
 })();
 </script>
 <script>
-const HQ_APP_BUILD = 'v165-delete-prompt-copy';
+const HQ_APP_BUILD = 'v166-admin-session-reuse';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', async () => {
     try {
-      const registration = await navigator.serviceWorker.register('./service-worker.js?v=165', { updateViaCache: 'none' });
+      const registration = await navigator.serviceWorker.register('./service-worker.js?v=166', { updateViaCache: 'none' });
       await registration.update();
       if (navigator.serviceWorker.controller && registration.waiting) {
         registration.waiting.postMessage({ type: 'SKIP_WAITING' });
