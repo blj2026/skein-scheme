@@ -5672,9 +5672,76 @@ body{
   }
 }
 
+
+/* v164: static signature admin button fix
+   The blj mark is no longer fixed/absolute, so it cannot float over cards.
+   It lives at the actual bottom of the document and remains a real tappable admin entry. */
+.hq-signature,
+button.hq-signature{
+  appearance:none !important;
+  -webkit-appearance:none !important;
+  position:relative !important;
+  left:auto !important;
+  right:auto !important;
+  top:auto !important;
+  bottom:auto !important;
+  inset:auto !important;
+  display:block !important;
+  width:max-content !important;
+  max-width:max-content !important;
+  margin:8px 24px 18px auto !important;
+  padding:8px 10px !important;
+  border:0 !important;
+  border-radius:8px !important;
+  background:transparent !important;
+  box-shadow:none !important;
+  z-index:1 !important;
+  font-family:var(--font) !important;
+  font-size:11px !important;
+  font-weight:500 !important;
+  line-height:1 !important;
+  letter-spacing:.04em !important;
+  color:#5f5a54 !important;
+  opacity:.72 !important;
+  pointer-events:auto !important;
+  cursor:pointer !important;
+  user-select:none !important;
+  -webkit-user-select:none !important;
+  touch-action:manipulation !important;
+  text-align:right !important;
+}
+.hq-signature:hover,
+.hq-signature:focus,
+button.hq-signature:hover,
+button.hq-signature:focus{
+  opacity:1 !important;
+  outline:1px solid rgba(17,17,17,.22) !important;
+  outline-offset:2px !important;
+  background:rgba(255,253,248,.58) !important;
+}
+@media (max-width:720px){
+  .page{
+    padding-bottom:24px !important;
+  }
+  body.chart-preview-on .hq-signature,
+  .hq-signature,
+  body.chart-preview-on button.hq-signature,
+  button.hq-signature{
+    position:relative !important;
+    inset:auto !important;
+    right:auto !important;
+    bottom:auto !important;
+    margin:6px calc(28px + env(safe-area-inset-right,0px)) calc(12px + env(safe-area-inset-bottom,0px)) auto !important;
+    padding:10px 10px !important;
+    font-size:10px !important;
+    z-index:1 !important;
+    background:transparent !important;
+  }
+}
+
 </style>
 </head>
-<body data-hq-build="v163-approved-name-color-hints">
+<body data-hq-build="v164-signature-static-button-fix">
 <div class="page">
 
 <main class="app-grid">
@@ -8983,11 +9050,11 @@ init();
 })();
 </script>
 <script>
-const HQ_APP_BUILD = 'v163-approved-name-color-hints';
+const HQ_APP_BUILD = 'v164-signature-static-button-fix';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', async () => {
     try {
-      const registration = await navigator.serviceWorker.register('./service-worker.js?v=161', { updateViaCache: 'none' });
+      const registration = await navigator.serviceWorker.register('./service-worker.js?v=164', { updateViaCache: 'none' });
       await registration.update();
       if (navigator.serviceWorker.controller && registration.waiting) {
         registration.waiting.postMessage({ type: 'SKIP_WAITING' });
@@ -8997,7 +9064,7 @@ if ('serviceWorker' in navigator) {
 }
 </script>
 
-<div class="hq-signature" id="hqAdminEntry" role="button" tabindex="0" aria-label="Bryant admin menu" title="Bryant admin menu">blj 2026</div>
+<button class="hq-signature" id="hqAdminEntry" type="button" aria-label="Bryant admin menu" title="Bryant admin menu">blj 2026</button>
 <script>
 /* v161: bind after the signature exists. The earlier app script runs before this footer node is parsed,
    so this late binding is what makes the blj 2026 tap/click reliably open the admin menu. */
@@ -9021,6 +9088,7 @@ if ('serviceWorker' in navigator) {
     }
   }
   entry.addEventListener('click',openFromSignature);
+  entry.addEventListener('touchend',openFromSignature,{passive:false});
   entry.addEventListener('pointerup',event=>{
     if(event.pointerType==='touch') openFromSignature(event);
   });
