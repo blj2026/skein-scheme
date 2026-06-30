@@ -5673,9 +5673,9 @@ body{
 }
 
 
-/* v166: admin session reuse + delete admin prompt copy
-   The blj mark is no longer fixed/absolute, so it cannot float over cards.
-   It lives at the actual bottom of the document and remains a real tappable admin entry. */
+/* v167: single-tap admin entry + admin session reuse
+   The blj mark stays in normal page flow and opens the admin menu with one click/tap.
+   Mobile no longer binds touchend + pointerup + click at the same time, which caused duplicate code prompts. */
 .hq-signature,
 button.hq-signature{
   appearance:none !important;
@@ -5741,7 +5741,7 @@ button.hq-signature:focus{
 
 </style>
 </head>
-<body data-hq-build="v166-admin-session-reuse">
+<body data-hq-build="v167-single-tap-admin-entry">
 <div class="page">
 
 <main class="app-grid">
@@ -9089,11 +9089,11 @@ init();
 })();
 </script>
 <script>
-const HQ_APP_BUILD = 'v166-admin-session-reuse';
+const HQ_APP_BUILD = 'v167-single-tap-admin-entry';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', async () => {
     try {
-      const registration = await navigator.serviceWorker.register('./service-worker.js?v=166', { updateViaCache: 'none' });
+      const registration = await navigator.serviceWorker.register('./service-worker.js?v=167', { updateViaCache: 'none' });
       await registration.update();
       if (navigator.serviceWorker.controller && registration.waiting) {
         registration.waiting.postMessage({ type: 'SKIP_WAITING' });
@@ -9105,32 +9105,34 @@ if ('serviceWorker' in navigator) {
 
 <button class="hq-signature" id="hqAdminEntry" type="button" aria-label="Bryant admin menu" title="Bryant admin menu">blj 2026</button>
 <script>
-/* v161: bind after the signature exists. The earlier app script runs before this footer node is parsed,
-   so this late binding is what makes the blj 2026 tap/click reliably open the admin menu. */
+/* v167: bind after the signature exists. Use ONE activation path for mobile.
+   A mobile tap can emit pointer/touch events plus a delayed synthetic click; because the
+   admin code prompt blocks the event loop, the old time-based debounce could expire
+   before the synthetic click arrived, causing two admin-code prompts. A real button
+   reliably emits click on mobile, so click + keyboard is the safe single path. */
 (function(){
   const entry=document.getElementById('hqAdminEntry');
   if(!entry || entry.dataset.hqAdminEntryBound==='true') return;
   entry.dataset.hqAdminEntryBound='true';
-  let lastOpenAt=0;
+  let opening=false;
   function openFromSignature(event){
     if(event){
       event.preventDefault();
       event.stopPropagation();
     }
-    const now=Date.now();
-    if(now-lastOpenAt<650) return;
-    lastOpenAt=now;
-    if(typeof window.openSignatureAdminMenu==='function'){
-      window.openSignatureAdminMenu();
-    }else{
-      alert('Admin menu is not ready yet. Refresh and try again.');
+    if(opening) return;
+    opening=true;
+    try{
+      if(typeof window.openSignatureAdminMenu==='function'){
+        window.openSignatureAdminMenu();
+      }else{
+        alert('Admin menu is not ready yet. Refresh and try again.');
+      }
+    }finally{
+      window.setTimeout(()=>{opening=false;},900);
     }
   }
   entry.addEventListener('click',openFromSignature);
-  entry.addEventListener('touchend',openFromSignature,{passive:false});
-  entry.addEventListener('pointerup',event=>{
-    if(event.pointerType==='touch') openFromSignature(event);
-  });
   entry.addEventListener('keydown',event=>{
     if(event.key==='Enter' || event.key===' '){
       openFromSignature(event);
