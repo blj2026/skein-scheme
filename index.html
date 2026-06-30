@@ -5739,9 +5739,25 @@ button.hq-signature:focus{
   }
 }
 
+
+/* v169: hard-lock Bryant admin menu order on all viewports
+   Mobile was still showing the old order from cached/older layout behavior.
+   Force the menu into a simple column and explicitly order Hide / Show before Name Bank Refresh. */
+.admin-menu-actions{
+  display:flex !important;
+  flex-direction:column !important;
+  gap:8px !important;
+}
+#adminMenuVisibility{
+  order:1 !important;
+}
+#adminMenuNameRefresh{
+  order:2 !important;
+}
+
 </style>
 </head>
-<body data-hq-build="v168-admin-menu-order">
+<body data-hq-build="v170_good_stuff_apostrophe_fix">
 <div class="page">
 
 <main class="app-grid">
@@ -5771,7 +5787,7 @@ button.hq-signature:focus{
 <button aria-label="Close admin menu" class="admin-menu-close" id="adminMenuClose" type="button">&times;</button>
 <div class="admin-menu-title">Bryant Admin</div>
 <p class="admin-menu-copy">Choose the hidden tool you want to use.</p>
-<div class="admin-menu-actions">
+<div class="admin-menu-actions" id="adminMenuActions">
 <button class="admin-menu-action" id="adminMenuVisibility" type="button"><strong>Hide / Show Mode</strong><span id="adminMenuVisibilityState">Turn on card eyeballs for Saved + Made combos.</span></button>
 <button class="admin-menu-action" id="adminMenuNameRefresh" type="button"><strong>Name Bank Refresh</strong><span>Generate a new batch of colorway names.</span></button>
 </div>
@@ -8551,7 +8567,7 @@ function updateSavedTabs(){
   const digTotal=visibleSavedItems('dig').length;
   const madeTotal=visibleSavedItems('made').length;
   const config={
-    dig:{title:'Saved Combos',copy:"What we&#39;re digging!"},
+    dig:{title:'Saved Combos',copy:"What we're digging!"},
     made:{title:'Made Combos',copy:'What we made!'}
   };
   ['dig','made'].forEach(kind=>{
@@ -8711,6 +8727,16 @@ async function loadSharedCombos(){
 
 
 
+
+function enforceAdminMenuOrder(){
+  const actions=el('adminMenuActions') || document.querySelector('.admin-menu-actions');
+  const visibility=el('adminMenuVisibility');
+  const nameRefresh=el('adminMenuNameRefresh');
+  if(actions && visibility && nameRefresh && actions.firstElementChild!==visibility){
+    actions.insertBefore(visibility,nameRefresh);
+  }
+}
+
 function updateAdminMenuState(){
   const visibilityButton=el('adminMenuVisibility');
   const visibilityState=el('adminMenuVisibilityState');
@@ -8726,6 +8752,7 @@ function updateAdminMenuState(){
 }
 function openAdminMenu(code){
   adminMenuCode=storeAdminCode(code) || getActiveAdminCode();
+  enforceAdminMenuOrder();
   updateAdminMenuState();
   const backdrop=el('adminMenuBackdrop');
   if(!backdrop) return;
@@ -9037,6 +9064,7 @@ if(hqAdminEntry){
 }
 if(el('adminMenuClose')) el('adminMenuClose').onclick=closeAdminMenu;
 if(el('adminMenuBackdrop')) el('adminMenuBackdrop').addEventListener('click',event=>{if(event.target.id==='adminMenuBackdrop')closeAdminMenu();});
+enforceAdminMenuOrder();
 if(el('adminMenuNameRefresh')) el('adminMenuNameRefresh').onclick=runAdminMenuNameRefresh;
 if(el('adminMenuVisibility')) el('adminMenuVisibility').onclick=runAdminMenuVisibilityToggle;
 window.addEventListener('keydown',event=>{if(event.key==='Escape'&&el('adminMenuBackdrop')?.classList.contains('open'))closeAdminMenu();});
@@ -9089,11 +9117,11 @@ init();
 })();
 </script>
 <script>
-const HQ_APP_BUILD = 'v168-admin-menu-order';
+const HQ_APP_BUILD = 'v170_good_stuff_apostrophe_fix';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', async () => {
     try {
-      const registration = await navigator.serviceWorker.register('./service-worker.js?v=167', { updateViaCache: 'none' });
+      const registration = await navigator.serviceWorker.register('./service-worker.js?v=170', { updateViaCache: 'none' });
       await registration.update();
       if (navigator.serviceWorker.controller && registration.waiting) {
         registration.waiting.postMessage({ type: 'SKIP_WAITING' });
