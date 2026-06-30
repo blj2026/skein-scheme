@@ -4955,6 +4955,274 @@ body.photo-lightbox-scroll-locked{
 }
 
 
+/* v156: Bryant-only combo visibility admin
+   Adds a second tiny hidden admin trigger. After admin unlock, Saved/Made cards show an eye control.
+   Hidden combos are greyed in admin mode and removed from the normal public card lists. */
+.admin-combo-visibility-btn{
+  position:fixed !important;
+  left:10px !important;
+  bottom:30px !important;
+  z-index:9998 !important;
+  width:15px !important;
+  height:15px !important;
+  opacity:.025 !important;
+  background:#111 !important;
+  border:0 !important;
+  border-radius:999px !important;
+  box-shadow:none !important;
+  cursor:pointer !important;
+  font-size:0 !important;
+  padding:0 !important;
+}
+.admin-combo-visibility-btn:hover,
+.admin-combo-visibility-btn:focus{
+  opacity:.22 !important;
+  outline:1px solid rgba(17,17,17,.35) !important;
+}
+.admin-combo-visibility-btn.is-active{
+  opacity:.38 !important;
+  background:#4f473f !important;
+  outline:1px solid rgba(17,17,17,.45) !important;
+}
+.combo-visibility-toggle{
+  display:none;
+  position:absolute;
+  top:7px;
+  right:36px;
+  width:24px;
+  height:24px;
+  border:1px solid rgba(17,17,17,.46);
+  border-radius:8px;
+  background:#fffaf2;
+  color:#111;
+  padding:0;
+  place-items:center;
+  cursor:pointer;
+  z-index:8;
+  opacity:.86;
+}
+.combo-visibility-toggle svg{
+  width:15px;
+  height:15px;
+  display:block;
+  stroke:currentColor;
+}
+.combo-visibility-toggle:hover,
+.combo-visibility-toggle:focus{
+  opacity:1;
+  background:#111;
+  color:#fff;
+  border-color:#111;
+  outline:none;
+}
+body.combo-visibility-admin-on .combo-visibility-toggle{
+  display:grid;
+}
+body.combo-visibility-admin-on #savedSection .saved-card.dig-card{
+  padding-right:66px !important;
+}
+body.combo-visibility-admin-on #savedSection .saved-card.is-hidden-combo{
+  background:#e5e1da !important;
+  border-color:rgba(17,17,17,.34) !important;
+  box-shadow:inset 0 0 0 2px rgba(17,17,17,.08) !important;
+  filter:grayscale(.74);
+}
+body.combo-visibility-admin-on #savedSection .saved-card.is-hidden-combo::before{
+  content:'hidden';
+  position:absolute;
+  left:8px;
+  bottom:6px;
+  z-index:7;
+  padding:2px 6px;
+  border:1px solid rgba(17,17,17,.18);
+  border-radius:999px;
+  background:rgba(255,250,242,.74);
+  color:#6f665b;
+  font-size:7px;
+  font-weight:900;
+  line-height:1;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+  pointer-events:none;
+}
+body.combo-visibility-admin-on #savedSection .made-card .made-card-actions{
+  gap:5px !important;
+}
+body.combo-visibility-admin-on #savedSection .made-card .made-card-actions .combo-visibility-toggle{
+  position:static !important;
+  top:auto !important;
+  right:auto !important;
+  width:24px !important;
+  height:24px !important;
+  border-radius:8px !important;
+}
+body.combo-visibility-admin-on #savedSection .made-card.is-hidden-combo .made-photo-slot,
+body.combo-visibility-admin-on #savedSection .made-card.is-hidden-combo .made-card-main{
+  opacity:.62;
+}
+@media (max-width:720px){
+  .admin-combo-visibility-btn{
+    left:8px !important;
+    bottom:28px !important;
+    width:14px !important;
+    height:14px !important;
+  }
+  .combo-visibility-toggle{
+    width:23px;
+    height:23px;
+    right:34px;
+  }
+  body.combo-visibility-admin-on #savedSection .saved-card.dig-card{
+    padding-right:62px !important;
+  }
+}
+
+
+/* v158: clickable blj admin menu
+   Turns the bottom-right blj 2026 signature into the mobile-friendly admin entry point.
+   The tiny hidden admin dots remain as backup shortcuts, but the signature opens a real admin menu. */
+.hq-signature{
+  pointer-events:auto !important;
+  cursor:pointer !important;
+  user-select:none !important;
+  -webkit-user-select:none !important;
+  z-index:9998 !important;
+}
+.hq-signature:hover,
+.hq-signature:focus{
+  opacity:1 !important;
+  outline:1px solid rgba(17,17,17,.22) !important;
+  outline-offset:4px !important;
+  border-radius:4px !important;
+}
+.admin-menu-backdrop{
+  position:fixed;
+  inset:0;
+  z-index:90;
+  display:none;
+  align-items:flex-end;
+  justify-content:center;
+  padding:18px 12px 0;
+  background:rgba(18,18,18,.30);
+}
+.admin-menu-backdrop.open{display:flex;}
+.admin-menu-panel{
+  position:relative;
+  width:100%;
+  max-width:430px;
+  border:1px solid var(--line);
+  border-bottom:0;
+  border-radius:24px 24px 0 0;
+  background:#fffdf8;
+  color:#111;
+  box-shadow:0 -18px 34px rgba(18,18,18,.20);
+  padding:18px 16px 20px;
+}
+.admin-menu-title{
+  margin:0 42px 5px 0;
+  font-size:13px;
+  font-weight:900;
+  line-height:1;
+  letter-spacing:.07em;
+  text-transform:uppercase;
+}
+.admin-menu-copy{
+  margin:0 42px 13px 0;
+  color:#6f665b;
+  font-size:10px;
+  font-weight:800;
+  line-height:1.25;
+}
+.admin-menu-close{
+  position:absolute;
+  top:11px;
+  right:11px;
+  width:30px;
+  height:30px;
+  border:1px solid var(--line);
+  border-radius:10px;
+  background:#fffaf2;
+  color:#111;
+  font-size:20px;
+  line-height:1;
+  cursor:pointer;
+}
+.admin-menu-close:hover,
+.admin-menu-close:focus{
+  background:#111;
+  color:#fff;
+  border-color:#111;
+  outline:none;
+}
+.admin-menu-actions{
+  display:grid;
+  gap:8px;
+}
+.admin-menu-action{
+  width:100%;
+  min-height:56px;
+  border:1px solid var(--line);
+  border-radius:15px;
+  background:#fffaf2;
+  color:#111;
+  padding:10px 11px;
+  text-align:left;
+  cursor:pointer;
+  display:grid;
+  gap:3px;
+}
+.admin-menu-action strong{
+  display:block;
+  font-size:12px;
+  font-weight:900;
+  letter-spacing:.035em;
+  text-transform:uppercase;
+}
+.admin-menu-action span{
+  display:block;
+  color:#6f665b;
+  font-size:9px;
+  font-weight:800;
+  line-height:1.2;
+}
+.admin-menu-action:hover,
+.admin-menu-action:focus{
+  background:#111;
+  color:#fff;
+  border-color:#111;
+  outline:none;
+}
+.admin-menu-action:hover span,
+.admin-menu-action:focus span{
+  color:rgba(255,255,255,.78);
+}
+.admin-menu-action.is-active{
+  background:#111;
+  color:#fff;
+  border-color:#111;
+}
+.admin-menu-action.is-active span{
+  color:rgba(255,255,255,.78);
+}
+@media (min-width:721px){
+  .admin-menu-backdrop{
+    align-items:center;
+    padding:18px;
+  }
+  .admin-menu-panel{
+    border-bottom:1px solid var(--line);
+    border-radius:22px;
+    max-width:390px;
+    box-shadow:0 18px 42px rgba(18,18,18,.22);
+  }
+}
+@media (max-width:720px){
+  .hq-signature{
+    z-index:9998 !important;
+  }
+}
+
+
 /* v140: desktop bottom-box alignment tune
    Keeps the v139 help-popup layout, then lets the collapsed Good Stuff card
    stretch just enough to visually line up with the bottom of Chart Colors.
@@ -5354,9 +5622,26 @@ body{
   }
 }
 
+
+/* v158b: final clickable signature override
+   This stays after all older signature-placement rules so the admin entry is tappable on mobile. */
+.hq-signature{
+  pointer-events:auto !important;
+  cursor:pointer !important;
+  z-index:74 !important;
+}
+@media (max-width:720px){
+  body.chart-preview-on .hq-signature,
+  .hq-signature{
+    pointer-events:auto !important;
+    cursor:pointer !important;
+    z-index:74 !important;
+  }
+}
+
 </style>
 </head>
-<body data-hq-build="v155-chart-first-metadata">
+<body data-hq-build="v160-randomizer-quality-rescue">
 <div class="page">
 
 <main class="app-grid">
@@ -5364,6 +5649,7 @@ body{
 <div class="brand"><div class="logo"><img alt="" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNzIgMjAwIiByb2xlPSJpbWciIGFyaWEtbGFiZWw9Illhcm4gYmFsbCBzdW5nbGFzc2VzIGxvZ28iPgogIDx0aXRsZT5ZYXJuIGJhbGwgc3VuZ2xhc3NlcyBsb2dvPC90aXRsZT4KICA8ZyBmaWxsPSIjMDAwMDAwIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPgogICAgPHBhdGggZD0iTSAyNjMgMTgwIEwgMjU5IDE3NyBMIDI1NCAxNzYgTCAyNDUgMTc3IEwgMjM1IDE4MSBMIDIyNiAxODEgTCAyMjEgMTc5IEwgMjE5IDE3NyBMIDIyOSAxNzEgTCAyMzYgMTYzIEwgMjM1IDE1NCBMIDIyOCAxNTAgTCAyMTkgMTUxIEwgMjExIDE1NyBMIDIwOSAxNjEgTCAyMDkgMTcyIEwgMjEwIDE3MyBMIDIwOSAxNzUgTCAxOTQgMTc0IEwgMTg4IDE3MSBMIDE4MyAxNjYgTCAxODEgMTU5IEwgMTkzIDE0MiBMIDE5OSAxMjkgTCAyMDIgMTE4IEwgMjAyIDExMyBMIDIwNCAxMDcgTCAyMDQgOTcgTCAyMDMgOTMgTCAyMDEgOTEgTCAyMDAgOTIgTCAyMDAgMTEyIEwgMTk4IDExNiBMIDE5OCAxMjAgTCAxOTIgMTMyIEwgMTkyIDEzNSBMIDE4NSAxNDggTCAxODAgMTUzIEwgMTc5IDE1MiBMIDE4MCAxMzMgTCAxNzggMTMzIEwgMTc2IDEzOSBMIDE3NiAxNTkgTCAxNjQgMTcwIEwgMTUzIDE3OCBMIDEzNSAxODUgTCAxMjUgMTg2IEwgMTI0IDE4NyBMIDExOSAxODcgTCAxMTggMTg2IEwgMTM0IDE3NiBMIDE0NSAxNjUgTCAxNTEgMTU3IEwgMTU4IDE0MyBMIDE1NyAxMzkgTCAxNDYgMTU4IEwgMTMyIDE3MyBMIDEyMyAxNzkgTCAxMDggMTg2IEwgMTAyIDE4NiBMIDEwMSAxODcgTCAxMDAgMTg2IEwgOTUgMTg2IEwgODYgMTgzIEwgODQgMTgwIEwgMTAwIDE3MiBMIDExMyAxNjMgTCAxMzUgMTQxIEwgMTM4IDEzNiBMIDEzNiAxMzQgTCAxMDggMTYyIEwgOTMgMTcxIEwgODkgMTc1IEwgNzkgMTc4IEwgNzMgMTc4IEwgNjggMTc0IEwgNjYgMTcwIEwgNjYgMTY1IEwgNjggMTYzIEwgNzAgMTYzIEwgNzkgMTU4IEwgOTYgMTQ2IEwgMTEwIDEzMiBMIDExNiAxMjIgTCAxMTMgMTIxIEwgMTA2IDEzMSBMIDg4IDE0OCBMIDc2IDE1NiBMIDY3IDE1OSBMIDY2IDE1OCBMIDY3IDE1MSBMIDcyIDE0MCBMIDc0IDEzOCBMIDc0IDEzNiBMIDcxIDEzNiBMIDY4IDE0MCBMIDY0IDE0OSBMIDYzIDE1NSBMIDYxIDE1NyBMIDU2IDE1NSBMIDQxIDE0NiBMIDQyIDE0MiBMIDQ2IDEzOCBMIDQ1IDEzNSBMIDM3IDE0MyBMIDM1IDE0MyBMIDI5IDEzOSBMIDIxIDEzMSBMIDE4IDEyNSBMIDE4IDEwNyBMIDE3IDEwNiBMIDE2IDEwNyBMIDE0IDExNiBMIDEyIDExMyBMIDEzIDEwMyBMIDEwIDEwMiBMIDggMTA4IEwgOSAxMTggTCAxNSAxMjkgTCAxNiAxMzcgTCAyMCAxNDYgTCAzMiAxNTkgTCAzNCAxNzAgTCA0MSAxNzcgTCA1NyAxODMgTCA3NiAxODIgTCA4MyAxODYgTCA5MiAxODkgTCAxMDkgMTg5IEwgMTE4IDE5MSBMIDExOSAxOTAgTCAxMjkgMTkwIEwgMTQ0IDE4NiBMIDE1NSAxODEgTCAxNzAgMTcwIEwgMTc2IDE2NCBMIDE3OCAxNjQgTCAxODIgMTcxIEwgMTg5IDE3NiBMIDIwMiAxNzkgTCAyMTMgMTc4IEwgMjIzIDE4NCBMIDIzOCAxODQgTCAyNDggMTgwIEwgMjU3IDE4MCBMIDI2MSAxODIgWiBNIDM3IDE2MyBMIDM5IDE2MiBMIDQ2IDE2NSBMIDYxIDE2NSBMIDYzIDE2NyBMIDY0IDE3NCBMIDY3IDE3OSBMIDY2IDE4MCBMIDYwIDE4MCBMIDUxIDE3OCBMIDQ2IDE3NSBMIDQyIDE3NSBMIDM3IDE2NyBaIE0gMjI5IDE1NSBMIDIzMiAxNTggTCAyMzIgMTYzIEwgMjI0IDE3MSBMIDIxNiAxNzQgTCAyMTMgMTcwIEwgMjEzIDE2MyBMIDIxNSAxNTkgTCAyMTggMTU2IEwgMjIzIDE1NCBaIE0gMzcgMTUzIEwgMzkgMTUwIEwgNDEgMTUwIEwgNDMgMTUyIEwgNTYgMTU4IEwgNTkgMTYxIEwgNTggMTYyIEwgNDMgMTYxIEwgMzcgMTU3IFogTSAyMiAxMzcgTCAzNSAxNDcgTCAzNCAxNTIgTCAzMiAxNTQgTCAyNCAxNDUgTCAyMSAxMzkgWiBNIDE5NSA4NCBMIDE5MCA4MSBMIDE4MSA4MSBMIDE4MCA4MCBMIDE0NyA4MCBMIDEyNCA4NSBMIDExNCA5MCBMIDk3IDkwIEwgOTIgODcgTCA3NSA4MyBMIDQ0IDgyIEwgNDMgODMgTCAzNSA4MyBMIDM0IDg0IEwgMTcgODYgTCAxNSA4OCBMIDE1IDkzIEwgMjAgOTUgTCAyMyA5OCBMIDIzIDEwMSBMIDI5IDExNCBMIDM2IDEyMyBMIDQ5IDEzMSBMIDY4IDEzMiBMIDgwIDEyOCBMIDg5IDEyMSBMIDk0IDExNCBMIDk5IDEwMSBMIDEwNCA5OCBMIDExMSA5OSBMIDExMyAxMDEgTCAxMjAgMTE2IEwgMTI4IDEyNCBMIDEzNCAxMjggTCAxNDIgMTMxIEwgMTYwIDEzMSBMIDE3MCAxMjcgTCAxODAgMTE4IEwgMTg2IDEwNiBMIDE4OSA5NCBMIDE5NSA4OSBaIE0gMTI2IDkyIEwgMTIxIDk2IEwgMTE4IDk1IEwgMTIxIDkyIEwgMTI0IDkxIFogTSA3MiA5MCBMIDczIDg5IEwgNzYgOTAgTCA3NSA5MSBaIE0gMTgyIDg4IEwgMTg0IDkwIEwgMTgyIDEwMyBMIDE3NyAxMTMgTCAxNzIgMTE4IEwgMTcxIDExNiBMIDE3NiAxMDggTCAxNzkgOTkgTCAxODAgOTAgWiBNIDE3OCA3MiBMIDE3NSA2NyBMIDE2NiA1OCBMIDE1NCA1MSBMIDE0NiA0OSBMIDE0NCA1MSBMIDE1MSA1NSBMIDEzOCA2MCBMIDEyNyA2NyBMIDExNiA3OSBMIDExOSA4MCBMIDEzMSA2OSBMIDE0NSA2MSBMIDE1MiA1OSBMIDE1NCA1NiBMIDE1OSA1NyBMIDE2NyA2MyBMIDE3NSA3NCBMIDE3NyA3NCBaIE0gMTQgNjkgTCAxNCA3NCBMIDE3IDc4IEwgMTggNzcgTCAxOCA3MCBMIDIzIDYyIEwgMjkgNjcgTCAzOSA2NyBMIDQ1IDY1IEwgNTUgNjAgTCA2MCA1NiBMIDcxIDUxIEwgOTEgMzcgTCAxMDMgMzIgTCAxMTMgMjYgTCAxNDEgMTkgTCAxNTAgMjAgTCAxNjAgMjUgTCAxNzAgMzQgTCAxNzIgMzggTCAxNzAgMzkgTCAxNjUgMzcgTCAxNTIgMzYgTCAxNTEgMzcgTCAxNDQgMzcgTCAxMzAgNDAgTCAxMTAgNTAgTCAxMDYgNTAgTCA3NCA2NiBMIDUwIDc0IEwgNDcgNzcgTCA1MiA3OCBMIDEwMyA1NiBMIDEwNCA1NyBMIDg5IDczIEwgODggNzYgTCA5MCA3NyBMIDk5IDY2IEwgMTEwIDU3IEwgMTEwIDUzIEwgMTEzIDUwIEwgMTQ4IDQwIEwgMTYzIDQwIEwgMTc4IDQ2IEwgMTg2IDU2IEwgMTkyIDczIEwgMTk0IDcyIEwgMTk0IDY0IEwgMTkxIDU2IEwgMTc4IDQzIEwgMTc4IDQwIEwgMTczIDMyIEwgMTYwIDIxIEwgMTUwIDE3IEwgMTQwIDE3IEwgMTMxIDEyIEwgMTE3IDggTCA5NSA4IEwgOTAgMTAgTCA3OCAxMiBMIDcyIDE1IEwgNjMgMjMgTCA0OSAyNyBMIDM4IDM0IEwgMzEgNDEgTCAyNiA1MCBMIDI1IDU1IEwgMTggNjEgWiBNIDU1IDMxIEwgNDMgNDQgTCAzNSA0OSBMIDMyIDQ4IEwgMzUgNDIgTCA0MiAzNSBMIDUyIDMwIFogTSAxMzAgMTYgTCAxMjcgMTkgTCAxMTggMjEgTCAxMDYgMjcgTCA5OSAyNyBMIDk1IDI1IEwgODUgMjQgTCA4NCAyMyBMIDc0IDIzIEwgNzEgMjYgTCA4MSAyNiBMIDgyIDI3IEwgOTMgMjggTCA5NiAzMSBMIDkwIDM1IEwgODIgMzggTCA3MiA0NiBMIDU2IDU2IEwgMzMgNjQgTCAzMSA2NCBMIDI4IDYxIEwgMjggNTggTCAzNCA1MiBMIDUwIDQzIEwgNzEgMjEgTCA3NyAxNyBMIDg0IDE0IEwgMTAwIDEyIEwgMTAxIDExIEwgMTE5IDEyIFoiLz4KICA8L2c+Cjwvc3ZnPgo="/></div><div><h1>hue queue</h1><div class="tagline">see the yarn hit the chart before you hit the sticks</div></div></div>
 <button aria-label="How Hue Queue works" aria-controls="hqHelpBackdrop" aria-expanded="false" class="hq-help-btn" id="hqHelpBtn" title="How this works" type="button">?!</button>
 <button aria-label="Admin name refresh" class="admin-name-refresh-btn" id="adminNameRefreshBtn" title="Admin name refresh" type="button">name refresh</button>
+<button aria-label="Admin combo visibility" class="admin-combo-visibility-btn" id="adminComboVisibilityBtn" title="Admin combo visibility" type="button">combo visibility</button>
 </header><section class="card chart-card" data-panel="chart">
 <div class="pattern-section-title">KNIT PATTERN</div>
 <div class="combo-strip"><div class="combo-left"><strong id="comboName">starter mix</strong><div class="dots" id="comboDots"></div></div><div class="name-tools"><button class="icon-btn name-back-btn" disabled="" id="nameBackBtn" title="Back to previous combo name" type="button">&#8617;</button><button class="icon-btn name-new-btn" id="newNameBtn" title="Generate a new combo name" type="button">new name &#8634;</button></div><label class="toggle">Grid <input checked="" id="gridToggle" type="checkbox"/></label></div>
@@ -5379,6 +5665,19 @@ body{
 <p class="hq-help-copy">Mix the five chart colors with yarn from the Palette. Browse all colors or stick to the Current Stash on hand, randomize the chart if you&#39;re feeling fun, refresh the name if you&#39;re feeling wild, and save the keepers to The Good Stuff. Have at it!</p>
 </div>
 </div>
+
+<div aria-hidden="true" class="admin-menu-backdrop" id="adminMenuBackdrop">
+<div aria-label="Bryant admin menu" aria-modal="true" class="admin-menu-panel" role="dialog">
+<button aria-label="Close admin menu" class="admin-menu-close" id="adminMenuClose" type="button">&times;</button>
+<div class="admin-menu-title">Bryant Admin</div>
+<p class="admin-menu-copy">Choose the hidden tool you want to use.</p>
+<div class="admin-menu-actions">
+<button class="admin-menu-action" id="adminMenuNameRefresh" type="button"><strong>Name Bank Refresh</strong><span>Generate a new batch of colorway names.</span></button>
+<button class="admin-menu-action" id="adminMenuVisibility" type="button"><strong>Hide / Show Mode</strong><span id="adminMenuVisibilityState">Turn on card eyeballs for Saved + Made combos.</span></button>
+</div>
+</div>
+</div>
+
 <div aria-live="polite" class="admin-refresh-status" hidden="" id="adminRefreshStatus" role="status">
 <div class="admin-refresh-status-title">Name refresh running</div>
 <div class="admin-refresh-status-copy" id="adminRefreshStatusCopy">Generating names&hellip;</div>
@@ -5409,6 +5708,7 @@ body{
 <button aria-label="Close" class="drawer-close" id="closeMadeEditDrawer" type="button">&times;</button>
 </div>
 <div class="save-body">
+<label><span class="field-label">Made Combo Name</span><input id="madeEditComboName" maxlength="60" placeholder="Custom combo name" type="text"/></label>
 <label><span class="field-label">Note</span><textarea id="madeEditNote" maxlength="120" placeholder="Optional project note"></textarea></label>
 <div>
 <span class="field-label">Project photo</span>
@@ -5518,6 +5818,7 @@ function normalizeSavedItem(item){
   return item;
 }
 let selections={...DEFAULT_SELECTIONS}, activeRole='D', lockedRoles=Object.fromEntries(ROLES.map(r=>[r.key,false])), history=[], nameHistoryStack=[], saved=[], pendingSaveKind='dig', activeSavedTab=(window.matchMedia&&window.matchMedia('(min-width:721px)').matches?'made':null), savedContextMode=false, chartPreviewMode=null;
+let adminVisibilityMode=false, comboVisibilityAdminCode='', comboVisibilityUpdateInProgress=false, adminMenuCode='';
 let currentComboName='starter mix', currentNameSeed=0, filter='Full Palette', randomSource='full', stashInventory={};
 let hqLastComboDotSignature='', hqSwatchShuffleTimer=null, hqLastSwatchMoveKey='', hqLastSwatchIdleKey='';
 const STORAGE='skeinSchemeSavedCombosLocalBackupV1';
@@ -5685,7 +5986,7 @@ function renderSourceButtons(){
 }
 function comboHash(combo=selections){return ROLES.reduce((s,r,i)=>s+[...String(combo[r.key].number)].reduce((a,ch)=>a+ch.charCodeAt(0),0)*(i+7),0);}
 const NAME_HISTORY_STORAGE='skeinSchemeInstantNameHistoryV4';
-const NAME_HISTORY_LIMIT=360;
+const NAME_HISTORY_LIMIT=900;
 
 /*
   Skein Scheme local name engine v59 + admin AI refresh status
@@ -5708,6 +6009,22 @@ const EDITORIAL_FINAL_STOPS=[
   'rusty','rust belt','payphone','moonwalk','backspin','late fee','house key','cab ride','hue','palette','dream',
   'magic','delight','harmony','splash','pop','symphony','ginger','checkered','blackout','static'
 ];
+
+/* v159 name rescue: stop the generator from drifting into repetitive negative/snark lanes.
+   These are rejected before scoring, including names imported from the admin refresh bank. */
+const NAME_TIRED_NEGATIVE_BUZZ=[
+  'hard pass','hard no','no comment','bad news','lost cause','gut check','rough draft','dirty look',
+  'petty theft','minor threat','bad decision','bad luck','problem child','cold shoulder','guilty party',
+  'under oath','off record','cheap shot','rude mood','rude awakening','false alarm','no show','no-go','no go',
+  'crossfire','noise complaint','brush-off','brush off','grudge match','holds grudges','public opinion',
+  'not my first','firmly objects','side hustle','snow job','checkmate','wrong turn','loose ends','unanswered',
+  'grudge','judgment','judge','suspicious','red flags','fight night','crisis','pink slip','overruled','call out',
+  'grounds given','problem','cash only','bottom line','top secret','rough cut','left on red','pressure','lawless',
+  'misconduct','racket','not so','better not','meltdown','deadpan','tough love','standard issue','point blank',
+  'no blue intended','no grey area','no red flags','no pink slip','no grounds given','no moss lost','no dice',
+  'started it','bailout','exit plan','red handed','better off','caught red handed','oxblood'
+];
+EDITORIAL_FINAL_STOPS.push(...NAME_TIRED_NEGATIVE_BUZZ);
 const EDITORIAL_REVIEWED_FAILS=[
   'Ivory in Reverse','Set in Saffron','Scarlet Static','Fair Warning Rust','High Country Holdout','No Dice Paprika',
   'Washed Out West','Storm Watch Standby','River Rock Reroute','Group Chat Greystone','Sunflower Side Quest',
@@ -5740,9 +6057,9 @@ const EDITORIAL_REVIEWED_FAILS=[
   'Pine Straight Face','Cream Soda Straight Face','Slate Straight Face','Navy Knows People','Plum Public Opinion'
 ];
 const EDITORIAL_SURVIVED_NAMES=[
-  'Butter Better Not','Denim Lemon Denim','Mustard Made Me','So What Saffron','Red Eye Rerun','Grey Area Grudge',
+  'Buttercup Backup Plan','Denim Lemon Denim','Mustard Made Me','So What Saffron','Red Eye Rerun','Grey Area Grudge',
   'Blue Jean Machine','Denim Did It','Blueberry Backtalk','Olive or Else','Pine in Plain Sight',
-  'Gold on Hold','Amber All Along','Rust in the Rough','Trust the Rust','Denim on a Dime',
+  'Gold Cardigan Club','Amber All Along','Rust in the Rough','Trust the Rust','Denim on a Dime',
   'Point Blank Pine','Teal the Cows Come Home','Azure For Sure',"Crawfishin' for a Compliment",'Seagullible',
   'Pink 182','Purple with a Purpose','Manic Mustard','Corporate Copper Carnage','Suburban Scarlett','Teal or No Teal',
   'Navy Baby','Mellow Yellow Meltdown','Citrus Crisis',"Ruby Tuesday's Afterparty",'Espresso Depresso'
@@ -5792,10 +6109,10 @@ const NAME_DECKS={
     'Walnut Plot Twist','Cocoa Side Eye','Praline Backroads','Mocha Misfire','Carob Confetti','Campfire Coffee Club','River Rock Riot','Chocolate Thunder Club','Molasses Moon Landing','Cedar Chest Mischief','Toffee Took Five','Brownie Orbit Club','Camel Coin Toss','Sienna Smoke Social','Vinci Velvet Detour','Coffee After Dark','Carob Brown Backtalk','Walnut Went Sideways','River Rock Alibi','Mocha After Hours','Cocoa Cut Loose','Praline Punchline','Chocolate Weather Report','Toffee Coin Toss','Camel Undercover','Walnut Backtalk','Cedar Coincidence','Carob Carnival'
   ],
   gray:[
-    'Charcoal Confetti','Graphite in Disguise','Ivory Side Eye','Concrete Coin Toss','Snow Day Alibi','Charcoal Daydream','Smoke Machine Parade','Foglight Revival','Nimbus Ruckus','Tin Roof Alibi','Harbor Mist Mischief','Ash Moon Detour','Overcast Disco Club','Silver Side Eye','Storm Cloud Social','Gris Got Lost','Greystone Side Eye','Aspen After Hours','Graphite Got Fancy','Smoke Show Detour','Charcoal Borrowed Trouble','Silver Side Door','Nimbus Coin Toss','Harbor Mist Alibi','Fog Hatt Alibi','Aspen Blue Hour','Greystone Backtalk','Concrete Left Turn','Ash Moon Alibi'
+    'Charcoal Confetti','Graphite in Disguise','Ivory Easy Does It','Concrete Coin Toss','Snow Day Alibi','Charcoal Daydream','Smoke Machine Parade','Foglight Revival','Nimbus Ruckus','Tin Roof Alibi','Harbor Mist Mischief','Ash Moon Detour','Overcast Disco Club','Silver Side Eye','Storm Cloud Social','Gris Got Lost','Greystone Side Eye','Aspen After Hours','Graphite Got Fancy','Smoke Show Detour','Charcoal Borrowed Trouble','Silver Side Door','Nimbus Coin Toss','Harbor Mist Alibi','Fog Hatt Alibi','Aspen Blue Hour','Greystone Backtalk','Concrete Left Turn','Ash Moon Alibi'
   ],
   white:[
-    'Ivory Side Eye','Cream Soda Alibi','Porcelain Ghost Party','Chalk Clubhouse','Vanilla Fog Ruckus','Snow Globe Side Quest','Pearl Orbit Deluxe','White Button Panic','Salt Moon Rodeo','Sugar Frost Circus','Ghost Glow Carnival','Natural Alibi','Antiqued Alibi','Milk Carton Mischief','White Noise Alibi','Ivory Took Five','Cream Soda Forecast','Porcelain Coin Toss','Snow Day Mischief','Pearl Button Panic','Natural Alibi','Milk Glass Moonwalk','Ivory Undercover','Salt Moon Backtalk'
+    'Ivory Easy Does It','Cream Soda Alibi','Porcelain Ghost Party','Chalk Clubhouse','Vanilla Fog Ruckus','Snow Globe Side Quest','Pearl Orbit Deluxe','White Button Panic','Salt Moon Rodeo','Sugar Frost Circus','Ghost Glow Carnival','Natural Alibi','Antiqued Alibi','Milk Carton Mischief','White Noise Alibi','Ivory Took Five','Cream Soda Forecast','Porcelain Coin Toss','Snow Day Mischief','Pearl Button Panic','Natural Alibi','Milk Glass Moonwalk','Ivory Undercover','Salt Moon Backtalk'
   ],
   black:[
     'Black Cat Carnival','Ink Spill Carnival','Midnight Mood Ring','Night Swim Mischief','Darkroom Glow Rodeo','Eclipse Bug Circus','Raven Moon Ruckus','Blacktop Sundae','Jet Set Mischief','Low Light Lizard','Cosmic Fog Detour','Onyx After Hours','Charcoal Confetti','Graphite in Disguise','Black Button Panic','Ink Spill Alibi','Midnight Misbehavior','Raven Coin Toss','Jet Set Detour','Onyx Side Door','Darkroom Confetti','Blacktop Backtalk'
@@ -5811,7 +6128,7 @@ const PROFILE_DECKS={
   dusk:['Midnight Marigold','Blackberry Backtalk','Velvet Went Sideways','Grape Soda Alibi','Stormglass Social','Smoke Machine Parade','Lavender Witness','Amethyst Side Eye','Midnight Mood Ring','Violet Exit Plan','Night Swim Mischief','Charcoal Daydream','Plum Lost the Plot','Blue Hour Backtalk'],
   bright:['Crayon Fire Drill','Papaya Loose Change','Flamingo Borrowed Fire','Lemon Button Panic','Comic Book Weather','Peony Punchline','Red Button Parade','Arcade Carpet Fever','Primary Mischief','Hot Pink Alibi','Sticker Shock Alibi','Confetti Traffic Jam','Color Riot Club'],
   neutralWarm:['Nectarine Backtalk','Pumpkin Afterimage','River Rock Riot','Sienna Side Eye','Cocoa Side Eye','Praline Backroads','Cider Ran Hot','Dusty Rose Detour','Molasses Moon Landing','Walnut Plot Twist','Toffee Took Five','Carob Confetti','Camel Undercover'],
-  soft:['Ivory Side Eye','Cream Soda Alibi','Porcelain Ghost Party','Vanilla Fog Ruckus','Rose Cloud Ruckus','Lavender Witness','Pearl Orbit Deluxe','Sugar Frost Circus','Antique Lilac Alibi','Milk Carton Mischief','Aspen After Hours','Snow Day Alibi','Peony Punchline']
+  soft:['Ivory Easy Does It','Cream Soda Alibi','Porcelain Ghost Party','Vanilla Fog Ruckus','Rose Cloud Ruckus','Lavender Witness','Pearl Orbit Deluxe','Sugar Frost Circus','Antique Lilac Alibi','Milk Carton Mischief','Aspen After Hours','Snow Day Alibi','Peony Punchline']
 };
 const YARN_NAME_LANES={
   lapis:['Lapis Afterimage','Lapis Left Turn','Lapis in Motion','Lapis Lost Weekend','Lapis Coin Toss','Lapis Undercover'],
@@ -5823,7 +6140,7 @@ const YARN_NAME_LANES={
   cabernet:['Cabernet Confetti','Cabernet Coin Toss','Cabernet Side Quest','Cabernet After Hours'],
   burgundy:['Burgundy Bug Club','Burgundy Backbeat','Burgundy Coin Toss','Burgundy Backtalk'],
   cobalt:['Cobalt Confetti','Cobalt Backtalk','Cobalt Daydream','Cobalt Took Five'],
-  ivory:['Ivory Side Eye','Ivory Alibi','Ivory Took Five','Ivory Undercover'],
+  ivory:['Ivory Easy Does It','Ivory Alibi','Ivory Took Five','Ivory Undercover'],
   white:['White Button Panic','White Noise Alibi','White Side Door','White Coin Toss'],
   charcoal:['Charcoal Confetti','Charcoal Daydream','Charcoal Borrowed Trouble','Charcoal Backtalk'],
   graphite:['Graphite in Disguise','Graphite Daydream','Graphite Got Fancy','Graphite Side Door'],
@@ -5841,7 +6158,7 @@ const YARN_NAME_LANES={
   peony:['Peony Punchline','Peony Got Loose','Peony Alarm Bell'],
   flamingo:['Flamingo Borrowed Fire','Flamingo Got Loud','Flamingo Coin Toss']
 };
-const FALLBACK_DECK=['Cabernet Confetti','Chili Forecast','Ivory Side Eye','Rainforest Rendezvous','Olive Oil Assembly','Cobalt Confetti','Marmalade Made Trouble','Walnut Plot Twist','Blackberry Backtalk','Crayon Fire Drill','Pumpkin Afterimage','River Rock Riot','Lavender Witness'];
+const FALLBACK_DECK=['Cabernet Confetti','Chili Forecast','Ivory Easy Does It','Rainforest Rendezvous','Olive Oil Assembly','Cobalt Confetti','Marmalade Made Trouble','Walnut Plot Twist','Blackberry Backtalk','Crayon Fire Drill','Pumpkin Afterimage','River Rock Riot','Lavender Witness'];
 
 /* v46 refresh pack: small new pool, source-inspired but app-owned. Keeps fresh words available without letting them dominate. */
 const REFRESH_NAME_DECKS={
@@ -5898,7 +6215,7 @@ const EDITORIAL_REFERENCE_DECKS={
     'Kelp Help Yourself','Olive Overruled','Olive Live Wire',
     'Olive Out Loud','Sage Against It','Juniper Jump Scare',
     'No Olive Branch','Pine and Dandy','Mean Green Machine',
-    'Not So Sage','Fern Foul Play','No Moss Lost','Green Room Grudge','Moss No Comment',
+    'Not So Sage','Fern Foul Play','Moss Makes Moves','Green Room Grudge','Moss No Comment',
     'Pine No Comment','Olive Hard Pass','Kelp Gut Check','Juniper Bad News','Moss Hard No','Fern False Alarm'
   ],
   orange:[
@@ -5906,7 +6223,7 @@ const EDITORIAL_REFERENCE_DECKS={
     'Corporate Copper Carnage','Copper Bottom Line',"Crawfishin' for a Compliment",
     'Amber All Along','Apricot Afterparty','Terracotta Two-Step','Cider Sidewinder','Citrus Crisis',
     'Paprika Practical Joke','Mustard Cut It','Butter Late Than Never','Gold Bold Move',
-    'Paprika Point Taken','Copper Proper Problem','Rust Never Sleeps','Copper Top Secret','Paprika Problem Child',
+    'Paprika Point Taken','Copper Proper Problem','Rust Never Sleeps','Copper Cameo Club','Paprika Problem Child',
     'Cut the Mustard','Hold the Mustard','Rust Standard Issue','Cider Cold Open','Copper No Comment',
     'Apricot Hard Pass','Paprika Hard No','Terracotta Gut Check','Rust Rough Draft'
   ],
@@ -5920,7 +6237,7 @@ const EDITORIAL_REFERENCE_DECKS={
     'Oxblood Off Record','Brick Rough Draft','Cranberry Bad News','Scarlet Hard Pass','Scarlet No Comment'
   ],
   pink:[
-    'Pink 182','Blush in a Rush','Raspberry Racket','Flamingo False Start',
+    'Pink 182','Blush in a Rush','Raspberry Ribbon Club','Flamingo False Start',
     'Rose Gold Rebuttal','Pink Slip Season','Berry Buried the Lead',
     'Blush Brush-Off','No Pink Slip','Hot Pink Hot Take','Pink Noise Complaint','Raspberry Bad Habit',
     'Coral Quarrel','Taffy Tough Crowd','Flamingo Foul Play','Dusty Rose Hard Pass',
@@ -5929,8 +6246,8 @@ const EDITORIAL_REFERENCE_DECKS={
     'Fuchsia False Alarm','Hot Pink Hard Pass','Raspberry No Comment','Blush Hard Pass'
   ],
   yellow:[
-    'Butter Better Not','Mustard Made Me','So What, Saffron','Manic Mustard','Mellow Yellow Meltdown',
-    'Citrus Crisis','Gold on Hold','Mustard Means Business','Lemon Lawless',
+    'Buttercup Backup Plan','Mustard Made Me','So What, Saffron','Manic Mustard','Mellow Yellow Meltdown',
+    'Citrus Crisis','Gold Cardigan Club','Mustard Means Business','Lemon Lawless',
     'Butter Side Up','Marigold Misconduct','Goldenrod Good Riddance',
     'Gold Standard Issue','Mustard Must Be','Gold Rush Hour','Honey Bad News',
     'Goldenrod Grudge Match','Mustard Standard Issue','Butter Late Than Never','Honey Hard No',
@@ -5942,7 +6259,7 @@ const EDITORIAL_REFERENCE_DECKS={
     'Coffee After Dark','Praline Punchline','Brown Sugar Backtalk',
     'Espresso Exit','Walnut One More Time',"Walnut Won't Wait",
     'Cocoa No-Go','Bourbon Bad Decision','Toffee Tough Love','No Grounds Given','No Coffee No Comment',
-    'Coffee Ground Rules','Walnut Hard Pass','Mocha Motormouth','Toffee Talk Back','Bourbon Bottom Line',
+    'Coffee Ground Rules','Walnut Hard Pass','Mocha Motormouth','Toffee Table Dance','Bourbon Bottom Line',
     'Praline Problem','Brownout Bad Idea','Carob Cash Only','Carob Cold Open','Walnut No Comment',
     'Mocha Hard Pass','Cocoa Gut Check','Coffee Cash Only','Bourbon Off Record','Brownout No Comment',
     'Mocha No Comment','Bourbon Bad News','Walnut Rough Draft','Coffee Gut Check','Carob Cold Shoulder',
@@ -5950,16 +6267,16 @@ const EDITORIAL_REFERENCE_DECKS={
   ],
   gray:[
     'Grey Area Grudge','Smoke Showdown','Ash After Dark',
-    'Stormglass Social','Ivory Side Eye','Seagullible','Greystone Grudge Match','Slate Second Guess',
+    'Stormglass Social','Ivory Easy Does It','Seagullible','Greystone Grudge Match','Slate Second Guess',
     'Foglight Funny Business',
-    'Smoke and Mirrors','Foglight Fight Night','Charcoal Cold Shoulder',
+    'Smoke Silver Shuffle','Foglight Fight Night','Charcoal Cold Shoulder',
     'Graphite Grudge Match',
     'No Grey Area','Smoke Gets Even','Slate of Mind','Matter of Grey','Foglight No Comment',
     'Silver Hard Pass','Graphite Gut Check','Concrete Under Oath','Charcoal Change of Plans',
     'Slate Hard Pass','Greystone Gut Check','Charcoal No Comment'
   ],
   white:[
-    'Ivory Side Eye','Ivory Over Easy','Pearl Snap Judgment',
+    'Ivory Easy Does It','Ivory Over Easy','Pearl Snap Judgment',
     'Porcelain Punchline','Snow Day Side Eye','Salt Line Standout',
     'Ivory Outside Voice','White Knuckle',
     'Milk Glass Double Take','Little White Lie','Off White Lie','Vanilla Vice Versa','Pearl Jammed',
@@ -5980,8 +6297,84 @@ const EDITORIAL_REFERENCE_DECKS={
     'Button Panic Parade','Arcade Carpet Fever'
   ]
 };
+/* v159 name rescue decks: color-adjacent, more upbeat, and intentionally wider in anchor words.
+   These decks are trusted source material, but still pass through exact-repeat and color-fit guards. */
+const NAME_RESCUE_DECKS={
+  blue:[
+    'Blue Jean Machine','Denim Lemon Denim','Denim Did It','Denim on a Dime','Navy Baby','Azure For Sure',
+    'Stormglass Social','Bluebird Bailout','Cobalt Confetti','Blueberry Backtalk','Lapis Laugh Track','Stonewash Standout',
+    'Sapphire Shuffle','Mallard Mardi Gras','Atlantic Afterparty','Robin Egg Ringer','Sea Glass Sass','Aqua Afterparty',
+    'Twilight Tailspin','Summer Sky Surprise','Blue Velvet Boomerang','Harbor Mist Remix','Lapis Lucky Break','Denim Day Off'
+  ],
+  purple:[
+    'Purple with a Purpose','Grape Expectations','Violet Vice Versa','Purple Reign Check','Plum and Get It','For Grape Measure',
+    'Orchid Order Up','Razzleberry Riot','Blackberry Backtalk','Cabernet Confetti','Lavender Laugh Track','Violet Double Take',
+    'Concord Record Scratch','Grape Debate Club','Plum Pretty Clever','Orchid Afterparty','Lilac Lucky Break','Amethyst Encore',
+    'Raspberry Rhyme Scheme','Mystic Purple Shuffle','Sweet Pea Switcheroo','Regal Remix'
+  ],
+  green:[
+    'Olive or Else','Pine in Plain Sight','Point Blank Pine','Teal the Cows Come Home','Mean Green Machine','Pine and Dandy',
+    'Kelp Yourself','Moss Makes Moves','Sage Page Turner','Fern Fair Game','Juniper Jump Cut','Rainforest Rendezvous',
+    'Seagrass Shuffle','Clover Cameo','Lichen Likely Story','Olive Oil Assembly','Green Tea Two Step','Forest Greenlight',
+    'Tender Greens Encore','Palm Reading Party','Moss in Motion','Fern Finale'
+  ],
+  orange:[
+    'Trust the Rust','Rust or Bust','Paprika Party Trick','Copper Cameo Club','Apricot Afterparty','Cider Sidewinder',
+    'Terracotta Two Step','Marmalade Made Me','Nectarine Knockout','Blaze in the Breeze','Pumpkin Spice Remix','Amber All Along',
+    'Cayenne Cabana','Tiger Lily Tango','Burnt Orange Boogie','Citrus Switcheroo','Paprika Plot Twist','Copper Comedy Hour',
+    'Spice Rack Shuffle','Camelia Cameo','Desert Flower Detour','Gold Fusion Encore'
+  ],
+  red:[
+    'Burgundy Bug Club','Cabernet Confetti','Ruby Tuesday Afterparty','Red Eye Rerun','Secondhand Scarlet','Cherry Checkpoint',
+    'Cranberry Comeback','Rhubarb Rhythm Section','Crabapple Carnival','Wine Stain Weekend','Brick House Bounce','Ruby Rhyme Time',
+    'Scarlet Swing Shift','Garnet Go Round','Pepper Jelly Jam','Cherry Cordial Crew','Burgundy Boomerang','Red Wine Remix',
+    'Paprika Redo','Crimson Cakewalk','Maple Ember Encore'
+  ],
+  pink:[
+    'Pink 182','Blush in a Rush','Raspberry Ribbon Club','Flamingo Flamenco','Pink Lemonade Loop','Peony Pony Club',
+    'Rose Gold Rodeo','Taffy Time Warp','Magenta Mischief','Fuchsia Fancy Footwork','Cerise Surprise','Dusty Rose Disco',
+    'Berry Bright Side','Raspberry Rhyme Time','Coral Carousel','Peach Dust Parade','Tutu Two Step','Cotton Candy Cameo',
+    'Hot Pink Handshake','Rose Cloud Remix'
+  ],
+  yellow:[
+    'Buttercup Backup Plan','Mustard Made Me','So What Saffron','Gold Cardigan Club','Gold Rush Hour','Mustard Means Business',
+    'Butter Side Up','Marigold Mischief','Saffron Shuffle','Honeybee Holdout','Goldfish Good Luck','Sunflower Switcheroo',
+    'Pear Parade','Golden Kiwi Kickline','Dandelion Day Off','Wheat Weekender','Butterscotch Backbeat','Lemonade Loophole',
+    'Candlewick Cameo','Goldenrod Go Round','Straw Standby','Anise Encore'
+  ],
+  brown:[
+    'Walnut Plot Twist','Coffee After Dark','Praline Punchline','Brown Sugar Backtalk','Mocha in Motion','Cocoa on the Clock',
+    'Toffee Table Dance','Chocolate Cha Cha','Walnut Waltz','Carob Cabaret','Camel Cameo','Coffee Cakewalk',
+    'Praline Payday','Mocha Motormouth','Pecan Parade','Cocoa Cabana','Brown Sugar Boogie','Toffee Two Step',
+    'Chocolate Check In','Walnut Remix','Carob Carousel','Mocha Mardi Gras'
+  ],
+  gray:[
+    'Seagullible','Smoke Silver Shuffle','Graphite Go Round','Charcoal Cha Cha','Slate of Mind','Matter of Grey',
+    'Foglight Funny Business','Nimbus Nonsense','Harbor Mist Remix','Greystone Groove','Aspen After Hours','Silver Screen Shuffle',
+    'Storm Cloud Soft Serve','Smoke Show Shuffle','Graphite Riff Raff','Charcoal Cakewalk','Fog Hatt Finale','Silver Sidecar',
+    'Coast Heather Cameo','Stonewash Shuffle','Faded Denim Detour'
+  ],
+  white:[
+    'Ivory Easy Does It','Ivory Over Easy','Porcelain Punchline','Vanilla Vice Versa','Pearl Jam Session','Milk Glass Mischief',
+    'Snow Day Shuffle','Cream Soda Switcheroo','Sugar Frost Fandango','Chalk Line Cha Cha','Paper Moon Parade','Natural Encore',
+    'Antiqued Afterparty','White Button Waltz','Salt Moon Shuffle','Porcelain Two Step','Pearl Snap Remix','Ivory Cakewalk',
+    'Vanilla Cameo','Milk Carton Mambo'
+  ],
+  black:[
+    'Black Cat Carnival','Ink Spill Carnival','Midnight Mood Ring','Jet Set Jamboree','Onyx Orbit','Raven Rhyme Time',
+    'Darkroom Double Take','Blacktop Bossa Nova','Eclipse Encore','Pine Grove Plot Twist','Night Swim Mischief','Low Light Limbo',
+    'Midnight Mardi Gras','Jet Set Jitterbug','Onyx Afterparty','Raven Remix','Black Coffee Boogie','Darkroom Dance Card',
+    'Midnight Switcheroo','Ink Spill Encore'
+  ],
+  loud:[
+    'Crayon Fire Drill','Arcade Carpet Fever','Comic Book Weather','Primary Mischief','Confetti Traffic Jam','Button Panic Parade',
+    'Odd Pair Affair','Five Alarm Assembly','Full Set Funny Business','Wild Card Ruckus','Double Take Parade','Sticker Book Shuffle'
+  ]
+};
+const NAME_RESCUE_DECK_KEYS=new Set(Object.values(NAME_RESCUE_DECKS).flat().map(editorialKey));
+
 const EDITORIAL_FALLBACK_DECK=[
-  'Butter Better Not','Blue Jean Machine','Denim on a Dime','Olive or Else','Point Blank Pine','Grey Area Grudge',
+  'Buttercup Backup Plan','Blue Jean Machine','Denim on a Dime','Olive or Else','Point Blank Pine','Grey Area Grudge',
   'Red Eye Rerun','Espresso Depresso','Manic Mustard','Teal or No Teal','Rust in the Rough','Purple with a Purpose'
 ];
 function sameFamilyGroup(a,b){
@@ -6212,6 +6605,9 @@ function buildCandidateNames(combo=selections){
   const info=comboNameInfo(combo);
   let candidates=[];
   addYarnLaneNames(info,candidates);
+  unique([...(info.storyFamilies||[]),...(info.primaryFamilies||[]),...(info.families||[])]).slice(0,4).forEach(f=>{
+    candidates.push(...(NAME_RESCUE_DECKS[f]||[]));
+  });
   candidates.push(...refreshBankCandidateNames(info));
   candidates.push(...buildEditorialCandidates(info));
   const profiles=profileKeys(info);
@@ -6298,7 +6694,7 @@ function generateFreshComboName(combo=selections,offset=0,options={},extraAvoid=
   const avoid=unique([...sessionNameMemory(80),...extraAvoid].map(name=>String(name||'').toLowerCase()));
   let fallback='';
   let nonExactFallback='';
-  for(let tries=0;tries<8;tries++){
+  for(let tries=0;tries<18;tries++){
     const candidate=generateComboName(combo,offset+tries,{...options,avoidNames:avoid});
     if(!fallback)fallback=candidate;
     const exactConflict=avoid.some(old=>editorialKey(candidate)===editorialKey(old));
@@ -6392,6 +6788,10 @@ function editorialFinalStopHit(name){
   const lower=editorialKey(name);
   return EDITORIAL_FINAL_STOPS.find(stop=>lower.includes(editorialKey(stop)))||'';
 }
+function tiredNegativeBuzzHit(name){
+  const lower=editorialKey(name);
+  return NAME_TIRED_NEGATIVE_BUZZ.find(stop=>lower.includes(editorialKey(stop)))||'';
+}
 function editorialReviewedFailHit(name){
   return EDITORIAL_REVIEWED_FAIL_KEYS.has(editorialKey(name));
 }
@@ -6451,7 +6851,7 @@ function editorialEvaluateName(name,info={},options={}){
   const words=meaningfulWords(name);
   let scoreAdjust=0;
   const key=editorialKey(name);
-  const sourceApproved=EDITORIAL_SOURCE_KEYS.has(key);
+  const sourceApproved=EDITORIAL_SOURCE_KEYS.has(key)||NAME_RESCUE_DECK_KEYS.has(key);
   const hasPhraseLogic=editorialHasPhraseLogic(name);
   const hasSoundPlay=editorialHasSoundPlay(name);
   const finalStop=editorialFinalStopHit(name);
@@ -6503,11 +6903,12 @@ function isBadLocalName(name){
   const lower=String(name||'').toLowerCase();
   if(!lower||lower.length<7||lower.length>56)return true;
   if(editorialFinalStopHit(name)||editorialReviewedFailHit(name))return true;
+  if(/^no\s+/i.test(name))return true;
   if(NAME_BAD_BITS.some(bit=>lower.includes(bit)))return true;
   const words=meaningfulWords(name);
   if(words.length<2||words.length>4)return true;
   if(words.some(w=>NAME_WEAK_WORDS.has(w)))return true;
-  if(EDITORIAL_SOURCE_KEYS.has(editorialKey(name)))return false;
+  if(EDITORIAL_SOURCE_KEYS.has(editorialKey(name))||NAME_RESCUE_DECK_KEYS.has(editorialKey(name)))return false;
   if(/^blue\s/i.test(name)||/^grass\s/i.test(name))return true;
   if(words.length===4 && lower.startsWith('the '))return true;
   if(!words.some(w=>CORE_COLORWAY_WORDS.has(w)) && !/\b(lapis|lavender|pumpkin|nectarine|cabernet|burgundy|cobalt|ivory|charcoal|graphite|bluegrass|river|olive|moss|sage|cocoa|walnut|marigold|chili|papaya|flamingo|blackberry|grape|pool|sea|stormglass|razzleberry|saffron|paprika|peony|cider|marmalade|hot|sauce|cranberry|ruby|cherry|honey|mustard|cream|snow|ink|midnight|denim|sapphire|violet|plum|orchid|cotton|candy|copper|rust|terracotta|mocha|praline|aspen|fog|smoke|silver|pearl)\b/i.test(lower))return true;
@@ -6528,9 +6929,11 @@ function scoreLocalName(name,info,options={}){
   if(words.length===2)score+=16;
   if(words.length===3)score+=24;
   if(words.length===4)score+=4;
+  if(NAME_RESCUE_DECK_KEYS.has(editorialKey(name)))score+=74;
+  if(tiredNegativeBuzzHit(name))score-=500;
   if(options.strictColorFit && !colorLead && nameFamilyHits(name).length)score+=20;
 
-  if(/\b(confetti|forecast|riot|rendezvous|assembly|backtalk|afterimage|alibi|detour|punchline|mischief|coin toss|went sideways|borrowed fire|in the breeze|got promoted|lost the plot|button panic|made trouble|left turn)\b/i.test(name))score+=14;
+  if(/\b(confetti|forecast|riot|rendezvous|assembly|backtalk|afterimage|detour|punchline|mischief|coin toss|went sideways|borrowed fire|in the breeze|got promoted|lost the plot|button panic|made trouble|left turn|shuffle|switcheroo|cameo|afterparty|remix|encore|two step|boogie|cakewalk)\b/i.test(name))score+=14;
   if(/\b(lapis|lavender|pumpkin|nectarine|cabernet|burgundy|cobalt|ivory|charcoal|graphite|bluegrass|river rock|olive|moss|sage|cocoa|walnut|marigold|chili|papaya|flamingo|blackberry|grape soda|pool tile|sea glass|stormglass|razzleberry|saffron|paprika|peony|denim|sapphire|violet|plum|orchid|cider|marmalade|hot sauce|cranberry|ruby|honey|mustard|cream soda|ink spill|midnight|copper|rust|terracotta|mocha|praline|aspen|foglight|smoke|silver)\b/i.test(name))score+=22;
 
   score+=colorFitScore(name,info,options);
@@ -6616,6 +7019,9 @@ function applyStrictNameGuardrails(ranked,info,options={}){
   // Exact repeats are the most annoying. Drop them outright when there are enough other choices.
   const noExact=rows.filter(row=>!recentNames.has(String(row.name||'').toLowerCase()));
   if(noExact.length)rows=noExact;
+
+  const noTiredNegativeBuzz=rows.filter(row=>!tiredNegativeBuzzHit(row.name));
+  if(noTiredNegativeBuzz.length)rows=noTiredNegativeBuzz;
 
   // Strict New Name mode should not offer obvious off-color names.
   // 18 means: exact minor/stripe family or stronger. Related-only hits score 4; true misses score negative.
@@ -6766,7 +7172,7 @@ function generateComboName(combo=selections,offset=0,options={}){
   let chosen=weightedNamePick(pickPool);
 
   if(!chosen){
-    const emergency=unique([...EDITORIAL_FALLBACK_DECK,...FALLBACK_DECK,'Ivory Side Eye','Cabernet Confetti','Chili Forecast'])
+    const emergency=unique([...EDITORIAL_FALLBACK_DECK,...FALLBACK_DECK,'Ivory Easy Does It','Cabernet Confetti','Chili Forecast'])
       .filter(name=>!isBadLocalName(name)&&editorialEvaluateName(name,info,options).passed&&excludeUnavailable(name)&&!avoidNames.some(old=>editorialKey(name)===editorialKey(old)));
     chosen=emergency[0]||'Ivory Side Eye';
   }
@@ -7046,7 +7452,227 @@ function renderRoles(){el('activeRoleLabel').textContent=ROLE_LABELS[activeRole]
 function renderFilters(){const items=['Full Palette','Current Stash'];el('filters').innerHTML=items.map(x=>`<button class="filter ${filter===x?'active':''}" data-filter="${x}">${x}</button>`).join('');document.querySelectorAll('.filter').forEach(b=>b.onclick=()=>{filter=b.dataset.filter;randomSource=(filter==='Current Stash')?'stash':'full';renderSourceButtons();renderPalette();renderFilters();});}
 function renderPalette(){const q=el('search').value.trim().toLowerCase();const p=el('palette');p.innerHTML='';COLORS.filter(c=>(filter==='Full Palette'||isInStash(c))&&(!q||c.name.toLowerCase().includes(q)||c.number.toLowerCase().includes(q)||c.hex.toLowerCase().includes(q))).forEach(c=>{const used=ROLES.some(r=>selections[r.key].number===c.number);const inStash=isInStash(c);const b=document.createElement('button');b.className='color-btn'+(used?' selected':'')+(inStash?' in-stash':'');b.innerHTML=`<span class="stash-check" title="Toggle Current Stash" aria-label="Toggle Current Stash">&#10003;</span><div class="color-swatch" style="background:${c.hex}"></div><div class="color-num">${c.number}</div><div class="color-name">${c.name}</div>`;b.onclick=()=>{selections[activeRole]=c;currentNameSeed=0;nameHistoryStack=[];leaveSavedContext();renderAll();};b.querySelector('.stash-check').onclick=e=>{e.stopPropagation();toggleStash(c);};p.appendChild(b);});}
 function metrics(){const pairs=[['Main vs Contrast',selections.D,selections.L,3],['Main vs Accent',selections.D,selections.M,1.6],['Stripe A vs B',selections.S,selections.T,1.6]];el('metrics').innerHTML=pairs.map(([t,a,b,target])=>{const r=contrastRatio(a.hex,b.hex),w=Math.min(100,Math.round(r/7*100));return `<div class="metric"><div class="metric-top"><span>${t}</span><strong>${r.toFixed(1)}:1</strong></div><div class="bar"><div class="fill" style="width:${w}%"></div></div></div>`;}).join('');}
-function isReadable(combo){const nums=ROLES.map(r=>combo[r.key].number);return new Set(nums).size===nums.length&&contrastRatio(combo.D.hex,combo.L.hex)>=3&&contrastRatio(combo.D.hex,combo.M.hex)>=1.6&&contrastRatio(combo.S.hex,combo.T.hex)>=1.6;}
+/* v160 randomizer rescue: choose the best-looking combo from many attempts instead of accepting
+   the first combo that merely passes a few contrast checks. The goal is to restore the older
+   chart-first feel: distinct yarns, enough contrast, a useful neutral/color balance, and fewer
+   chaotic five-random-color piles. */
+const RANDOMIZER_HISTORY_LIMIT=36;
+let recentRandomComboSignatures=[];
+function clamp01(value){return Math.max(0,Math.min(1,Number(value)||0));}
+function smoothBandScore(value,low,idealLow,idealHigh,high){
+  value=Number(value)||0;
+  if(value<low || value>high)return 0;
+  if(value>=idealLow && value<=idealHigh)return 1;
+  if(value<idealLow)return (value-low)/(idealLow-low);
+  return (high-value)/(high-idealHigh);
+}
+function hueDistanceDegrees(a,b){
+  const delta=Math.abs(((Number(a)||0)-(Number(b)||0)+540)%360-180);
+  return delta;
+}
+function colorDistance(a,b){
+  if(!a||!b)return 0;
+  const ar=hexToRgb(a.hex), br=hexToRgb(b.hex);
+  const rgb=Math.sqrt(
+    Math.pow((ar[0]-br[0])/255,2)+
+    Math.pow((ar[1]-br[1])/255,2)+
+    Math.pow((ar[2]-br[2])/255,2)
+  )/Math.sqrt(3);
+  const ah=rgbToHsl(a.hex), bh=rgbToHsl(b.hex);
+  const avgSat=(ah.s+bh.s)/2;
+  const hue=(hueDistanceDegrees(ah.h,bh.h)/180)*(avgSat>.18?.28:.06);
+  const sat=Math.abs(ah.s-bh.s)*.10;
+  const light=Math.abs(ah.l-bh.l)*.34;
+  return clamp01((rgb*.70)+hue+sat+light);
+}
+function comboSignature(combo){
+  return ROLES.map(r=>String(combo?.[r.key]?.number||'')).join('|');
+}
+function colorGroupFamily(family){
+  if(['black','gray','white'].includes(family))return 'neutral';
+  if(['red','orange','yellow','brown','pink'].includes(family))return 'warm';
+  if(['blue','green','purple'].includes(family))return 'cool';
+  return family||'other';
+}
+function colorChromaHeat(color){
+  const h=rgbToHsl(color.hex);
+  return clamp01(h.s*(1-Math.abs(h.l-.5)*.72));
+}
+function isElectricRandomizerColor(color){
+  const h=rgbToHsl(color.hex);
+  const name=String(color.name||'').toLowerCase();
+  return /(neon|bright|hot pink|christmas|blaze|tiger lily|key west|lagoon)/.test(name) || (h.s>.74 && h.l>.34 && h.l<.74);
+}
+function familyCountsForCombo(combo){
+  const families=ROLES.map(r=>namingFamilyForColor(combo[r.key]));
+  const counts={};
+  families.forEach(f=>{counts[f]=(counts[f]||0)+1;});
+  return {families,counts,unique:unique(families)};
+}
+function randomizerPairDetails(combo){
+  const out=[];
+  for(let i=0;i<ROLES.length;i++){
+    for(let j=i+1;j<ROLES.length;j++){
+      const a=combo[ROLES[i].key], b=combo[ROLES[j].key];
+      out.push({
+        a:ROLES[i].key,
+        b:ROLES[j].key,
+        distance:colorDistance(a,b),
+        contrast:contrastRatio(a.hex,b.hex),
+        sameFamily:namingFamilyForColor(a)===namingFamilyForColor(b)
+      });
+    }
+  }
+  return out;
+}
+function comboQualityScore(combo){
+  const nums=ROLES.map(r=>String(combo?.[r.key]?.number||''));
+  const uniqueNums=new Set(nums);
+  let score=0;
+  let hardFail=false;
+  if(uniqueNums.size!==nums.length){
+    score-=900;
+    hardFail=true;
+  }
+
+  const D=combo.D,L=combo.L,M=combo.M,S=combo.S,T=combo.T;
+  const dl=contrastRatio(D.hex,L.hex);
+  const dm=contrastRatio(D.hex,M.hex);
+  const st=contrastRatio(S.hex,T.hex);
+  const ds=contrastRatio(D.hex,S.hex);
+  const dt=contrastRatio(D.hex,T.hex);
+
+  if(dl<3.15){score-=260;hardFail=true;}
+  else score+=smoothBandScore(dl,3.15,4.1,8.8,13.5)*118;
+
+  if(dm<1.75){score-=160;hardFail=true;}
+  else score+=smoothBandScore(dm,1.75,2.25,7.8,12.8)*82;
+
+  if(st<1.55){score-=110;hardFail=true;}
+  else score+=smoothBandScore(st,1.55,2.0,7.4,12.5)*66;
+
+  score+=smoothBandScore(ds,1.45,2.05,8.2,13.5)*28;
+  score+=smoothBandScore(dt,1.45,2.05,8.2,13.5)*28;
+
+  const pairDetails=randomizerPairDetails(combo);
+  const tooClose=pairDetails.filter(p=>p.distance<.145 || (p.distance<.19 && p.contrast<1.42));
+  if(tooClose.length){
+    score-=tooClose.length*175;
+    hardFail=true;
+  }
+  const mushySameFamily=pairDetails.filter(p=>p.sameFamily && p.distance<.24 && p.contrast<1.8);
+  score-=mushySameFamily.length*54;
+  const minDistance=Math.min(...pairDetails.map(p=>p.distance));
+  score+=smoothBandScore(minDistance,.13,.22,.40,.62)*74;
+
+  const hsl=ROLES.map(r=>({role:r.key,color:combo[r.key],...rgbToHsl(combo[r.key].hex),family:namingFamilyForColor(combo[r.key])}));
+  const lumas=ROLES.map(r=>luminance(combo[r.key].hex));
+  const lumaSpread=Math.max(...lumas)-Math.min(...lumas);
+  score+=smoothBandScore(lumaSpread,.32,.48,.74,.93)*92;
+
+  const main=rgbToHsl(D.hex);
+  // Colorwork tends to read better when Main is an anchor color rather than the palest yarn.
+  score+=smoothBandScore(main.l,.02,.055,.46,.72)*72;
+  if(main.l>.76)score-=68;
+  if(main.s>.72 && main.l>.55)score-=34;
+
+  const familyInfo=familyCountsForCombo(combo);
+  const neutralCount=familyInfo.families.filter(f=>['black','gray','white'].includes(f)).length;
+  const nonNeutralUnique=unique(familyInfo.families.filter(f=>!['black','gray','white'].includes(f))).length;
+  const groupUnique=unique(familyInfo.families.map(colorGroupFamily));
+
+  if(neutralCount===0)score-=84;
+  if(neutralCount>=1 && neutralCount<=3)score+=82;
+  if(neutralCount>=4)score-=74;
+  if(nonNeutralUnique===0)score-=95;
+  if(nonNeutralUnique===1)score+=46;
+  if(nonNeutralUnique===2)score+=104;
+  if(nonNeutralUnique===3)score+=18;
+  if(nonNeutralUnique>=4)score-=180+(nonNeutralUnique-4)*55;
+  if(groupUnique.length===2)score+=48;
+  if(groupUnique.length===3)score+=8;
+  if(groupUnique.length>=4)score-=70;
+
+  const highSat=hsl.filter(c=>c.s>.58 && c.l>.24 && c.l<.78).length;
+  const lowSat=hsl.filter(c=>c.s<.18).length;
+  const electricRoles=ROLES.filter(r=>isElectricRandomizerColor(combo[r.key]));
+  const stripeElectric=electricRoles.filter(r=>r.key==='S'||r.key==='T').length;
+  const mainOrContrastElectric=electricRoles.filter(r=>r.key==='D'||r.key==='L').length;
+  if(highSat===0)score-=18;
+  if(highSat>=1 && highSat<=2)score+=38;
+  if(highSat===3)score-=12;
+  if(highSat>=4)score-=122;
+  if(lowSat>=1 && lowSat<=3)score+=36;
+  if(electricRoles.length){
+    score-=electricRoles.length*34;
+    if(electricRoles.length>1)score-=72+(electricRoles.length-2)*34;
+    score-=stripeElectric*58;
+    score-=mainOrContrastElectric*46;
+  }
+
+  const hueItems=hsl.filter(c=>c.s>.20 && c.l>.10 && c.l<.86);
+  if(hueItems.length>=2){
+    const hues=hueItems.map(c=>c.h).sort((a,b)=>a-b);
+    const gaps=hues.map((h,i)=>((hues[(i+1)%hues.length]-h+360)%360));
+    const arc=360-Math.max(...gaps);
+    if(arc<18 && hueItems.length>2)score-=42;
+    else if(arc<=85)score+=82;
+    else if(arc<=155)score+=48;
+    else if(arc<=205)score-=4;
+    else score-=104;
+    if(nonNeutralUnique>=3 && arc>150)score-=72;
+    if(nonNeutralUnique>=3 && arc>205)score-=74;
+    if(arc>185 && highSat>=2)score-=72;
+    if(arc>205 && highSat>=3)score-=120;
+  }
+
+  if(nonNeutralUnique>=3 && neutralCount<2)score-=66;
+
+  const stripeFamilies=[namingFamilyForColor(S),namingFamilyForColor(T)];
+  const stripeNeutralCount=stripeFamilies.filter(f=>['black','gray','white'].includes(f)).length;
+  if(stripeNeutralCount===1)score+=34;
+  if(stripeNeutralCount===0 && rgbToHsl(S.hex).s>.52 && rgbToHsl(T.hex).s>.52)score-=68;
+  if(stripeNeutralCount===0 && nonNeutralUnique>=3)score-=36;
+
+  const sig=comboSignature(combo);
+  if(recentRandomComboSignatures.includes(sig))score-=240;
+
+  return {score,hardFail,signature:sig,dl,dm,st,minDistance,neutralCount,nonNeutralUnique,highSat};
+}
+function isReadable(combo){
+  const quality=comboQualityScore(combo);
+  return !quality.hardFail && quality.score>40;
+}
+function buildRandomCandidate(pool){
+  const combo=cloneSelections();
+  const used=new Set();
+  ROLES.forEach(r=>{
+    if(lockedRoles[r.key]) used.add(String(combo[r.key].number));
+  });
+  ROLES.forEach(r=>{
+    if(!lockedRoles[r.key]){
+      const opts=pool.filter(c=>!used.has(String(c.number)));
+      if(opts.length){
+        combo[r.key]=opts[Math.floor(Math.random()*opts.length)];
+        used.add(String(combo[r.key].number));
+      }
+    }
+  });
+  return combo;
+}
+function pickWeightedCombo(scored){
+  if(!scored.length)return null;
+  const finalists=scored.slice(0,Math.min(8,scored.length));
+  const minScore=Math.min(...finalists.map(x=>x.quality.score));
+  const total=finalists.reduce((sum,item,index)=>sum+Math.max(1,item.quality.score-minScore+10)/(1+index*.16),0);
+  let roll=Math.random()*total;
+  for(let i=0;i<finalists.length;i++){
+    const weight=Math.max(1,finalists[i].quality.score-minScore+10)/(1+i*.16);
+    roll-=weight;
+    if(roll<=0)return finalists[i];
+  }
+  return finalists[0];
+}
 function randomize(){
   leaveSavedContext();
   nameHistoryStack=[];
@@ -7056,30 +7682,36 @@ function randomize(){
     return;
   }
   history.push({selections:cloneSelections(),name:currentComboName,seed:currentNameSeed});
-  let combo=cloneSelections();
-  for(let tries=0;tries<1500;tries++){
-    const used=new Set(ROLES.filter(r=>lockedRoles[r.key]).map(r=>combo[r.key].number));
-    ROLES.forEach(r=>{
-      if(!lockedRoles[r.key]){
-        const opts=pool.filter(c=>!used.has(c.number));
-        if(opts.length){
-          combo[r.key]=opts[Math.floor(Math.random()*opts.length)];
-          used.add(combo[r.key].number);
-        }
-      }
-    });
-    if(isReadable(combo))break;
+
+  const lockedCount=ROLES.filter(r=>lockedRoles[r.key]).length;
+  const attempts=pool.length<=12?2600:(lockedCount>=3?2200:5200);
+  const scored=[];
+  let bestAny=null;
+  for(let tries=0;tries<attempts;tries++){
+    const combo=buildRandomCandidate(pool);
+    const quality=comboQualityScore(combo);
+    const row={combo,quality};
+    if(!bestAny || quality.score>bestAny.quality.score) bestAny=row;
+    if(!quality.hardFail || quality.score>120) scored.push(row);
   }
-  selections = combo;
-  currentNameSeed = 0;
-  currentComboName = generateFreshComboName(selections, currentNameSeed, {strictColorFit:true});
+
+  const viable=scored.filter(row=>!row.quality.hardFail).sort((a,b)=>b.quality.score-a.quality.score);
+  const backup=scored.sort((a,b)=>b.quality.score-a.quality.score);
+  const chosen=pickWeightedCombo(viable.length?viable:backup) || bestAny;
+  const combo=chosen?.combo || cloneSelections();
+
+  selections=combo;
+  recentRandomComboSignatures.push(comboSignature(selections));
+  recentRandomComboSignatures=recentRandomComboSignatures.slice(-RANDOMIZER_HISTORY_LIMIT);
+  currentNameSeed=0;
+  currentComboName=generateFreshComboName(selections,currentNameSeed,{strictColorFit:true});
   renderAll();
 }
 function back(){const prev=history.pop();if(!prev)return;leaveSavedContext();selections=cloneSelections(prev.selections);currentComboName=prev.name;currentNameSeed=prev.seed;nameHistoryStack=[];renderAll();}
 function newName() {
   if(savedContextMode) return;
   nameHistoryStack.push(currentComboName);
-  nameHistoryStack=nameHistoryStack.slice(-40);
+  nameHistoryStack=nameHistoryStack.slice(-80);
   currentNameSeed++;
   currentComboName = generateFreshComboName(selections, currentNameSeed, {strictColorFit:true}, nameHistoryStack);
   renderAll();
@@ -7147,6 +7779,104 @@ function escapeHTML(s=''){return String(s).replace(/[&<>'"]/g,ch=>({'&':'&amp;',
 
 function escapeAttr(s=''){return escapeHTML(s).replace(/`/g,'&#96;');}
 function validateAdminCode(code){return String(code||'').trim()===ADMIN_CODE;}
+function isComboHidden(item){return !!(item && (item.hidden || item.is_hidden));}
+function visibleSavedItems(kind=null){
+  return (saved||[]).filter(item=>{
+    if(kind && item.kind!==kind) return false;
+    return adminVisibilityMode || !isComboHidden(item);
+  });
+}
+function setComboVisibilityAdminMode(next,code=''){
+  adminVisibilityMode=!!next;
+  comboVisibilityAdminCode=adminVisibilityMode?String(code||'').trim():'';
+  document.body.classList.toggle('combo-visibility-admin-on',adminVisibilityMode);
+  const button=el('adminComboVisibilityBtn');
+  if(button){
+    button.classList.toggle('is-active',adminVisibilityMode);
+    button.setAttribute('aria-pressed',adminVisibilityMode?'true':'false');
+    button.title=adminVisibilityMode?'Combo visibility admin on':'Admin combo visibility';
+  }
+  updateAdminMenuState();
+}
+async function toggleComboVisibilityAdmin(adminCode=null,{quiet=false}={}){
+  if(adminVisibilityMode){
+    setComboVisibilityAdminMode(false);
+    await loadSharedCombos();
+    renderSaved();
+    if(!quiet) alert('Visibility admin is off. Hidden cards are removed from the normal public view again.');
+    return;
+  }
+  let code=adminCode;
+  if(code===null){
+    code=prompt('Admin code to manage hidden Saved/Made cards:');
+  }
+  if(code===null) return;
+  if(!validateAdminCode(code)){
+    alert('Nice try.');
+    return;
+  }
+  setComboVisibilityAdminMode(true,code);
+  await loadSharedCombos();
+  if(!activeSavedTab) activeSavedTab='made';
+  const good=el('savedSection');
+  if(good) good.open=true;
+  renderSaved();
+  if(!quiet) alert('Visibility admin is on. Tap the eye on any Saved or Made card to hide/show it. Hidden cards are greyed out here and removed from the normal public view.');
+}
+function comboVisibilityIcon(hidden=false){
+  return `<svg aria-hidden="true" fill="none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M2.75 12s3.25-5.5 9.25-5.5S21.25 12 21.25 12 18 17.5 12 17.5 2.75 12 2.75 12Z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path><circle cx="12" cy="12" r="2.75" stroke-width="2"></circle>${hidden?'<path d="M4 20L20 4" stroke-linecap="round" stroke-width="2.4"></path>':''}</svg>`;
+}
+async function toggleComboHidden(item){
+  if(!adminVisibilityMode || !item) return;
+  if(comboVisibilityUpdateInProgress) return;
+  if(!validateAdminCode(comboVisibilityAdminCode)){
+    alert('Admin visibility mode expired. Re-open it from blj 2026.');
+    setComboVisibilityAdminMode(false);
+    renderSaved();
+    return;
+  }
+
+  const nextHidden=!isComboHidden(item);
+  comboVisibilityUpdateInProgress=true;
+  try{
+    if(item.remote){
+      if(!db){
+        alert('Shared visibility is unavailable right now. Refresh and try again.');
+        return;
+      }
+
+      let savedRemote=false;
+      const rpcResult=await db.rpc('set_combo_hidden_admin',{combo_id:item.id,is_hidden_input:nextHidden,admin_code:comboVisibilityAdminCode});
+      if(!rpcResult.error){
+        savedRemote=true;
+      }else{
+        console.warn('Supabase visibility RPC unavailable or failed; trying direct update.',rpcResult.error);
+        const directResult=await db.from('combos').update({is_hidden:nextHidden}).eq('id',item.id);
+        if(!directResult.error){
+          savedRemote=true;
+        }else{
+          console.error('Supabase visibility update failed.',directResult.error);
+          alert('Visibility toggle needs the Supabase is_hidden column plus the set_combo_hidden_admin function or an update policy. The front-end is ready; run the visibility SQL migration first.');
+          return;
+        }
+      }
+
+      if(savedRemote){
+        item.hidden=nextHidden;
+        renderSaved();
+        await loadSharedCombos();
+      }
+      return;
+    }
+
+    item.hidden=nextHidden;
+    try{localStorage.setItem(STORAGE,JSON.stringify(saved.filter(x=>!x.remote)));}catch(e){}
+    renderSaved();
+  }finally{
+    comboVisibilityUpdateInProgress=false;
+  }
+}
+
 function comboPhotoPath(item){return item?.photoPath || item?.photo_path || '';}
 function comboPhotoUrl(item){
   const path=comboPhotoPath(item);
@@ -7397,6 +8127,7 @@ async function openMadeEdit(item){
   editingMadeItem=item;
   madeEditAdminCode=code.trim();
   if(el('madeEditSub')) el('madeEditSub').textContent=item.comboName||'';
+  if(el('madeEditComboName')) el('madeEditComboName').value=item.comboName||'';
   if(el('madeEditNote')) el('madeEditNote').value=item.note||'';
   updateMadeEditPhotoPreview();
   const drawer=el('madeEditDrawer');
@@ -7410,15 +8141,31 @@ async function deleteMadeFromEdit(){
   closeMadeEditDrawer();
   await deleteSavedItem(item,code);
 }
+function comboSelectionSignature(src){
+  const combo=normalizeComboSelections(src||{});
+  return ROLES.map(r=>`${r.key}:${combo[r.key]?.number||''}`).join('|');
+}
 async function saveMadeEdit(){
   if(!editingMadeItem) return;
-  const clean=(el('madeEditNote')?.value||'').trim().slice(0,120);
-  await saveMadeNote(editingMadeItem,clean,madeEditAdminCode);
-  closeMadeEditDrawer();
+  const cleanName=(el('madeEditComboName')?.value||'').trim().slice(0,60);
+  const cleanNote=(el('madeEditNote')?.value||'').trim().slice(0,120);
+  if(!cleanName){
+    el('madeEditComboName')?.focus();
+    return;
+  }
+  const savedOk=await saveMadeDetails(editingMadeItem,{comboName:cleanName,note:cleanNote},madeEditAdminCode);
+  if(savedOk) closeMadeEditDrawer();
 }
-async function saveMadeNote(item,clean,code){
+async function saveMadeDetails(item,details,code){
   if(!item || item.kind!=='made') return false;
   if(!validateAdminCode(code)){alert('Nice try.');return false;}
+
+  const cleanName=String(details?.comboName||'').trim().slice(0,60);
+  const cleanNote=String(details?.note||'').trim().slice(0,120);
+  if(!cleanName){alert('Made Combo name cannot be blank.');return false;}
+
+  const oldName=item.comboName||'';
+  const wasCurrentContext=!!(savedContextMode && currentComboName===oldName && comboSelectionSignature(selections)===comboSelectionSignature(item.selections));
 
   if(item.remote){
     if(!db){
@@ -7427,34 +8174,43 @@ async function saveMadeNote(item,clean,code){
     }
 
     let savedRemote=false;
-    const rpcResult=await db.rpc('update_combo_note_admin',{combo_id:item.id,new_note:clean||null,admin_code:code});
+    const rpcResult=await db.rpc('update_made_combo_admin',{combo_id:item.id,new_combo_name:cleanName,new_note:cleanNote||null,admin_code:code});
     if(!rpcResult.error){
       savedRemote=true;
     }else{
-      console.warn('Supabase note-edit RPC unavailable or failed; trying direct update.',rpcResult.error);
-      const directResult=await db.from('combos').update({note:clean||null}).eq('id',item.id);
+      console.warn('Supabase made-combo edit RPC unavailable or failed; trying direct update.',rpcResult.error);
+      const directResult=await db.from('combos').update({combo_name:cleanName,note:cleanNote||null}).eq('id',item.id).eq('type','made');
       if(!directResult.error){
         savedRemote=true;
       }else{
-        console.error('Supabase note edit failed',directResult.error);
-        alert('Edit failed. Supabase needs the note-edit admin function or an update policy for combo notes.');
+        console.error('Supabase made-combo edit failed',directResult.error);
+        alert('Edit failed. Supabase needs the update_made_combo_admin function or an update policy for Made Combo names/notes. Run the v157 SQL migration before relying on this edit.');
         return false;
       }
     }
 
     if(savedRemote){
-      item.note=clean;
+      item.comboName=cleanName;
+      item.note=cleanNote;
+      if(wasCurrentContext) currentComboName=cleanName;
       renderSaved();
+      renderDots();
       await loadSharedCombos();
       return true;
     }
     return false;
   }
 
-  item.note=clean;
+  item.comboName=cleanName;
+  item.note=cleanNote;
+  if(wasCurrentContext) currentComboName=cleanName;
   try{localStorage.setItem(STORAGE,JSON.stringify(saved.filter(x=>!x.remote)));}catch(e){}
   renderSaved();
+  renderDots();
   return true;
+}
+async function saveMadeNote(item,clean,code){
+  return saveMadeDetails(item,{comboName:item?.comboName||'',note:clean},code);
 }
 
 function loadChartPreviewPreference(){
@@ -7519,7 +8275,7 @@ function setChartPreviewPinned(next,{scroll=true,mode='good'}={}){
 }
 
 function renderSavedList(id,kind){
-  const list=saved.filter(x=>x.kind===kind),box=el(id);
+  const list=visibleSavedItems(kind),box=el(id);
   if(!box) return 0;
   box.innerHTML='';
   if(!list.length){
@@ -7531,19 +8287,21 @@ function renderSavedList(id,kind){
   }
   list.forEach(item=>{
     normalizeSavedItem(item);
+    const hidden=isComboHidden(item);
     const d=document.createElement('div');
-    d.className='saved-card'+(kind==='made'?' made-card':' dig-card');
+    d.className='saved-card'+(kind==='made'?' made-card':' dig-card')+(hidden?' is-hidden-combo':'');
+    const visibilityButton=`<button class="combo-visibility-toggle" type="button" aria-label="${hidden?'Show on public page':'Hide from public page'}" title="${hidden?'Show on public page':'Hide from public page'}">${comboVisibilityIcon(hidden)}</button>`;
     const colorChips=`<div class="saved-colors">${ROLES.map(r=>`<span class="mini" style="background:${item.selections?.[r.key]?.hex||'#ddd'}"></span>`).join('')}</div>`;
     const cardBody=`${colorChips}<div class="saved-title">${escapeHTML(item.comboName)}</div><div class="saved-meta">by ${escapeHTML(item.name)}</div>${item.note?`<div class="saved-note">${escapeHTML(item.note)}</div>`:''}`;
     if(kind==='made'){
       const photoUrl=comboPhotoUrl(item);
-      d.innerHTML=`<div class="made-card-main">${cardBody}</div><div class="made-card-side"><button class="made-photo-slot${photoUrl?' has-photo':''}" type="button" aria-label="${photoUrl?'View project photo':'Add project photo'}">${photoUrl?`<img src="${escapeAttr(photoUrl)}" alt="" loading="lazy" />`:''}</button><div class="made-card-actions"><button class="saved-note-edit made-edit-btn" type="button" aria-label="Edit Made Combo" title="Edit Made Combo">&#9998;</button></div></div>`;
+      d.innerHTML=`<div class="made-card-main">${cardBody}</div><div class="made-card-side"><button class="made-photo-slot${photoUrl?' has-photo':''}" type="button" aria-label="${photoUrl?'View project photo':'Add project photo'}">${photoUrl?`<img src="${escapeAttr(photoUrl)}" alt="" loading="lazy" />`:''}</button><div class="made-card-actions">${visibilityButton}<button class="saved-note-edit made-edit-btn" type="button" aria-label="Edit Made Combo" title="Edit Made Combo">&#9998;</button></div></div>`;
     }else{
       const noteHtml=item.note?`<span class="saved-note">${escapeHTML(item.note)}</span>`:'';
-      d.innerHTML=`${colorChips}<div class="dig-card-main"><div class="saved-title">${escapeHTML(item.comboName)}</div><div class="dig-card-sub"><span class="saved-meta">by ${escapeHTML(item.name)}</span>${noteHtml}</div></div><button class="delete" aria-label="delete">&times;</button>`;
+      d.innerHTML=`${colorChips}<div class="dig-card-main"><div class="saved-title">${escapeHTML(item.comboName)}</div><div class="dig-card-sub"><span class="saved-meta">by ${escapeHTML(item.name)}</span>${noteHtml}</div></div><button class="delete" aria-label="delete">&times;</button>${visibilityButton}`;
     }
     d.onclick=e=>{
-      if(e.target.closest('.delete')||e.target.closest('.saved-note-edit')||e.target.closest('.made-photo-slot'))return;
+      if(e.target.closest('.delete')||e.target.closest('.saved-note-edit')||e.target.closest('.made-photo-slot')||e.target.closest('.combo-visibility-toggle'))return;
       selections=cloneSelections(item.selections);
       currentComboName=item.comboName;
       nameHistoryStack=[];
@@ -7571,6 +8329,13 @@ function renderSavedList(id,kind){
         await handleMadePhotoSlotClick(item);
       };
     }
+    const visibility=d.querySelector('.combo-visibility-toggle');
+    if(visibility){
+      visibility.onclick=async(event)=>{
+        event.stopPropagation();
+        await toggleComboHidden(item);
+      };
+    }
     box.appendChild(d);
   });
   return list.length;
@@ -7584,8 +8349,8 @@ function setSavedTab(kind){
 }
 
 function updateSavedTabs(){
-  const digTotal=saved.filter(x=>x.kind==='dig').length;
-  const madeTotal=saved.filter(x=>x.kind==='made').length;
+  const digTotal=visibleSavedItems('dig').length;
+  const madeTotal=visibleSavedItems('made').length;
   const config={
     dig:{title:'Saved Combos',copy:"What we&#39;re digging!"},
     made:{title:'Made Combos',copy:'What we made!'}
@@ -7664,8 +8429,8 @@ async function deleteSavedItem(item,providedCode=null){
 function updateGoodStuffTeaser(){
   const teaser=el('goodStuffTeaser');
   if(!teaser) return;
-  const digTotal=(saved||[]).filter(x=>x.kind==='dig').length;
-  const madeTotal=(saved||[]).filter(x=>x.kind==='made').length;
+  const digTotal=visibleSavedItems('dig').length;
+  const madeTotal=visibleSavedItems('made').length;
   if(digTotal||madeTotal){
     teaser.textContent=`${digTotal} saved + ${madeTotal} made combos`;
   }else{
@@ -7686,7 +8451,17 @@ async function loadSharedCombos(){
   let local=[];
   try{local=JSON.parse(localStorage.getItem(STORAGE)||'[]').map(normalizeSavedItem);}catch(e){local=[];}
   if(!db){saved=local;renderSaved();return;}
-  const {data,error}=await db.from('combos').select('*').order('created_at',{ascending:false}).limit(100);
+  let comboQuery=db.from('combos').select('*').order('created_at',{ascending:false}).limit(100);
+  if(!adminVisibilityMode){
+    comboQuery=comboQuery.or('is_hidden.is.null,is_hidden.eq.false');
+  }
+  let {data,error}=await comboQuery;
+  if(error && !adminVisibilityMode && /is_hidden/i.test(String(error.message||error.details||''))){
+    console.warn('Supabase combos table does not have is_hidden yet; loading without visibility filter.',error);
+    const fallback=await db.from('combos').select('*').order('created_at',{ascending:false}).limit(100);
+    data=fallback.data;
+    error=fallback.error;
+  }
   if(error){console.error('Supabase load failed',error);saved=local;renderSaved();return;}
   const remote=(data||[]).map(row=>({
     kind: row.type==='digged'?'dig':'made',
@@ -7697,10 +8472,70 @@ async function loadSharedCombos(){
     selections: normalizeComboSelections(row.colors_json),
     at: row.created_at,
     photoPath: row.photo_path || row.photo_url || '',
+    hidden: !!row.is_hidden,
     remote:true
   })).filter(x=>x.selections);
   saved=[...remote,...local.filter(x=>!x.remote)];
   renderSaved();
+}
+
+
+function updateAdminMenuState(){
+  const visibilityButton=el('adminMenuVisibility');
+  const visibilityState=el('adminMenuVisibilityState');
+  if(visibilityButton){
+    visibilityButton.classList.toggle('is-active',adminVisibilityMode);
+    visibilityButton.setAttribute('aria-pressed',adminVisibilityMode?'true':'false');
+  }
+  if(visibilityState){
+    visibilityState.textContent=adminVisibilityMode
+      ? 'Hide/show mode is on. Tap again to turn it off.'
+      : 'Turn on card eyeballs for Saved + Made combos.';
+  }
+}
+function openAdminMenu(code){
+  adminMenuCode=String(code||'').trim();
+  updateAdminMenuState();
+  const backdrop=el('adminMenuBackdrop');
+  if(!backdrop) return;
+  backdrop.classList.add('open');
+  backdrop.setAttribute('aria-hidden','false');
+  window.requestAnimationFrame(()=>{
+    try{el('adminMenuVisibility')?.focus({preventScroll:true});}catch(e){}
+  });
+}
+function closeAdminMenu(){
+  const backdrop=el('adminMenuBackdrop');
+  if(!backdrop) return;
+  backdrop.classList.remove('open');
+  backdrop.setAttribute('aria-hidden','true');
+  const entry=el('hqAdminEntry');
+  window.requestAnimationFrame(()=>{
+    try{entry?.focus({preventScroll:true});}catch(e){}
+  });
+}
+function openSignatureAdminMenu(){
+  const code=prompt('Admin code:');
+  if(code===null) return;
+  if(!validateAdminCode(code)){
+    alert('Nice try.');
+    return;
+  }
+  openAdminMenu(code);
+}
+async function runAdminMenuNameRefresh(){
+  const code=adminMenuCode;
+  closeAdminMenu();
+  await adminRefreshNameBank(code);
+}
+async function runAdminMenuVisibilityToggle(){
+  const code=adminMenuCode;
+  await toggleComboVisibilityAdmin(code,{quiet:true});
+  updateAdminMenuState();
+  closeAdminMenu();
+  if(adminVisibilityMode){
+    alert('Hide/show mode is on. Tap the eye on any Saved or Made card to hide/show it. Hidden cards are greyed out here and removed from the normal public view.');
+  }
 }
 
 
@@ -7717,10 +8552,17 @@ function setAdminRefreshStatus(message){
 }
 function nextPaint(){return new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));}
 
-async function adminRefreshNameBank(){
-  const code=prompt('Admin code to refresh the name bank:');
+async function adminRefreshNameBank(adminCode=null){
+  let code=adminCode;
+  if(code===null){
+    code=prompt('Admin code to refresh the name bank:');
+  }
   if(code===null)return;
-  if(!code.trim())return;
+  if(!String(code).trim())return;
+  if(!validateAdminCode(code)){
+    alert('Nice try.');
+    return;
+  }
 
   const modeInput=prompt('Refresh type: balanced, earthy, bright, moody, weird', 'balanced');
   if(modeInput===null)return;
@@ -7938,7 +8780,7 @@ async function init(){
   maybeRefreshVisibleSavedName();
   scheduleGoodStuffBottomAlign(160);
 }
-el('gridToggle').onchange=drawChart;el('randomBtn').onclick=randomize;el('backBtn').onclick=back;el('sourceFullBtn').onclick=()=>setRandomSource('full');el('sourceStashBtn').onclick=()=>setRandomSource('stash');el('newNameBtn').onclick=newName;if(el('nameBackBtn')) el('nameBackBtn').onclick=backName;if(el('adminNameRefreshBtn')) el('adminNameRefreshBtn').onclick=adminRefreshNameBank;el('saveBtn').onclick=()=>openSaveDrawer('dig');el('madeBtn').onclick=()=>openSaveDrawer('made');if(el('digTab')) el('digTab').onclick=()=>setSavedTab('dig');if(el('madeTab')) el('madeTab').onclick=()=>setSavedTab('made');if(el('chartPreviewToggle')) el('chartPreviewToggle').onclick=()=>setChartPreviewPinned(!(chartPreviewPinned&&chartPreviewMode==='good'),{scroll:true,mode:'good'});if(el('paletteChartPreviewToggle')) el('paletteChartPreviewToggle').onclick=()=>setChartPreviewPinned(!(chartPreviewPinned&&chartPreviewMode==='palette'),{scroll:true,mode:'palette'});if(el('swapStripesBtn')) el('swapStripesBtn').onclick=swapStripeColors;if(el('rolesSection')) el('rolesSection').addEventListener('toggle',()=>{if(el('rolesSection').open) leaveSavedContext();});if(el('paletteSection')) el('paletteSection').addEventListener('toggle',()=>{if(el('paletteSection').open) leaveSavedContext();});if(el('readabilitySection')) el('readabilitySection').addEventListener('toggle',()=>{if(el('readabilitySection').open) leaveSavedContext();});if(el('savedSection')) el('savedSection').addEventListener('toggle',handleDesktopGoodStuffToggle);el('confirmSave').onclick=savePending;el('cancelSave').onclick=closeSaveDrawer;el('closeSaveDrawer').onclick=closeSaveDrawer;el('saveDrawer').addEventListener('click',e=>{if(e.target.id==='saveDrawer')closeSaveDrawer();});if(el('closeMadeEditDrawer')) el('closeMadeEditDrawer').onclick=closeMadeEditDrawer;if(el('cancelMadeEdit')) el('cancelMadeEdit').onclick=closeMadeEditDrawer;if(el('saveMadeEdit')) el('saveMadeEdit').onclick=saveMadeEdit;if(el('madeEditDrawer')) el('madeEditDrawer').addEventListener('click',e=>{if(e.target.id==='madeEditDrawer')closeMadeEditDrawer();});if(el('madeEditPhotoUpload')) el('madeEditPhotoUpload').onclick=()=>uploadMadePhoto(editingMadeItem,madeEditAdminCode);if(el('madeEditPhotoRemove')) el('madeEditPhotoRemove').onclick=()=>removeMadePhoto(editingMadeItem,madeEditAdminCode);if(el('madeEditDelete')) el('madeEditDelete').onclick=deleteMadeFromEdit;if(el('photoLightboxClose')) el('photoLightboxClose').onclick=closePhotoLightbox;if(el('photoLightbox')) el('photoLightbox').addEventListener('click',e=>{if(e.target.id==='photoLightbox')closePhotoLightbox();});window.addEventListener('keydown',e=>{if(e.key==='Escape'&&el('photoLightbox')?.classList.contains('open'))closePhotoLightbox();});el('search').oninput=renderPalette;el('saveName').oninput=updateSaveState;window.addEventListener('resize',()=>{drawChart();applyGuideDefaultForViewport();applyDesktopWorkbenchDefaults();scheduleGoodStuffBottomAlign(80);});window.addEventListener('load',()=>{scheduleGoodStuffBottomAlign(180);scheduleGoodStuffBottomAlign(420);scheduleGoodStuffBottomAlign(800);});if(document.fonts&&document.fonts.ready){document.fonts.ready.then(()=>scheduleGoodStuffBottomAlign(80)).catch(()=>{});}document.addEventListener('toggle',event=>{
+el('gridToggle').onchange=drawChart;el('randomBtn').onclick=randomize;el('backBtn').onclick=back;el('sourceFullBtn').onclick=()=>setRandomSource('full');el('sourceStashBtn').onclick=()=>setRandomSource('stash');el('newNameBtn').onclick=newName;if(el('nameBackBtn')) el('nameBackBtn').onclick=backName;if(el('adminNameRefreshBtn')) el('adminNameRefreshBtn').onclick=()=>adminRefreshNameBank();if(el('adminComboVisibilityBtn')) el('adminComboVisibilityBtn').onclick=()=>toggleComboVisibilityAdmin();el('saveBtn').onclick=()=>openSaveDrawer('dig');el('madeBtn').onclick=()=>openSaveDrawer('made');if(el('digTab')) el('digTab').onclick=()=>setSavedTab('dig');if(el('madeTab')) el('madeTab').onclick=()=>setSavedTab('made');if(el('chartPreviewToggle')) el('chartPreviewToggle').onclick=()=>setChartPreviewPinned(!(chartPreviewPinned&&chartPreviewMode==='good'),{scroll:true,mode:'good'});if(el('paletteChartPreviewToggle')) el('paletteChartPreviewToggle').onclick=()=>setChartPreviewPinned(!(chartPreviewPinned&&chartPreviewMode==='palette'),{scroll:true,mode:'palette'});if(el('swapStripesBtn')) el('swapStripesBtn').onclick=swapStripeColors;if(el('rolesSection')) el('rolesSection').addEventListener('toggle',()=>{if(el('rolesSection').open) leaveSavedContext();});if(el('paletteSection')) el('paletteSection').addEventListener('toggle',()=>{if(el('paletteSection').open) leaveSavedContext();});if(el('readabilitySection')) el('readabilitySection').addEventListener('toggle',()=>{if(el('readabilitySection').open) leaveSavedContext();});if(el('savedSection')) el('savedSection').addEventListener('toggle',handleDesktopGoodStuffToggle);el('confirmSave').onclick=savePending;el('cancelSave').onclick=closeSaveDrawer;el('closeSaveDrawer').onclick=closeSaveDrawer;el('saveDrawer').addEventListener('click',e=>{if(e.target.id==='saveDrawer')closeSaveDrawer();});if(el('closeMadeEditDrawer')) el('closeMadeEditDrawer').onclick=closeMadeEditDrawer;if(el('cancelMadeEdit')) el('cancelMadeEdit').onclick=closeMadeEditDrawer;if(el('saveMadeEdit')) el('saveMadeEdit').onclick=saveMadeEdit;if(el('madeEditDrawer')) el('madeEditDrawer').addEventListener('click',e=>{if(e.target.id==='madeEditDrawer')closeMadeEditDrawer();});if(el('madeEditPhotoUpload')) el('madeEditPhotoUpload').onclick=()=>uploadMadePhoto(editingMadeItem,madeEditAdminCode);if(el('madeEditPhotoRemove')) el('madeEditPhotoRemove').onclick=()=>removeMadePhoto(editingMadeItem,madeEditAdminCode);if(el('madeEditDelete')) el('madeEditDelete').onclick=deleteMadeFromEdit;if(el('photoLightboxClose')) el('photoLightboxClose').onclick=closePhotoLightbox;if(el('photoLightbox')) el('photoLightbox').addEventListener('click',e=>{if(e.target.id==='photoLightbox')closePhotoLightbox();});window.addEventListener('keydown',e=>{if(e.key==='Escape'&&el('photoLightbox')?.classList.contains('open'))closePhotoLightbox();});el('search').oninput=renderPalette;el('saveName').oninput=updateSaveState;window.addEventListener('resize',()=>{drawChart();applyGuideDefaultForViewport();applyDesktopWorkbenchDefaults();scheduleGoodStuffBottomAlign(80);});window.addEventListener('load',()=>{scheduleGoodStuffBottomAlign(180);scheduleGoodStuffBottomAlign(420);scheduleGoodStuffBottomAlign(800);});if(document.fonts&&document.fonts.ready){document.fonts.ready.then(()=>scheduleGoodStuffBottomAlign(80)).catch(()=>{});}document.addEventListener('toggle',event=>{
   if(event.target && ['rolesSection','paletteSection','readabilitySection','savedSection'].includes(event.target.id)){
     scheduleGoodStuffBottomAlign(90);
   }
@@ -7950,6 +8792,21 @@ if(window.ResizeObserver){
     if(node) alignObserver.observe(node);
   });
 }
+const hqAdminEntry=el('hqAdminEntry');
+if(hqAdminEntry){
+  hqAdminEntry.addEventListener('click',openSignatureAdminMenu);
+  hqAdminEntry.addEventListener('keydown',event=>{
+    if(event.key==='Enter' || event.key===' '){
+      event.preventDefault();
+      openSignatureAdminMenu();
+    }
+  });
+}
+if(el('adminMenuClose')) el('adminMenuClose').onclick=closeAdminMenu;
+if(el('adminMenuBackdrop')) el('adminMenuBackdrop').addEventListener('click',event=>{if(event.target.id==='adminMenuBackdrop')closeAdminMenu();});
+if(el('adminMenuNameRefresh')) el('adminMenuNameRefresh').onclick=runAdminMenuNameRefresh;
+if(el('adminMenuVisibility')) el('adminMenuVisibility').onclick=runAdminMenuVisibilityToggle;
+window.addEventListener('keydown',event=>{if(event.key==='Escape'&&el('adminMenuBackdrop')?.classList.contains('open'))closeAdminMenu();});
 init();
 </script>
 <script>
@@ -7999,11 +8856,11 @@ init();
 })();
 </script>
 <script>
-const HQ_APP_BUILD = 'v155-chart-first-metadata';
+const HQ_APP_BUILD = 'v160-randomizer-quality-rescue';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', async () => {
     try {
-      const registration = await navigator.serviceWorker.register('./service-worker.js?v=143', { updateViaCache: 'none' });
+      const registration = await navigator.serviceWorker.register('./service-worker.js?v=160', { updateViaCache: 'none' });
       await registration.update();
       if (navigator.serviceWorker.controller && registration.waiting) {
         registration.waiting.postMessage({ type: 'SKIP_WAITING' });
@@ -8013,6 +8870,6 @@ if ('serviceWorker' in navigator) {
 }
 </script>
 
-<div class="hq-signature" aria-hidden="true">blj 2026</div>
+<div class="hq-signature" id="hqAdminEntry" role="button" tabindex="0" aria-label="Bryant admin menu" title="Bryant admin menu">blj 2026</div>
 </body>
 </html>
