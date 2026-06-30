@@ -5623,25 +5623,58 @@ body{
 }
 
 
-/* v158b: final clickable signature override
-   This stays after all older signature-placement rules so the admin entry is tappable on mobile. */
+/* v161: signature admin entry repair
+   Desktop keeps the tiny clickable signature in the corner.
+   Mobile returns it to the document/footer background so it does not float over cards,
+   while keeping it tappable when Bryant scrolls to the bottom. */
 .hq-signature{
   pointer-events:auto !important;
   cursor:pointer !important;
-  z-index:74 !important;
+  user-select:none !important;
+  -webkit-user-select:none !important;
 }
-@media (max-width:720px){
-  body.chart-preview-on .hq-signature,
+.hq-signature:hover,
+.hq-signature:focus{
+  opacity:1 !important;
+  outline:1px solid rgba(17,17,17,.18) !important;
+  outline-offset:4px !important;
+  border-radius:4px !important;
+}
+@media (min-width:721px){
   .hq-signature{
+    position:fixed !important;
+    right:14px !important;
+    bottom:10px !important;
+    z-index:74 !important;
     pointer-events:auto !important;
     cursor:pointer !important;
-    z-index:74 !important;
+  }
+}
+@media (max-width:720px){
+  .page{
+    padding-bottom:52px !important;
+  }
+  body.chart-preview-on .hq-signature,
+  .hq-signature{
+    position:absolute !important;
+    right:calc(34px + env(safe-area-inset-right,0px)) !important;
+    bottom:calc(8px + env(safe-area-inset-bottom,0px)) !important;
+    z-index:2 !important;
+    pointer-events:auto !important;
+    cursor:pointer !important;
+    font-size:10px !important;
+    line-height:1 !important;
+    color:#5f5a54 !important;
+    opacity:.72 !important;
+    padding:10px 0 10px 12px !important;
+    background:transparent !important;
+    box-shadow:none !important;
   }
 }
 
 </style>
 </head>
-<body data-hq-build="v160-randomizer-quality-rescue">
+<body data-hq-build="v163-approved-name-color-hints">
 <div class="page">
 
 <main class="app-grid">
@@ -5818,6 +5851,7 @@ function normalizeSavedItem(item){
   return item;
 }
 let selections={...DEFAULT_SELECTIONS}, activeRole='D', lockedRoles=Object.fromEntries(ROLES.map(r=>[r.key,false])), history=[], nameHistoryStack=[], saved=[], pendingSaveKind='dig', activeSavedTab=(window.matchMedia&&window.matchMedia('(min-width:721px)').matches?'made':null), savedContextMode=false, chartPreviewMode=null;
+let allSavedComboNamesCache=[]; // v162: duplicate guard includes hidden Saved/Made names too.
 let adminVisibilityMode=false, comboVisibilityAdminCode='', comboVisibilityUpdateInProgress=false, adminMenuCode='';
 let currentComboName='starter mix', currentNameSeed=0, filter='Full Palette', randomSource='full', stashInventory={};
 let hqLastComboDotSignature='', hqSwatchShuffleTimer=null, hqLastSwatchMoveKey='', hqLastSwatchIdleKey='';
@@ -6176,16 +6210,16 @@ const REFRESH_NAME_DECKS={
 };
 
 const NAME_FAMILY_WORDS={
-  blue:['blue','blues','denim','lapis','cobalt','sapphire','pool','sea','pacific','harbor','stormglass','cyan','mallard','atlantic','stonewash','aqua','twilight','sky','lake','canoe','cove','tidepool','azure','teal','bluebird','blueberry','deep end'],
-  purple:['purple','plum','violet','lavender','amethyst','concord','grape','eggplant','lilac','regal','cabernet','blackberry','razzleberry','orchid','mulberry'],
-  green:['green','olive','moss','sage','fern','juniper','kelp','palm','lichen','pine','seagrass','cedar','forest','rainforest','clover','boreal','teal'],
+  blue:['blue','blues','denim','lapis','cobalt','sapphire','pool','sea','seas','pacific','harbor','stormglass','cyan','mallard','atlantic','stonewash','aqua','twilight','sky','lake','canoe','cove','tidepool','azure','teal','turquoise','caicos','navy','bluebird','blueberry','deep end'],
+  purple:['purple','plum','violet','lavender','amethyst','concord','grape','eggplant','lilac','regal','cabernet','blackberry','razzleberry','orchid','iris','mauve','fig','figgy','petunia','mulberry'],
+  green:['green','olive','moss','sage','fern','juniper','kelp','palm','lichen','pine','seagrass','cedar','forest','rainforest','clover','boreal','teal','dill'],
   orange:['orange','chili','marmalade','cider','nectarine','pumpkin','paprika','rust','persimmon','terracotta','copper','ember','cayenne','apricot','sienna','spice','carrot','citrus','amber','crawfish','crawfishin'],
   red:['red','burgundy','cranberry','ruby','cherry','rhubarb','oxblood','brick','wine','crabapple','garnet','pepper','tomato','scarlet','scarlett','sangria','cassis'],
-  pink:['pink','flamingo','peony','cotton candy','taffy','blush','rose','fuchsia','raspberry','coral','cerise','papaya','rosehip','strawberry','magenta'],
-  yellow:['yellow','lemon','mustard','honey','gold','marigold','cornbread','dandelion','candle','kiwi','pollen','butterscotch','turmeric','lantern','sunflower','wheat','pear','straw','butter','saffron','goldenrod','citrus'],
+  pink:['pink','flamingo','peony','cotton candy','taffy','blush','rose','fuchsia','raspberry','coral','cerise','papaya','rosehip','strawberry','magenta','petunia','shell'],
+  yellow:['yellow','lemon','mustard','honey','gold','marigold','cornbread','dandelion','daffodil','candle','kiwi','pollen','butterscotch','turmeric','lantern','sunflower','wheat','pear','straw','butter','saffron','goldenrod','citrus','stardust'],
   brown:['brown','brownout','walnut','cocoa','praline','mocha','carob','coffee','grounds','ground','river rock','chocolate','molasses','cedar','toffee','camel','sienna','vinci','hickory','pecan','rye','bourbon','firewood'],
   gray:['gray','grey','charcoal','graphite','concrete','smoke','fog','foglight','nimbus','tin','harbor mist','ash','overcast','silver','storm cloud','gris','greystone','aspen','cast iron','tumbled stone','slate','stormglass'],
-  white:['white','ivory','cream','porcelain','chalk','vanilla','snow','pearl','salt','sugar','ghost','natural','antiqued','milk','paper','antler'],
+  white:['white','ivory','cream','porcelain','chalk','vanilla','snow','ice','pearl','salt','sugar','ghost','natural','antiqued','milk','paper','antler','shell'],
   black:['black','ink','midnight','night','darkroom','eclipse','raven','blacktop','jet','low light','onyx','cauldron','truffle','pine grove']
 };
 const EDITORIAL_REFERENCE_DECKS={
@@ -6373,6 +6407,41 @@ const NAME_RESCUE_DECKS={
 };
 const NAME_RESCUE_DECK_KEYS=new Set(Object.values(NAME_RESCUE_DECKS).flat().map(editorialKey));
 
+
+/* v163 approved-name color hints
+   These are user-approved taste anchors. They are lightly eligible only when the palette family fits,
+   and they also teach the generator the intended color associations instead of relying on text guesses. */
+const APPROVED_TASTE_NAMES=[
+  {name:'Turquoise & Caicos',families:['blue','green']},
+  {name:'Seas the Day',families:['blue','green']},
+  {name:'Orchid in Orbit',families:['purple','pink','black']},
+  {name:'Iris Interruption',families:['purple','blue']},
+  {name:'Cabernet Cold Front',families:['red','purple','blue','gray']},
+  {name:'Get a Mauve On',families:['purple','pink','gray']},
+  {name:'Ice Ice Navy',families:['blue','white','gray']},
+  {name:'Shell Yeah',families:['white','pink','brown','blue']},
+  {name:'Dill With It',families:['green']},
+  {name:'Figgy Stardust',families:['purple','brown','yellow','black']},
+  {name:'Cabernet Cartwheel',families:['red','purple']},
+  {name:'Daffodil Doodle',families:['yellow']},
+  {name:'You Had Me at Yellow',families:['yellow']},
+  {name:'Plum Porch Polka',families:['purple']},
+  {name:'Petunia Pitter-Patter',families:['pink','purple']}
+];
+const APPROVED_TASTE_NAME_KEYS=new Set(APPROVED_TASTE_NAMES.map(item=>editorialKey(item.name)));
+const APPROVED_TASTE_FAMILY_HINTS=Object.fromEntries(APPROVED_TASTE_NAMES.map(item=>[normalizeNameKey(item.name),item.families]));
+function approvedTasteFamilyHints(name){
+  const key=normalizeNameKey(name);
+  return APPROVED_TASTE_FAMILY_HINTS[key]||[];
+}
+function approvedTasteCandidateNames(info={}){
+  const target=unique([...(info.storyFamilies||[]),...(info.primaryFamilies||[]),...(info.allFamilies||[])]);
+  if(!target.length)return [];
+  return APPROVED_TASTE_NAMES
+    .filter(item=>item.families.some(f=>target.includes(f)||target.some(tf=>sameFamilyGroup(tf,f))))
+    .map(item=>item.name);
+}
+
 const EDITORIAL_FALLBACK_DECK=[
   'Buttercup Backup Plan','Blue Jean Machine','Denim on a Dime','Olive or Else','Point Blank Pine','Grey Area Grudge',
   'Red Eye Rerun','Espresso Depresso','Manic Mustard','Teal or No Teal','Rust in the Rough','Purple with a Purpose'
@@ -6402,9 +6471,10 @@ function familyTermMatchesKey(haystack,tokens,needle){
 function nameFamilyHits(name){
   const haystack=normalizeNameKey(name);
   const tokens=new Set(haystack.split(' ').filter(Boolean));
-  return familyMatcherEntries()
+  const parsedHits=familyMatcherEntries()
     .filter(([family,words])=>words.some(word=>familyTermMatchesKey(haystack,tokens,word)))
     .map(([family])=>family);
+  return unique([...parsedHits,...approvedTasteFamilyHints(name)]);
 }
 const COLOR_LEAD_WORDS=new Set(Object.values(NAME_FAMILY_WORDS).flatMap(words=>words.flatMap(word=>String(word).split(/\s+/))).filter(word=>word.length>2));
 function isColorLeadName(name){
@@ -6468,8 +6538,16 @@ function normalizeNameKey(name){
     .replace(/\s+/g,' ')
     .trim();
 }
+function setAllSavedComboNamesCache(names=[]){
+  allSavedComboNamesCache=unique((names||[]).map(name=>String(name||'').trim()).filter(Boolean));
+}
 function savedComboNameKeys(){
   const keys=new Set();
+  // v162: public view may hide cards, but hidden Saved/Made names still count as used.
+  (allSavedComboNamesCache||[]).forEach(name=>{
+    const key=normalizeNameKey(name);
+    if(key) keys.add(key);
+  });
   (saved||[]).forEach(item=>{
     const key=normalizeNameKey(item?.comboName);
     if(key) keys.add(key);
@@ -6481,13 +6559,27 @@ function isSavedComboName(name,keys=savedComboNameKeys()){
   return !!key && keys.has(key);
 }
 function savedComboNames(){
-  return (saved||[]).map(item=>item?.comboName).filter(Boolean);
+  return unique([...(allSavedComboNamesCache||[]),...(saved||[]).map(item=>item?.comboName)].filter(Boolean));
+}
+function isUsedComboNameConflict(name){
+  if(!name) return false;
+  const key=normalizeNameKey(name);
+  const sig=nameSignature(name);
+  return savedComboNames().some(existing=>{
+    const existingKey=normalizeNameKey(existing);
+    if(!existingKey) return false;
+    if(existingKey===key) return true;
+    const similarity=nameSimilarity(name,existing);
+    if(similarity>=.56) return true;
+    if(sig && sig===nameSignature(existing) && similarity>=.25) return true;
+    return false;
+  });
 }
 function maybeRefreshVisibleSavedName(){
   if(!currentComboName) return;
-  if(!isSavedComboName(currentComboName)) return;
+  if(!isUsedComboNameConflict(currentComboName)) return;
   currentNameSeed++;
-  currentComboName=generateFreshComboName(selections,currentNameSeed,{strictColorFit:true});
+  currentComboName=generateFreshComboName(selections,currentNameSeed,{strictColorFit:true},savedComboNames());
   renderDots();
 }
 function rememberName(name){if(!name)return;nameHistory.push(String(name).toLowerCase());nameHistory=nameHistory.slice(-NAME_HISTORY_LIMIT);saveNameHistory();}
@@ -6579,6 +6671,7 @@ function refreshBankCandidateNames(info){
 }
 function buildEditorialCandidates(info){
   const candidates=[];
+  candidates.push(...approvedTasteCandidateNames(info));
   const neutralFamilies=new Set(['black','gray','white']);
   const storyFamilies=info.storyFamilies?.length?info.storyFamilies:[];
   const nonNeutralPrimary=(info.primaryFamilies||[]).filter(f=>!neutralFamilies.has(f));
@@ -6746,7 +6839,8 @@ function editorialSourceNames(){
   return unique([
     ...Object.values(EDITORIAL_REFERENCE_DECKS).flat(),
     ...EDITORIAL_FALLBACK_DECK,
-    ...EDITORIAL_SURVIVED_NAMES
+    ...EDITORIAL_SURVIVED_NAMES,
+    ...APPROVED_TASTE_NAMES.map(item=>item.name)
   ]);
 }
 const EDITORIAL_SOURCE_KEYS=editorialSet(editorialSourceNames());
@@ -6831,7 +6925,7 @@ function editorialPaintSwatchLike(name){
 function editorialColorCartoonLike(name){
   const lower=editorialKey(name);
   return /^(blue|red|green|yellow|purple|pink|orange|gray|grey|white|black|navy|teal|olive|rust|copper|denim|cobalt|plum|ivory|mocha|walnut|mustard|saffron|sunflower|paprika|ruby|scarlet|burgundy|honey|gold|goldenrod|marigold|charcoal|graphite|slate|storm|stormglass|lapis|sapphire|mallard|bluegrass)\s+(got|gets|made|makes|went|was|is|came|caught|acts|holds|called)\b/.test(lower)
-    && !EDITORIAL_SOURCE_KEYS.has(lower);
+    && !EDITORIAL_SOURCE_KEYS.has(lower) && !NAME_RESCUE_DECK_KEYS.has(lower) && !APPROVED_TASTE_NAME_KEYS.has(lower);
 }
 function editorialFamilyRole(name,info={}){
   const hits=unique(nameFamilyHits(name));
@@ -6851,7 +6945,7 @@ function editorialEvaluateName(name,info={},options={}){
   const words=meaningfulWords(name);
   let scoreAdjust=0;
   const key=editorialKey(name);
-  const sourceApproved=EDITORIAL_SOURCE_KEYS.has(key)||NAME_RESCUE_DECK_KEYS.has(key);
+  const sourceApproved=EDITORIAL_SOURCE_KEYS.has(key)||NAME_RESCUE_DECK_KEYS.has(key)||APPROVED_TASTE_NAME_KEYS.has(key);
   const hasPhraseLogic=editorialHasPhraseLogic(name);
   const hasSoundPlay=editorialHasSoundPlay(name);
   const finalStop=editorialFinalStopHit(name);
@@ -6908,7 +7002,7 @@ function isBadLocalName(name){
   const words=meaningfulWords(name);
   if(words.length<2||words.length>4)return true;
   if(words.some(w=>NAME_WEAK_WORDS.has(w)))return true;
-  if(EDITORIAL_SOURCE_KEYS.has(editorialKey(name))||NAME_RESCUE_DECK_KEYS.has(editorialKey(name)))return false;
+  if(EDITORIAL_SOURCE_KEYS.has(editorialKey(name))||NAME_RESCUE_DECK_KEYS.has(editorialKey(name))||APPROVED_TASTE_NAME_KEYS.has(editorialKey(name)))return false;
   if(/^blue\s/i.test(name)||/^grass\s/i.test(name))return true;
   if(words.length===4 && lower.startsWith('the '))return true;
   if(!words.some(w=>CORE_COLORWAY_WORDS.has(w)) && !/\b(lapis|lavender|pumpkin|nectarine|cabernet|burgundy|cobalt|ivory|charcoal|graphite|bluegrass|river|olive|moss|sage|cocoa|walnut|marigold|chili|papaya|flamingo|blackberry|grape|pool|sea|stormglass|razzleberry|saffron|paprika|peony|cider|marmalade|hot|sauce|cranberry|ruby|cherry|honey|mustard|cream|snow|ink|midnight|denim|sapphire|violet|plum|orchid|cotton|candy|copper|rust|terracotta|mocha|praline|aspen|fog|smoke|silver|pearl)\b/i.test(lower))return true;
@@ -6930,6 +7024,7 @@ function scoreLocalName(name,info,options={}){
   if(words.length===3)score+=24;
   if(words.length===4)score+=4;
   if(NAME_RESCUE_DECK_KEYS.has(editorialKey(name)))score+=74;
+  if(APPROVED_TASTE_NAME_KEYS.has(editorialKey(name)))score+=44;
   if(tiredNegativeBuzzHit(name))score-=500;
   if(options.strictColorFit && !colorLead && nameFamilyHits(name).length)score+=20;
 
@@ -8447,10 +8542,33 @@ function swapStripeColors(){
   renderAll();
 }
 function renderAll(){drawChart();renderDots();renderRoles();renderPalette();metrics();renderSourceButtons();el('backBtn').disabled=!history.length;updateSaveState();updateChartPreviewToggle();updateNameControls();}
+async function refreshAllSavedComboNameCache(local=[]){
+  const localNames=(local||[]).map(item=>item?.comboName).filter(Boolean);
+  if(!db){
+    setAllSavedComboNamesCache(localNames);
+    return;
+  }
+  const {data,error}=await db
+    .from('combos')
+    .select('combo_name')
+    .order('created_at',{ascending:false})
+    .limit(700);
+  if(error){
+    console.warn('Could not load the full Saved/Made name list for duplicate guarding; using visible/local names only.',error);
+    setAllSavedComboNamesCache([...localNames,...(saved||[]).map(item=>item?.comboName).filter(Boolean)]);
+    return;
+  }
+  setAllSavedComboNamesCache([...(data||[]).map(row=>row.combo_name).filter(Boolean),...localNames]);
+}
 async function loadSharedCombos(){
   let local=[];
   try{local=JSON.parse(localStorage.getItem(STORAGE)||'[]').map(normalizeSavedItem);}catch(e){local=[];}
-  if(!db){saved=local;renderSaved();return;}
+  if(!db){
+    saved=local;
+    await refreshAllSavedComboNameCache(local);
+    renderSaved();
+    return;
+  }
   let comboQuery=db.from('combos').select('*').order('created_at',{ascending:false}).limit(100);
   if(!adminVisibilityMode){
     comboQuery=comboQuery.or('is_hidden.is.null,is_hidden.eq.false');
@@ -8462,7 +8580,13 @@ async function loadSharedCombos(){
     data=fallback.data;
     error=fallback.error;
   }
-  if(error){console.error('Supabase load failed',error);saved=local;renderSaved();return;}
+  if(error){
+    console.error('Supabase load failed',error);
+    saved=local;
+    await refreshAllSavedComboNameCache(local);
+    renderSaved();
+    return;
+  }
   const remote=(data||[]).map(row=>({
     kind: row.type==='digged'?'dig':'made',
     name: row.saved_by||'',
@@ -8476,8 +8600,10 @@ async function loadSharedCombos(){
     remote:true
   })).filter(x=>x.selections);
   saved=[...remote,...local.filter(x=>!x.remote)];
+  await refreshAllSavedComboNameCache(local);
   renderSaved();
 }
+
 
 
 function updateAdminMenuState(){
@@ -8523,6 +8649,7 @@ function openSignatureAdminMenu(){
   }
   openAdminMenu(code);
 }
+if(typeof window!=='undefined') window.openSignatureAdminMenu=openSignatureAdminMenu;
 async function runAdminMenuNameRefresh(){
   const code=adminMenuCode;
   closeAdminMenu();
@@ -8856,11 +8983,11 @@ init();
 })();
 </script>
 <script>
-const HQ_APP_BUILD = 'v160-randomizer-quality-rescue';
+const HQ_APP_BUILD = 'v163-approved-name-color-hints';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', async () => {
     try {
-      const registration = await navigator.serviceWorker.register('./service-worker.js?v=160', { updateViaCache: 'none' });
+      const registration = await navigator.serviceWorker.register('./service-worker.js?v=161', { updateViaCache: 'none' });
       await registration.update();
       if (navigator.serviceWorker.controller && registration.waiting) {
         registration.waiting.postMessage({ type: 'SKIP_WAITING' });
@@ -8871,5 +8998,38 @@ if ('serviceWorker' in navigator) {
 </script>
 
 <div class="hq-signature" id="hqAdminEntry" role="button" tabindex="0" aria-label="Bryant admin menu" title="Bryant admin menu">blj 2026</div>
+<script>
+/* v161: bind after the signature exists. The earlier app script runs before this footer node is parsed,
+   so this late binding is what makes the blj 2026 tap/click reliably open the admin menu. */
+(function(){
+  const entry=document.getElementById('hqAdminEntry');
+  if(!entry || entry.dataset.hqAdminEntryBound==='true') return;
+  entry.dataset.hqAdminEntryBound='true';
+  let lastOpenAt=0;
+  function openFromSignature(event){
+    if(event){
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    const now=Date.now();
+    if(now-lastOpenAt<650) return;
+    lastOpenAt=now;
+    if(typeof window.openSignatureAdminMenu==='function'){
+      window.openSignatureAdminMenu();
+    }else{
+      alert('Admin menu is not ready yet. Refresh and try again.');
+    }
+  }
+  entry.addEventListener('click',openFromSignature);
+  entry.addEventListener('pointerup',event=>{
+    if(event.pointerType==='touch') openFromSignature(event);
+  });
+  entry.addEventListener('keydown',event=>{
+    if(event.key==='Enter' || event.key===' '){
+      openFromSignature(event);
+    }
+  });
+})();
+</script>
 </body>
 </html>
