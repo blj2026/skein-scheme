@@ -126,7 +126,7 @@ button:disabled{cursor:not-allowed}
 .card{background:var(--paper);border:var(--bw) solid var(--ink);border-radius:var(--radius);box-shadow:var(--shadow)}
 .card + .card{margin-top:22px}
 .block{padding:var(--pad)}
-.block-head{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:4px 10px;min-height:20px;margin-bottom:8px}
+.block-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px 10px;min-height:22px;margin-bottom:10px}
 .block-note{font-size:10.5px;font-weight:500;color:var(--muted)}
 
 /* ---------- chart card ---------- */
@@ -154,7 +154,7 @@ body.saved-context-mode .name-tools{display:none}
 .roles-wrap{position:relative;container-type:inline-size}
 .roles-row{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:var(--role-gap)}
 .role-slot{position:relative;display:flex;flex-direction:column;min-width:0;overflow:hidden;border:var(--bw) solid var(--ink);border-radius:var(--radius-sm);background:var(--paper);transition:var(--press)}
-.role-slot:hover,.role-slot.is-hover{background:var(--kraft);transform:translate(-1px,-2px);box-shadow:3px 4px 0 var(--ink)}
+.role-slot:hover,.role-slot.is-hover{transform:translate(-1px,-2px);box-shadow:3px 4px 0 var(--ink)}
 /* the yarn being changed looks picked up */
 .role-slot.is-active{z-index:1;box-shadow:5px 6px 0 var(--ink);transform:translate(-2px,-4px) rotate(-1.5deg)}
 .role-slot.is-pop{animation:hqSlotPop .38s ease-out backwards;animation-delay:var(--pop-delay,0s)}
@@ -215,7 +215,10 @@ body.saved-context-mode .name-tools{display:none}
 .picker-close{flex:0 0 46px;padding:0;border:0;border-left:var(--bw) solid var(--ink);border-radius:0;background:var(--paper);font-size:22px;font-weight:700;line-height:1}
 .picker-close:hover{background:var(--ink);color:var(--paper)}
 .picker-body{flex:1 1 0;min-height:0;display:flex;flex-direction:column;padding:var(--pad) var(--pad) 0;container:palette / inline-size}
-.picker-current{font-size:13px;letter-spacing:-.01em}
+.picker-current{display:flex;align-items:center;gap:8px;min-width:0;font-size:13px;letter-spacing:-.01em}
+.picker-chip,.active-pill{display:none}
+.picker-chip{flex:0 0 auto;width:22px;height:22px;border:var(--bw) solid var(--ink);border-radius:var(--radius-sm)}
+.active-pill{flex:0 0 auto;padding:3px 7px;border-radius:var(--radius-sm);background:var(--ink);color:var(--paper);font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase}
 .palette-tools{display:grid;grid-template-columns:minmax(0,1fr);gap:8px;margin-bottom:10px}
 .search{width:100%;height:42px;padding:0 10px;border:var(--bw) solid var(--ink);border-radius:var(--radius-sm);background:var(--paper);font-size:16px;font-weight:500}
 .search::placeholder{color:var(--faint)}
@@ -290,14 +293,9 @@ body.combo-visibility-admin-on .saved-card.is-hidden-combo{background:var(--kraf
 body.combo-visibility-admin-on .saved-card.is-hidden-combo .saved-meta::after{content:"hidden";margin-left:8px;padding:0 4px;border:1.5px solid var(--ink);font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink)}
 
 /* ---------- footer ---------- */
-.footbar{display:flex;align-items:stretch;background:var(--ink);color:var(--paper);border-top:4px solid var(--ink);padding-bottom:env(safe-area-inset-bottom,0px)}
-.ticker{flex:1 1 0;min-width:0;overflow:hidden;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;white-space:nowrap}
-.ticker-track{display:inline-flex;padding:8px 0;animation:hqTicker 60s linear infinite}
-.ticker-track span{padding:0 14px}
-@keyframes hqTicker{to{transform:translateX(-50%)}}
-.hq-signature{flex:0 0 auto;padding:0 14px;border:0;border-left:2px solid var(--paper);border-radius:0;background:var(--ink);font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--paper)}
-.hq-signature:hover{background:var(--paper);color:var(--ink)}
-.hq-signature:focus-visible{outline-color:var(--paper);outline-offset:-5px}
+.footbar{display:flex;justify-content:flex-end;padding:0 18px calc(8px + env(safe-area-inset-bottom,0px))}
+.hq-signature{padding:5px 8px;border:0;border-radius:var(--radius-sm);background:transparent;font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--muted)}
+.hq-signature:hover{color:var(--ink);text-decoration:underline}
 
 /* ---------- phone and tablet flow: picker is a bottom sheet, chart stays in view ---------- */
 body[data-view="mix"] .workspace{position:fixed;left:0;right:0;bottom:0;z-index:40;height:var(--sheet-h);margin:0;padding-bottom:env(safe-area-inset-bottom,0px);border-width:0;border-radius:0;box-shadow:none;transform:translateY(105%);visibility:hidden;transition:transform .2s ease,visibility 0s .2s}
@@ -439,7 +437,8 @@ body.photo-lightbox-scroll-locked{overflow:hidden}
   .chart-stage{--chart-fit:height;flex:1 1 0;min-height:0;contain:size;padding:16px}
   /* the picker is always docked beside the chart */
   body[data-view="mix"] .workspace{position:static;height:auto;padding-bottom:0;border-width:var(--bw);border-radius:var(--radius);box-shadow:var(--shadow);transform:none;visibility:visible;transition:none}
-  .picker-close{display:none}
+  .picker-head{display:none}
+  .picker-chip,.active-pill{display:block}
   .view-panel{flex:1 1 0}
   .palette{grid-template-columns:repeat(auto-fill,minmax(78px,1fr))}
   .good-list{flex:1 1 0;min-height:0;display:flex;flex-direction:column}
@@ -460,7 +459,6 @@ body.photo-lightbox-scroll-locked{overflow:hidden}
   .actions{padding-top:10px;padding-bottom:14px}
   .actions .btn{min-height:46px}
   .btn-big{font-size:15px}
-  .ticker-track{padding:6px 0}
 }
 @container chart (min-width:600px){
   @media (min-width:900px) and (min-height:560px) and (max-height:780px){
@@ -475,7 +473,7 @@ body.photo-lightbox-scroll-locked{overflow:hidden}
 }
 
 @media (prefers-reduced-motion:reduce){
-  #comboDots .dot,.hq-good-letter,.role-slot.is-pop,.btn.is-bump,.brand:hover .logo,.ticker-track,.toast,.admin-refresh-status-bar::before{animation:none !important}
+  #comboDots .dot,.hq-good-letter,.role-slot.is-pop,.btn.is-bump,.brand:hover .logo,.toast,.admin-refresh-status-bar::before{animation:none !important}
   body[data-view="mix"] .workspace{transition:none}
 }
 </style>
@@ -484,7 +482,7 @@ body.photo-lightbox-scroll-locked{overflow:hidden}
 <header class="topbar">
 <div class="brand">
 <span aria-hidden="true" class="logo"><svg focusable="false" viewBox="0 0 272 200" xmlns="http://www.w3.org/2000/svg"><path d="M 263 180 L 259 177 L 254 176 L 245 177 L 235 181 L 226 181 L 221 179 L 219 177 L 229 171 L 236 163 L 235 154 L 228 150 L 219 151 L 211 157 L 209 161 L 209 172 L 210 173 L 209 175 L 194 174 L 188 171 L 183 166 L 181 159 L 193 142 L 199 129 L 202 118 L 202 113 L 204 107 L 204 97 L 203 93 L 201 91 L 200 92 L 200 112 L 198 116 L 198 120 L 192 132 L 192 135 L 185 148 L 180 153 L 179 152 L 180 133 L 178 133 L 176 139 L 176 159 L 164 170 L 153 178 L 135 185 L 125 186 L 124 187 L 119 187 L 118 186 L 134 176 L 145 165 L 151 157 L 158 143 L 157 139 L 146 158 L 132 173 L 123 179 L 108 186 L 102 186 L 101 187 L 100 186 L 95 186 L 86 183 L 84 180 L 100 172 L 113 163 L 135 141 L 138 136 L 136 134 L 108 162 L 93 171 L 89 175 L 79 178 L 73 178 L 68 174 L 66 170 L 66 165 L 68 163 L 70 163 L 79 158 L 96 146 L 110 132 L 116 122 L 113 121 L 106 131 L 88 148 L 76 156 L 67 159 L 66 158 L 67 151 L 72 140 L 74 138 L 74 136 L 71 136 L 68 140 L 64 149 L 63 155 L 61 157 L 56 155 L 41 146 L 42 142 L 46 138 L 45 135 L 37 143 L 35 143 L 29 139 L 21 131 L 18 125 L 18 107 L 17 106 L 16 107 L 14 116 L 12 113 L 13 103 L 10 102 L 8 108 L 9 118 L 15 129 L 16 137 L 20 146 L 32 159 L 34 170 L 41 177 L 57 183 L 76 182 L 83 186 L 92 189 L 109 189 L 118 191 L 119 190 L 129 190 L 144 186 L 155 181 L 170 170 L 176 164 L 178 164 L 182 171 L 189 176 L 202 179 L 213 178 L 223 184 L 238 184 L 248 180 L 257 180 L 261 182 Z M 37 163 L 39 162 L 46 165 L 61 165 L 63 167 L 64 174 L 67 179 L 66 180 L 60 180 L 51 178 L 46 175 L 42 175 L 37 167 Z M 229 155 L 232 158 L 232 163 L 224 171 L 216 174 L 213 170 L 213 163 L 215 159 L 218 156 L 223 154 Z M 37 153 L 39 150 L 41 150 L 43 152 L 56 158 L 59 161 L 58 162 L 43 161 L 37 157 Z M 22 137 L 35 147 L 34 152 L 32 154 L 24 145 L 21 139 Z M 195 84 L 190 81 L 181 81 L 180 80 L 147 80 L 124 85 L 114 90 L 97 90 L 92 87 L 75 83 L 44 82 L 43 83 L 35 83 L 34 84 L 17 86 L 15 88 L 15 93 L 20 95 L 23 98 L 23 101 L 29 114 L 36 123 L 49 131 L 68 132 L 80 128 L 89 121 L 94 114 L 99 101 L 104 98 L 111 99 L 113 101 L 120 116 L 128 124 L 134 128 L 142 131 L 160 131 L 170 127 L 180 118 L 186 106 L 189 94 L 195 89 Z M 126 92 L 121 96 L 118 95 L 121 92 L 124 91 Z M 72 90 L 73 89 L 76 90 L 75 91 Z M 182 88 L 184 90 L 182 103 L 177 113 L 172 118 L 171 116 L 176 108 L 179 99 L 180 90 Z M 178 72 L 175 67 L 166 58 L 154 51 L 146 49 L 144 51 L 151 55 L 138 60 L 127 67 L 116 79 L 119 80 L 131 69 L 145 61 L 152 59 L 154 56 L 159 57 L 167 63 L 175 74 L 177 74 Z M 14 69 L 14 74 L 17 78 L 18 77 L 18 70 L 23 62 L 29 67 L 39 67 L 45 65 L 55 60 L 60 56 L 71 51 L 91 37 L 103 32 L 113 26 L 141 19 L 150 20 L 160 25 L 170 34 L 172 38 L 170 39 L 165 37 L 152 36 L 151 37 L 144 37 L 130 40 L 110 50 L 106 50 L 74 66 L 50 74 L 47 77 L 52 78 L 103 56 L 104 57 L 89 73 L 88 76 L 90 77 L 99 66 L 110 57 L 110 53 L 113 50 L 148 40 L 163 40 L 178 46 L 186 56 L 192 73 L 194 72 L 194 64 L 191 56 L 178 43 L 178 40 L 173 32 L 160 21 L 150 17 L 140 17 L 131 12 L 117 8 L 95 8 L 90 10 L 78 12 L 72 15 L 63 23 L 49 27 L 38 34 L 31 41 L 26 50 L 25 55 L 18 61 Z M 55 31 L 43 44 L 35 49 L 32 48 L 35 42 L 42 35 L 52 30 Z M 130 16 L 127 19 L 118 21 L 106 27 L 99 27 L 95 25 L 85 24 L 84 23 L 74 23 L 71 26 L 81 26 L 82 27 L 93 28 L 96 31 L 90 35 L 82 38 L 72 46 L 56 56 L 33 64 L 31 64 L 28 61 L 28 58 L 34 52 L 50 43 L 71 21 L 77 17 L 84 14 L 100 12 L 101 11 L 119 12 Z" fill="currentColor" fill-rule="evenodd"></path></svg></span>
-<div><h1>hue queue</h1><p class="tagline">try yarn colors on a knit chart before you hit the sticks</p></div>
+<div><h1>hue queue</h1><p class="tagline">see the yarn hit the chart before you hit the sticks</p></div>
 </div>
 <nav aria-label="Sections" class="view-tabs" role="tablist">
 <button aria-controls="mixPanel" aria-selected="true" class="view-tab active" id="mixTab" role="tab" type="button">Mix</button>
@@ -525,7 +523,7 @@ body.photo-lightbox-scroll-locked{overflow:hidden}
 <button aria-label="Close yarn picker" class="picker-close" id="pickerClose" type="button">&times;</button>
 </div>
 <div class="picker-body">
-<div class="block-head"><strong class="picker-current" id="activeYarnLabel"></strong><span class="block-note">Cascade 220&reg; wool yarn &middot; 175 colors</span></div>
+<div class="block-head"><div class="picker-current"><span aria-hidden="true" class="picker-chip" id="activeYarnChip"></span><span class="active-pill" id="activeRoleLabel">Main</span><strong id="activeYarnLabel"></strong></div><span class="block-note">Cascade 220&reg; wool yarn &middot; 175 colors</span></div>
 <div class="palette-tools">
 <input aria-label="Search yarn by number, name or hex" autocomplete="off" class="search" id="search" placeholder="Search number, name, hex" type="search"/>
 <div aria-label="Yarn source for the picker and Randomize" class="seg" role="group">
@@ -553,7 +551,7 @@ body.photo-lightbox-scroll-locked{overflow:hidden}
 </section>
 </main>
 
-<footer class="footbar"><div aria-hidden="true" class="ticker"><div class="ticker-track" id="tickerTrack"><span>see the yarn hit the chart before you hit the sticks</span><span>&#10022;</span><span>have at it!</span><span>&#10022;</span><span>what we&#39;re digging</span><span>&#10022;</span><span>what we made</span><span>&#10022;</span></div></div><button aria-label="Bryant admin menu" class="hq-signature" id="hqAdminEntry" title="Bryant admin menu" type="button">blj 2026</button></footer>
+<footer class="footbar"><button aria-label="Bryant admin menu" class="hq-signature" id="hqAdminEntry" title="Bryant admin menu" type="button">blj 2026</button></footer>
 
 <div aria-live="polite" class="toast" hidden id="toast" role="status"></div>
 
@@ -3522,7 +3520,7 @@ ${err?.message || err}`);
    Data, naming, randomizer and Supabase logic above are unchanged. ===== */
 const CHART_GRID_LINE='#56524d';
 const CHART_BLANK='#f1e8dc';
-const CHART_WASH='rgba(255,250,242,.62)';
+const CHART_WASH='rgba(255,250,242,.5)';
 const CHART_PAD_ROWS=4;
 const INTRO_STORAGE='hueQueueIntroPlayedV1';
 const LOCK_ICON_OPEN='<svg aria-hidden="true" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2.2" viewBox="0 0 24 24"><rect x="6" y="10" width="12" height="10" rx="2"></rect><path d="M8.5 10V7.8C8.5 5.7 10.1 4 12 4c1.4 0 2.6.9 3.2 2.2"></path></svg>';
@@ -3666,8 +3664,7 @@ function selectRole(key){
   setPickerOpen(true);
   renderAll();
   revealActiveTile();
-  const onLegend=canHover && !!document.querySelector('#roleCards:hover,#pickerTabs:hover');
-  if(!onLegend) setChartFocus(key,520);
+  setChartFocus(key,450);
 }
 function renderDots(){
   const dots=el('comboDots');
@@ -3705,6 +3702,8 @@ function renderRoles(){
   }).join('');
   const current=selections[activeRole];
   el('activeYarnLabel').textContent=`${current.number} ${current.name}`;
+  el('activeRoleLabel').textContent=ROLE_LABELS[activeRole];
+  el('activeYarnChip').style.background=current.hex;
   lastRoleNumbers=Object.fromEntries(ROLES.map(r=>[r.key,selections[r.key].number]));
 }
 function handleRoleClick(event){
@@ -4012,13 +4011,6 @@ function showToast(message){
   toastTimer=window.setTimeout(()=>{toast.hidden=true;},2600);
 }
 
-/* Ticker needs its content twice so the loop is seamless. */
-function fillTicker(){
-  const track=el('tickerTrack');
-  if(!track || track.dataset.filled) return;
-  track.dataset.filled='true';
-  track.innerHTML=track.innerHTML.repeat(6);
-}
 function bump(node){
   node.classList.remove('is-bump');
   void node.offsetWidth;
@@ -4055,7 +4047,6 @@ function closeTopLayer(){
 
 async function init(){
   splitGalleryLetters();
-  fillTicker();
   setView('mix');
   // Render the chart immediately. Do not let a slow CDN/Supabase load leave the page half-built.
   renderAll();
@@ -4098,13 +4089,6 @@ el('chart').addEventListener('click',event=>{
 if(canHover){
   el('chart').addEventListener('pointermove',event=>setChartHoverRole(chartRoleAt(event)));
   el('chart').addEventListener('pointerleave',()=>setChartHoverRole(''));
-  [el('roleCards'),el('pickerTabs')].forEach(box=>{
-    box.addEventListener('pointerover',event=>{
-      const item=event.target.closest('[data-role]');
-      if(item) setChartFocus(item.dataset.role);
-    });
-    box.addEventListener('pointerleave',()=>setChartFocus(''));
-  });
 }
 el('mixTab').onclick=()=>setView('mix');
 el('goodTab').onclick=()=>setView('good');
